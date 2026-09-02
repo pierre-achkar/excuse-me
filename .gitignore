@@ -1,2 +1,5 @@
 .env
 node_modules/
+.dart_tool/
+.idea/
+*.iml

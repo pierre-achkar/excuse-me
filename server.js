@@ -9,7 +9,8 @@ const MAX_BODY_BYTES = 10_000;
 function sendJson(response, status, body) {
   response.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
-    'Cache-Control': 'no-store'
+    'Cache-Control': 'no-store',
+    'Access-Control-Allow-Origin': '*'
   });
   response.end(JSON.stringify(body));
 }
@@ -66,6 +67,15 @@ function createServer(options = {}) {
         const message = error.message === 'Request body is too large.' ? error.message : 'Invalid request body.';
         return sendJson(response, 400, { error: message });
       }
+    }
+
+    if (request.method === 'OPTIONS' && request.url === '/api/generate') {
+      response.writeHead(204, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      }).end();
+      return;
     }
 
     if (request.method === 'GET') return serveStatic(request, response);

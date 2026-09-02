@@ -1,51 +1,64 @@
 # Excuse Me MVP
 
-A local, privacy-first MVP that returns one concise excuse **idea**, never a ready-to-send message.
+Cross-platform Flutter MVP for Android and iOS. It returns one concise excuse **idea**, not a ready-to-send message. Web is supported only as a development and test target, not a product deployment target.
 
-## Run
+## Flutter Run
 
-Requires Node.js 18 or newer. No package installation is needed.
+Install a current Flutter SDK, then fetch packages and run on an Android emulator, Android device, or iOS simulator/device:
+
+```sh
+flutter pub get
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000
+```
+
+`API_BASE_URL` is optional. When omitted, or when the API cannot be reached, the app uses its deterministic on-device fallback. The fallback does not incorporate the submitted situation text.
+
+Device URLs differ:
+
+- Android emulator: `http://10.0.2.2:3000`
+- iOS simulator: `http://localhost:3000`
+- Physical device: `http://<your-computer-LAN-IP>:3000`
+- Flutter web development: `http://localhost:3000`
+
+Use HTTPS for a physical iOS device or any non-development API. The unencrypted local Node server is intended only for local development; without a reachable API the app still works through its on-device fallback.
+
+Start the compatible local API in a separate terminal:
 
 ```sh
 npm start
 ```
 
-Open `http://localhost:3000`.
+The API contract is unchanged: `POST /api/generate` accepts JSON `{ situation, relationship, urgency, tone }` and returns `{ idea }`. The server permits this endpoint from a Flutter web development origin.
 
-## Test
+## Flutter Test
+
+```sh
+flutter test
+flutter analyze
+```
+
+The Flutter tests cover the result flow, deterministic offline fallback, and guardrails rejecting ready-to-send messages. The Node server suite remains available with:
 
 ```sh
 npm test
 ```
 
-Tests use Node's built-in test runner and cover validation, deterministic fallback generation, provider opt-in, output guardrails, and the HTTP API.
+## Privacy And Safety
 
-## Provider configuration
+- Situation text is held only in the active text field/request. The Flutter app does not persist or log it.
+- The app labels output as an idea and applies guardrails that reject greetings, sign-offs, quotes, and first-person copy before falling back locally.
+- Copy and Share operate only after an idea is shown. Sharing uses the operating system share sheet.
+- Enabling the server's optional provider can send submitted fields to that provider. Leave its key unset for local server generation.
 
-The app uses deterministic local generation by default. It makes no network request unless `OPENAI_COMPATIBLE_API_KEY` is explicitly set. Copy `.env.example` values into your shell or environment manager; `.env` is not loaded automatically and is ignored by Git.
+## Limitations
 
-Optional variables:
+- This is an MVP, not a production safety or content-moderation system.
+- The deterministic fallback is intentionally generic and may not fit every situation.
+- Android currently permits cleartext HTTP solely to connect to the local development server; production API traffic must use HTTPS and tighten this setting before release.
+- No authentication, analytics, saved history, localization, accessibility audit, or release signing is included.
+- `public/` is a temporary vanilla-browser harness for the Node API, not the Flutter product UI and not a deployment target.
+- Android and iOS are the delivery platforms; web is only for local development/testing.
 
-- `OPENAI_COMPATIBLE_API_KEY`: enables the provider.
-- `OPENAI_COMPATIBLE_BASE_URL`: defaults to `https://api.openai.com/v1`.
-- `OPENAI_COMPATIBLE_MODEL`: defaults to `gpt-4o-mini`.
-- `PORT`: defaults to `3000`.
+## Server Configuration
 
-Provider responses are discarded in favor of the local fallback if they contain greetings, sign-offs, quotes/dialogue, first-person copy, or invalid formatting.
-
-## Privacy
-
-Requests are processed only in memory. The server creates no database, files, analytics, or request logs, and validation errors never echo submitted content. Enabling a provider sends the submitted fields to that provider; leave its key unset for fully local generation.
-
-## Issue Mapping
-
-The remote GitHub issues were unavailable from this environment (the repository issues API returned 404 and `gh` is not installed). This milestone implements the requested coding-issue scope:
-
-- Single-screen situation, relationship, urgency, and tone form.
-- `POST /api/generate` yielding exactly one concise idea.
-- Deterministic local fallback and opt-in OpenAI-compatible provider.
-- Guardrails, browser loading/validation/error/regenerate states, and privacy-first handling.
-
-## Flutter Migration Boundary
-
-The reusable product boundary is the JSON HTTP contract: `POST /api/generate` accepts `{ situation, relationship, urgency, tone }` and returns `{ idea }` or `{ error }`. A Flutter client can replace `public/` while retaining this backend contract, validation semantics, and provider/guardrail policy. The current vanilla UI deliberately contains no business logic beyond calling that API.
+Requires Node.js 18 or newer. The server uses local generation by default and makes no provider request unless `OPENAI_COMPATIBLE_API_KEY` is set. Optional variables are `OPENAI_COMPATIBLE_BASE_URL`, `OPENAI_COMPATIBLE_MODEL`, and `PORT` (default `3000`).
