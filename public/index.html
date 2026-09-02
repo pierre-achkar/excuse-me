@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Excuse Me</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <h1>Excuse Me</h1>
+    <p>Generate a brief excuse idea, not a ready-to-send message.</p>
+    <form id="excuse-form" novalidate>
+      <label>Situation<textarea name="situation" required maxlength="500"></textarea></label>
+      <label>Relationship<input name="relationship" required maxlength="80" placeholder="e.g. manager"></label>
+      <label>Urgency<input name="urgency" required maxlength="80" placeholder="e.g. today"></label>
+      <label>Tone<input name="tone" required maxlength="80" placeholder="e.g. professional"></label>
+      <button type="submit">Generate idea</button>
+      <button id="regenerate" type="button" hidden>Regenerate</button>
+    </form>
+    <p id="status" role="status" aria-live="polite"></p>
+    <section id="result" hidden aria-live="polite"><h2>Idea</h2><p id="idea"></p></section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "excuse-me-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Privacy-first local excuse idea generator MVP",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  }
+}
