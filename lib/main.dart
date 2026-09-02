@@ -38,8 +38,7 @@ abstract class IdeaClient {
 typedef IdeaTransport = Future<String> Function(IdeaRequest request);
 
 class ApiIdeaClient implements IdeaClient {
-  ApiIdeaClient({required this.baseUrl, IdeaTransport? transport})
-      : _transport = transport;
+  ApiIdeaClient({required this.baseUrl, this._transport});
 
   final String baseUrl;
   final IdeaTransport? _transport;
@@ -89,7 +88,7 @@ class IdeaGuardrails {
   static bool isSafeIdea(String value) {
     final idea = value.trim();
     if (!idea.startsWith('Idea:') || idea.length > 280) return false;
-    if (RegExp(r"['\"\u201c\u201d]").hasMatch(idea)) return false;
+    if (RegExp(r'''['"“”]''').hasMatch(idea)) return false;
     if (RegExp(r'^(hello|hi|dear|hey)\b', caseSensitive: false).hasMatch(idea)) {
       return false;
     }
@@ -112,7 +111,7 @@ class ExcuseMeApp extends StatelessWidget {
       title: 'Excuse Me',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff315c4b)),
-        useMaterial3: true,
+        useMaterial3: false,
       ),
       home: ExcuseMePage(client: client),
     );
@@ -241,7 +240,7 @@ class _ExcuseMePageState extends State<ExcuseMePage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: DropdownButtonFormField<String>(
-        value: selected,
+        initialValue: selected,
         decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
         items: options.map((option) => DropdownMenuItem(value: option, child: Text(option))).toList(),
         onChanged: (value) {
