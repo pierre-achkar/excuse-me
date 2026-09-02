@@ -1,13 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
 
 void main() {
-  const apiBaseUrl = String.fromEnvironment('API_BASE_URL');
-  runApp(ExcuseMeApp(client: ApiIdeaClient(baseUrl: apiBaseUrl)));
+  runApp(ExcuseMeApp(client: LocalIdeaClient()));
 }
 
 class IdeaRequest {
@@ -23,53 +19,22 @@ class IdeaRequest {
   final String urgency;
   final String tone;
 
-  Map<String, String> toJson() => {
-        'situation': situation,
-        'relationship': relationship,
-        'urgency': urgency,
-        'tone': tone,
-      };
 }
 
 abstract class IdeaClient {
   Future<String> generate(IdeaRequest request);
 }
 
-typedef IdeaTransport = Future<String> Function(IdeaRequest request);
-
-class ApiIdeaClient implements IdeaClient {
-  ApiIdeaClient({required this.baseUrl, this._transport});
-
-  final String baseUrl;
-  final IdeaTransport? _transport;
-  final LocalIdeaGenerator _fallback = LocalIdeaGenerator();
+class LocalIdeaClient implements IdeaClient {
+  final LocalIdeaGenerator _generator = LocalIdeaGenerator();
 
   @override
   Future<String> generate(IdeaRequest request) async {
-    if (baseUrl.isEmpty && _transport == null) return _fallback.generate(request);
-
-    try {
-      final idea = await (_transport?.call(request) ?? _post(request));
-      return IdeaGuardrails.isSafeIdea(idea) ? idea.trim() : _fallback.generate(request);
-    } catch (_) {
-      return _fallback.generate(request);
+    final idea = _generator.generate(request);
+    if (!IdeaGuardrails.isSafeIdea(idea)) {
+      throw StateError('Generated idea failed safety checks.');
     }
-  }
-
-  Future<String> _post(IdeaRequest request) async {
-    final response = await http
-        .post(
-          Uri.parse('${baseUrl.replaceFirst(RegExp(r'/+$'), '')}/api/generate'),
-          headers: const {'Content-Type': 'application/json'},
-          body: jsonEncode(request.toJson()),
-        )
-        .timeout(const Duration(seconds: 10));
-    if (response.statusCode != 200) throw const FormatException('Generation failed');
-    final body = jsonDecode(response.body);
-    if (body is! Map<String, dynamic> || body['idea'] is! String) {
-      throw const FormatException('Invalid response');
-    }
-    return body['idea'] as String;
+    return idea;
   }
 }
 

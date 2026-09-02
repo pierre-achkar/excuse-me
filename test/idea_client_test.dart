@@ -9,7 +9,7 @@ void main() {
     tone: 'Warm',
   );
 
-  test('local fallback returns an idea rather than a ready-to-send message', () {
+  test('local generator returns an idea rather than a ready-to-send message', () {
     final idea = LocalIdeaGenerator().generate(request);
 
     expect(IdeaGuardrails.isSafeIdea(idea), isTrue);
@@ -17,15 +17,14 @@ void main() {
     expect(idea, isNot(contains(RegExp(r"\b(I|I'm|I am|my|me)\b", caseSensitive: false))));
   });
 
-  test('client uses deterministic fallback when transport is unavailable', () async {
-    final client = ApiIdeaClient(
-      baseUrl: 'https://example.test',
-      transport: (_) async => throw Exception('offline'),
-    );
+  test('local-only client is deterministic without a network transport', () async {
+    final client = LocalIdeaClient();
 
-    final idea = await client.generate(request);
+    final first = await client.generate(request);
+    final second = await client.generate(request);
 
-    expect(IdeaGuardrails.isSafeIdea(idea), isTrue);
+    expect(first, second);
+    expect(IdeaGuardrails.isSafeIdea(first), isTrue);
   });
 
   test('guardrails reject ready-to-send messages', () {

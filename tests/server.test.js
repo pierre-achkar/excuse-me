@@ -5,7 +5,7 @@ const { once } = require('node:events');
 const { createServer } = require('../server');
 
 async function startServer() {
-  const server = createServer({ env: {} });
+  const server = createServer();
   server.listen(0, '127.0.0.1');
   await once(server, 'listening');
   return server;

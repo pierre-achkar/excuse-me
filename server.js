@@ -54,14 +54,14 @@ function serveStatic(request, response) {
   });
 }
 
-function createServer(options = {}) {
+function createServer() {
   return http.createServer(async (request, response) => {
     if (request.method === 'POST' && request.url === '/api/generate') {
       try {
         const input = await readJson(request);
         const validation = validateRequest(input);
         if (!validation.valid) return sendJson(response, 400, { error: validation.error });
-        const result = await createExcuseIdea(input, options);
+        const result = await createExcuseIdea(input);
         return sendJson(response, 200, result);
       } catch (error) {
         const message = error.message === 'Request body is too large.' ? error.message : 'Invalid request body.';

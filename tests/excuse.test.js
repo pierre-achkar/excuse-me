@@ -3,8 +3,7 @@ const assert = require('node:assert/strict');
 
 const {
   createExcuseIdea,
-  validateRequest,
-  sanitizeProviderIdea
+  validateRequest
 } = require('../src/excuse');
 
 const request = {
@@ -25,9 +24,9 @@ test('validates all required form fields', () => {
   });
 });
 
-test('uses a deterministic local fallback when no provider key is set', async () => {
-  const first = await createExcuseIdea(request, { env: {} });
-  const second = await createExcuseIdea(request, { env: {} });
+test('uses deterministic local generation', async () => {
+  const first = await createExcuseIdea(request);
+  const second = await createExcuseIdea(request);
 
   assert.deepEqual(first, second);
   assert.match(first.idea, /^Idea: /);
@@ -35,44 +34,22 @@ test('uses a deterministic local fallback when no provider key is set', async ()
   assert.equal(first.idea.includes('Thanks'), false);
 });
 
-test('uses an explicitly enabled OpenAI-compatible provider', async () => {
+test('does not invoke a network callback', async () => {
   let called = false;
-  const result = await createExcuseIdea(request, {
-    env: { OPENAI_COMPATIBLE_API_KEY: 'test-key' },
-    fetch: async (url, options) => {
-      called = true;
-      assert.equal(url, 'https://api.openai.com/v1/chat/completions');
-      assert.equal(options.headers.Authorization, 'Bearer test-key');
-      return {
-        ok: true,
-        json: async () => ({ choices: [{ message: { content: 'Idea: Mention an unavoidable scheduling conflict and offer a prompt update.' } }] })
-      };
-    }
-  });
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    called = true;
+    throw new Error('Network callback must not be called');
+  };
+  let result;
+  try {
+    result = await createExcuseIdea(request);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 
-  assert.equal(called, true);
-  assert.equal(result.idea, 'Idea: Mention an unavoidable scheduling conflict and offer a prompt update.');
-});
-
-test('falls back safely when the provider returns copy-ready message content', async () => {
-  const result = await createExcuseIdea(request, {
-    env: { OPENAI_COMPATIBLE_API_KEY: 'test-key' },
-    fetch: async () => ({
-      ok: true,
-      json: async () => ({ choices: [{ message: { content: 'Hello Pat,\n\n"I cannot make the meeting today."\n\nThanks,\nAlex' } }] })
-    })
-  });
-
+  assert.equal(called, false);
   assert.match(result.idea, /^Idea: /);
   assert.equal(result.idea.includes('Hello'), false);
-  assert.equal(result.idea.includes('cannot make'), false);
-});
-
-test('removes copy-ready formatting from provider ideas', () => {
-  assert.equal(
-    sanitizeProviderIdea('• Idea: Cite a scheduling conflict, then offer a new time.'),
-    'Idea: Cite a scheduling conflict, then offer a new time.'
-  );
-  assert.equal(sanitizeProviderIdea('Regards,\nIdea: Cite a conflict.'), null);
-  assert.equal(sanitizeProviderIdea('"I cannot attend."'), null);
+  assert.equal(result.idea.includes('Thanks'), false);
 });
