@@ -2,13 +2,15 @@ import '../domain/excuse_request.dart';
 
 class ShopMission {
   const ShopMission({
-    required this.label,
+    required this.titleKey,
+    required this.slug,
     required this.intent,
     required this.action,
     required this.situations,
   });
 
-  final String label;
+  final String titleKey;
+  final String slug;
   final ExcuseIntent intent;
   final ExcuseAction action;
   final List<ShopSituation> situations;
@@ -16,65 +18,94 @@ class ShopMission {
 
 class ShopSituation {
   const ShopSituation({
-    required this.label,
+    required this.titleKey,
+    required this.slug,
     required this.context,
     this.action,
   });
 
-  final String label;
+  final String titleKey;
+  final String slug;
   final ExcuseContext context;
   final ExcuseAction? action;
 }
 
 class ShopTone {
-  const ShopTone({required this.label, required this.tone});
+  const ShopTone({required this.titleKey, required this.tone});
 
-  final String label;
+  final String titleKey;
   final ExcuseTone tone;
 }
 
 const shopMissions = [
   ShopMission(
-    label: 'Get out of plans',
+    titleKey: 'missionGetOutOfPlans',
+    slug: 'get out of plans',
     intent: ExcuseIntent.getOutOfPlans,
     action: ExcuseAction.cancel,
     situations: [
-      ShopSituation(label: 'Dinner', context: ExcuseContext.dinner),
-      ShopSituation(label: 'Party', context: ExcuseContext.party),
-      ShopSituation(label: 'Work', context: ExcuseContext.work),
-      ShopSituation(label: 'Family', context: ExcuseContext.family),
-      ShopSituation(label: 'Friends', context: ExcuseContext.friends),
+      ShopSituation(
+        titleKey: 'situationDinner',
+        slug: 'dinner',
+        context: ExcuseContext.dinner,
+      ),
+      ShopSituation(
+        titleKey: 'situationParty',
+        slug: 'party',
+        context: ExcuseContext.party,
+      ),
+      ShopSituation(
+        titleKey: 'situationWork',
+        slug: 'work',
+        context: ExcuseContext.work,
+      ),
+      ShopSituation(
+        titleKey: 'situationFamily',
+        slug: 'family',
+        context: ExcuseContext.family,
+      ),
+      ShopSituation(
+        titleKey: 'situationFriends',
+        slug: 'friends',
+        context: ExcuseContext.friends,
+      ),
     ],
   ),
   ShopMission(
-    label: 'Buy time',
+    titleKey: 'missionBuyTime',
+    slug: 'buy time',
     intent: ExcuseIntent.buyTime,
     action: ExcuseAction.reschedule,
     situations: [
       ShopSituation(
-        label: 'Reschedule',
+        titleKey: 'situationReschedule',
+        slug: 'reschedule',
         context: ExcuseContext.work,
         action: ExcuseAction.reschedule,
       ),
       ShopSituation(
-        label: 'Delay',
+        titleKey: 'situationDelay',
+        slug: 'delay',
         context: ExcuseContext.other,
         action: ExcuseAction.delay,
       ),
     ],
   ),
   ShopMission(
-    label: 'Recover from a situation',
+    titleKey: 'missionRecoverFromSituation',
+    slug: 'recover',
     intent: ExcuseIntent.recoverFromSituation,
     action: ExcuseAction.explainLateness,
     situations: [
       ShopSituation(
-        label: 'Late',
+        titleKey: 'situationLate',
+        slug: 'late',
         context: ExcuseContext.dinner,
         action: ExcuseAction.explainLateness,
       ),
       ShopSituation(
-        label: 'Missed',
+        titleKey: 'situationMissed',
+        slug: 'missed',
         context: ExcuseContext.work,
         action: ExcuseAction.explainAbsence,
       ),
@@ -83,7 +114,7 @@ const shopMissions = [
 ];
 
 const shopTones = [
-  ShopTone(label: 'Straightforward', tone: ExcuseTone.lowKey),
-  ShopTone(label: 'Warm', tone: ExcuseTone.nice),
-  ShopTone(label: 'Funny', tone: ExcuseTone.funny),
+  ShopTone(titleKey: 'toneStraightforward', tone: ExcuseTone.lowKey),
+  ShopTone(titleKey: 'toneWarm', tone: ExcuseTone.nice),
+  ShopTone(titleKey: 'toneFunny', tone: ExcuseTone.funny),
 ];

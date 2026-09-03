@@ -43,6 +43,16 @@ flutter analyze
 
 The Node and Flutter suites cover deterministic local generation, complete request compatibility, safe fallback behavior, no-immediate-repeat regeneration, guardrails rejecting ready-to-send messages, versioned evaluation fixtures, and the unchanged API response contract. See `docs/generation-evaluation.md` for the baseline gates and known weaknesses.
 
+## Localization
+
+The app ships with English-only localization using Flutter's generated localization (`flutter gen-l10n`). Configuration lives in `l10n.yaml`, the English template source is `lib/l10n/app_en.arb`, and the generated `AppLocalizations` class is wired into the `MaterialApp` via `localizationsDelegates` and `supportedLocales` (see `lib/app.dart`).
+
+Every user-visible string in the Excuse Shop UI and app shell is extracted into localization resources, including missions, situations, tones, brewing text, result actions, errors, semantics labels, and SnackBar text. The repository also adds `flutter_localizations` (SDK) as a dependency and `flutter: generate: true` so the localization code is generated during build.
+
+Domain enums and generation logic stay non-UI: the structured `ExcuseRequest`/`ExcuseKernel` enums, the curated kernel repository, and the local generation engine are not localized, and the request text sent to the client keeps stable English cues so keyword matching remains deterministic regardless of display locale.
+
+Widget tests cover English localization rendering, RTL-direction safety, and larger text-scaling safety without layout overflow (see `test/localization_test.dart`).
+
 ## Privacy And Safety
 
 - Generation is local-only. There are no API keys, model settings, external services, or generation network requests.
@@ -54,6 +64,6 @@ The Node and Flutter suites cover deterministic local generation, complete reque
 
 - This is an MVP, not a production safety or content-moderation system.
 - The curated deterministic library is an English-alpha baseline. Its 15 synthetic fixtures do not establish human-perceived usefulness or complete scenario coverage.
-- No authentication, analytics, saved history, localization, accessibility audit, or release signing is included.
+- No authentication, analytics, saved history, accessibility audit, or release signing is included.
 - `public/` is a temporary vanilla-browser harness for the Node API, not the Flutter product UI and not a deployment target.
 - Android and iOS are the delivery platforms; web is only for local development/testing.

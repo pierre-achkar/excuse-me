@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'l10n/app_localizations.dart';
 import 'services/idea_client.dart';
 import 'ui/excuse_shop_page.dart';
 import 'ui/shop_theme.dart';
@@ -12,8 +14,15 @@ class ExcuseMeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Excuse Me',
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: ShopTheme.theme,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       home: ExcuseShopPage(client: client),
     );
   }

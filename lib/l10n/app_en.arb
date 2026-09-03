@@ -1,0 +1,213 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Excuse Me",
+  "@appTitle": { "description": "The application title shown in the system." },
+
+  "shopTitle": "The Excuse Shop",
+  "@shopTitle": { "description": "AppBar title for the Excuse Shop screen." },
+
+  "shopkeeperAvatarLabel": "Pixel art shopkeeper",
+  "@shopkeeperAvatarLabel": { "description": "Semantics label for the shopkeeper avatar image." },
+
+  "shopHeaderDescription": "A friendly shopkeeper helps you craft the perfect excuse.",
+  "@shopHeaderDescription": { "description": "Header description below the shopkeeper avatar." },
+
+  "stepIndicator": "Step {current} of {total}",
+  "@stepIndicator": {
+    "description": "Step counter shown during the wizard flow.",
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "shopkeeperWelcome": "Welcome! Tell me what you need and I will help you out.",
+  "@shopkeeperWelcome": { "description": "Shopkeeper speech bubble on the mission step." },
+
+  "shopkeeperSituation": "Great choice. Now pick a situation that fits.",
+  "@shopkeeperSituation": { "description": "Shopkeeper speech bubble on the situation step." },
+
+  "shopkeeperTone": "Almost there. Pick your ingredient for the tone.",
+  "@shopkeeperTone": { "description": "Shopkeeper speech bubble on the tone step." },
+
+  "shopkeeperSays": "Shopkeeper says:",
+  "@shopkeeperSays": { "description": "Prefix for the shopkeeper speech bubble semantics label." },
+
+  "situationSectionTitle": "Choose a situation",
+  "@situationSectionTitle": { "description": "Section title above situation choice cards." },
+
+  "toneSectionTitle": "Choose your ingredient",
+  "@toneSectionTitle": { "description": "Section title above tone choice cards." },
+
+  "missionGetOutOfPlans": "Get out of plans",
+  "@missionGetOutOfPlans": { "description": "Label for the 'get out of plans' mission." },
+
+  "missionBuyTime": "Buy time",
+  "@missionBuyTime": { "description": "Label for the 'buy time' mission." },
+
+  "missionRecoverFromSituation": "Recover from a situation",
+  "@missionRecoverFromSituation": { "description": "Label for the 'recover from a situation' mission." },
+
+  "situationDinner": "Dinner",
+  "@situationDinner": { "description": "Situation label for dinner contexts." },
+
+  "situationParty": "Party",
+  "@situationParty": { "description": "Situation label for party contexts." },
+
+  "situationWork": "Work",
+  "@situationWork": { "description": "Situation label for work contexts." },
+
+  "situationFamily": "Family",
+  "@situationFamily": { "description": "Situation label for family contexts." },
+
+  "situationFriends": "Friends",
+  "@situationFriends": { "description": "Situation label for friend contexts." },
+
+  "situationReschedule": "Reschedule",
+  "@situationReschedule": { "description": "Situation label for rescheduling contexts." },
+
+  "situationDelay": "Delay",
+  "@situationDelay": { "description": "Situation label for delay contexts." },
+
+  "situationLate": "Late",
+  "@situationLate": { "description": "Situation label for lateness contexts." },
+
+  "situationMissed": "Missed",
+  "@situationMissed": { "description": "Situation label for missed event contexts." },
+
+  "toneStraightforward": "Straightforward",
+  "@toneStraightforward": { "description": "Tone label for straightforward tone." },
+
+  "toneWarm": "Warm",
+  "@toneWarm": { "description": "Tone label for warm tone." },
+
+  "toneFunny": "Funny",
+  "@toneFunny": { "description": "Tone label for funny tone." },
+
+  "chooseMission": "Choose mission: {mission}",
+  "@chooseMission": {
+    "description": "Semantics label for mission choice cards.",
+    "placeholders": { "mission": { "type": "String" } }
+  },
+
+  "chooseSituation": "Choose situation: {situation}",
+  "@chooseSituation": {
+    "description": "Semantics label for situation choice cards.",
+    "placeholders": { "situation": { "type": "String" } }
+  },
+
+  "chooseTone": "Choose ingredient: {tone}",
+  "@chooseTone": {
+    "description": "Semantics label for tone choice cards.",
+    "placeholders": { "tone": { "type": "String" } }
+  },
+
+  "brewingYourExcuse": "Brewing your excuse...",
+  "@brewingYourExcuse": { "description": "Text shown while generating the excuse idea." },
+
+  "brewingYourExcuseSemantic": "Brewing your excuse",
+  "@brewingYourExcuseSemantic": { "description": "Semantics label for the brewing state." },
+
+  "resultTitle": "Your excuse",
+  "@resultTitle": { "description": "Title above the result card." },
+
+  "collectibleIdeaBadge": "COLLECTIBLE IDEA",
+  "@collectibleIdeaBadge": { "description": "Badge label inside the result card." },
+
+  "regenerateButton": "Regenerate",
+  "@regenerateButton": { "description": "Label for the regenerate button." },
+
+  "copyButton": "Copy",
+  "@copyButton": { "description": "Label for the copy button." },
+
+  "shareButton": "Share",
+  "@shareButton": { "description": "Label for the share button." },
+
+  "newExcuseButton": "New excuse",
+  "@newExcuseButton": { "description": "Label for the new excuse button." },
+
+  "regenerateSemantics": "Regenerate excuse",
+  "@regenerateSemantics": { "description": "Semantics label for regenerate button." },
+
+  "copySemantics": "Copy excuse to clipboard",
+  "@copySemantics": { "description": "Semantics label for copy button." },
+
+  "shareSemantics": "Share excuse",
+  "@shareSemantics": { "description": "Semantics label for share button." },
+
+  "newExcuseSemantics": "Start new excuse",
+  "@newExcuseSemantics": { "description": "Semantics label for new excuse button." },
+
+  "ideaCopied": "Idea copied.",
+  "@ideaCopied": { "description": "SnackBar text after copying the idea." },
+
+  "generationError": "Unable to generate an idea. Please try again.",
+  "@generationError": { "description": "Inline error message when generation fails." },
+
+  "oldFormTitle": "Excuse Me",
+  "@oldFormTitle": { "description": "AppBar title for the legacy form page." },
+
+  "oldFormHeading": "Find a way to explain it.",
+  "@oldFormHeading": { "description": "Heading on the legacy form page." },
+
+  "oldFormSubheading": "Get one private, adaptable idea - never a message to send.",
+  "@oldFormSubheading": { "description": "Subheading on the legacy form page." },
+
+  "oldFormSituationLabel": "What happened?",
+  "@oldFormSituationLabel": { "description": "Label for the situation text field." },
+
+  "oldFormSituationHint": "Describe the situation",
+  "@oldFormSituationHint": { "description": "Hint text for the situation text field." },
+
+  "oldFormRelationshipLabel": "Relationship",
+  "@oldFormRelationshipLabel": { "description": "Label for the relationship dropdown." },
+
+  "oldFormUrgencyLabel": "Urgency",
+  "@oldFormUrgencyLabel": { "description": "Label for the urgency dropdown." },
+
+  "oldFormToneLabel": "Tone",
+  "@oldFormToneLabel": { "description": "Label for the tone dropdown." },
+
+  "oldFormFriend": "Friend",
+  "@oldFormFriend": { "description": "Relationship option: friend." },
+
+  "oldFormFamily": "Family",
+  "@oldFormFamily": { "description": "Relationship option: family." },
+
+  "oldFormCoworker": "Coworker",
+  "@oldFormCoworker": { "description": "Relationship option: coworker." },
+
+  "oldFormClient": "Client",
+  "@oldFormClient": { "description": "Relationship option: client." },
+
+  "oldFormSoon": "Soon",
+  "@oldFormSoon": { "description": "Urgency option: soon." },
+
+  "oldFormToday": "Today",
+  "@oldFormToday": { "description": "Urgency option: today." },
+
+  "oldFormThisWeek": "This week",
+  "@oldFormThisWeek": { "description": "Urgency option: this week." },
+
+  "oldFormToneWarm": "Warm",
+  "@oldFormToneWarm": { "description": "Tone option: warm." },
+
+  "oldFormToneDirect": "Direct",
+  "@oldFormToneDirect": { "description": "Tone option: direct." },
+
+  "oldFormToneProfessional": "Professional",
+  "@oldFormToneProfessional": { "description": "Tone option: professional." },
+
+  "oldFormGenerateButton": "Generate idea",
+  "@oldFormGenerateButton": { "description": "Label for the generate button on the legacy form." },
+
+  "oldFormRegenerateButton": "Regenerate",
+  "@oldFormRegenerateButton": { "description": "Label for the regenerate button on the legacy form." },
+
+  "oldFormResultTitle": "Your idea",
+  "@oldFormResultTitle": { "description": "Title above the result card on the legacy form." },
+
+  "oldFormEmptyError": "Describe the situation before generating an idea.",
+  "@oldFormEmptyError": { "description": "Error when the situation field is empty." }
+}
