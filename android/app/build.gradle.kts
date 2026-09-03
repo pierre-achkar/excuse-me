@@ -1,5 +1,5 @@
+import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.ApkSigningConfig
-import org.gradle.api.NamedDomainObjectContainer
 import java.util.Properties
 import java.io.FileInputStream
 
@@ -25,12 +25,14 @@ plugins {
 // never break `flutter build apk --debug`.
 // ------------------------------------------------------------------
 
-// True only when a release variant is being assembled (e.g. assembleRelease,
+// True when a release variant is being assembled (e.g. assembleRelease,
 // bundleRelease from `flutter build apk/appbundle --release` or `flutter run
-// --release`). Debug/profile assemblies use assembleDebug/assembleProfile and
-// are never validated here.
+// --release`) or when an aggregate task (assemble/build) includes release.
+// Debug/profile assemblies use assembleDebug/assembleProfile and are never
+// validated here.
 val isReleaseAssembly: Boolean = gradle.startParameter.taskNames.any {
-    it.contains("release", ignoreCase = true)
+    val taskName = it.substringAfterLast(':').lowercase()
+    taskName.contains("release") || taskName in setOf("assemble", "build")
 }
 
 fun loadReleaseKeystoreProperties(): Properties? {
@@ -45,7 +47,7 @@ fun loadReleaseKeystoreProperties(): Properties? {
 // Build the release signing config lazily only when a release variant is
 // assembled. Throws (fail-closed) on any missing required property or when
 // the keystore file cannot be found.
-fun configureReleaseSigning(signingConfigs: NamedDomainObjectContainer<ApkSigningConfig>): Boolean {
+fun configureReleaseSigning(signingConfig: ApkSigningConfig): Boolean {
     if (!isReleaseAssembly) return false
 
     val props = loadReleaseKeystoreProperties()
@@ -70,7 +72,7 @@ fun configureReleaseSigning(signingConfigs: NamedDomainObjectContainer<ApkSignin
         )
     }
 
-    signingConfigs.getByName("release").apply {
+    signingConfig.apply {
         storeFile = keystoreFile
         storePassword = props.getProperty("storePassword")
         keyAlias = props.getProperty("keyAlias")
@@ -79,17 +81,14 @@ fun configureReleaseSigning(signingConfigs: NamedDomainObjectContainer<ApkSignin
     return true
 }
 
+val androidExtension = extensions.getByType<ApplicationExtension>()
+val releaseSigningConfig = androidExtension.signingConfigs.create("release")
+
 android {
     namespace = "com.pierreachkar.excuse_me"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-    signingConfigs {
-        create("release") {
-            // Populated lazily by configureReleaseSigning() only for release
-            // assemblies, so this block never throws for debug builds.
-        }
-    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -119,8 +118,8 @@ android {
             // missing. Debug and profile builds (the offline path) keep
             // Flutter's default debug signing and never require release
             // material.
-            if (configureReleaseSigning(signingConfigs)) {
-                signingConfig = signingConfigs.getByName("release")
+            if (configureReleaseSigning(releaseSigningConfig)) {
+                signingConfig = releaseSigningConfig
             }
         }
     }

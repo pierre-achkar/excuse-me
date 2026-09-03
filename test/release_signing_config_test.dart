@@ -75,13 +75,28 @@ void main() {
       );
       expect(
         gradle,
-        contains('NamedDomainObjectContainer<ApkSigningConfig>'),
-        reason: 'top-level signing helper must receive the Gradle signing container',
+        contains('extensions.getByType<ApplicationExtension>()'),
+        reason: 'the AGP application extension must be captured explicitly',
       );
       expect(
         gradle,
-        contains('configureReleaseSigning(signingConfigs)'),
-        reason: 'release build must pass its signing container explicitly',
+        contains('fun configureReleaseSigning(signingConfig: ApkSigningConfig)'),
+        reason: 'the top-level signing helper must receive the explicit release config',
+      );
+      expect(
+        gradle,
+        contains('configureReleaseSigning(releaseSigningConfig)'),
+        reason: 'release build must pass the captured release config explicitly',
+      );
+      expect(
+        gradle,
+        contains('it.substringAfterLast(\':\').lowercase()'),
+        reason: 'release detection must inspect the Gradle task name',
+      );
+      expect(
+        gradle,
+        contains('setOf("assemble", "build")'),
+        reason: 'aggregate Gradle tasks must also require release signing',
       );
     });
 
