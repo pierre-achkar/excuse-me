@@ -80,13 +80,16 @@ void main() {
       );
       expect(
         gradle,
-        contains('fun configureReleaseSigning(signingConfig: ApkSigningConfig)'),
+        contains(
+          'fun configureReleaseSigning(signingConfig: ApkSigningConfig)',
+        ),
         reason: 'the top-level signing helper must receive the explicit release config',
       );
       expect(
         gradle,
         contains('configureReleaseSigning(releaseSigningConfig)'),
-        reason: 'release build must pass the captured release config explicitly',
+        reason:
+            'release build must pass the captured release config explicitly',
       );
       expect(
         gradle,
