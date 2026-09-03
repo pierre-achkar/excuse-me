@@ -1,0 +1,117 @@
+name: Release (manual)
+
+# Manual only. Intentionally has no push / pull_request / schedule trigger.
+on:
+  workflow_dispatch:
+    inputs:
+      build_name:
+        description: 'Semantic version to build, e.g. 1.0.0'
+        required: true
+        type: string
+      build_number:
+        description: 'Monotonic platform build number, e.g. 1'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  android-release:
+    name: Android signed release artifact
+    runs-on: ubuntu-latest
+    environment: release
+    env:
+      KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      RELEASE_BUILD_NAME: ${{ inputs.build_name }}
+      RELEASE_BUILD_NUMBER: ${{ inputs.build_number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Fail closed when required release secrets are missing
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+          for v in \
+            KEYSTORE_B64 \
+            KEYSTORE_PASSWORD \
+            KEY_ALIAS \
+            KEY_PASSWORD; do
+            if [[ -z "${!v:-}" ]]; then
+              echo "::error::Missing required release secret: ${v}"
+              missing=1
+            fi
+          done
+          if [[ "$missing" -ne 0 ]]; then
+            echo "::error::Aborted: missing required release secret environment variables for Android signing. Configure ANDROID_KEYSTORE_B64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD in the 'release' environment."
+            exit 1
+          fi
+
+      - name: Validate release version inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_BUILD_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::build_name must match MAJOR.MINOR.PATCH."
+            exit 1
+          fi
+          if [[ ! "$RELEASE_BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "::error::build_number must contain only digits."
+            exit 1
+          fi
+
+      - name: Cache Pub Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: flutter-pub-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
+          restore-keys: |
+            flutter-pub-${{ runner.os }}-
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Decode keystore to runner temp and build signed app bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The keystore secret is decoded only under the runner's ephemeral
+          # temp directory. Everything is removed on exit regardless of
+          # success/failure via the trap below.
+          TMP_KEYSTORE="$RUNNER_TEMP/upload-keystore.jks"
+          KEY_PROPS="android/key.properties"
+          trap 'rm -f -- "$TMP_KEYSTORE" "$KEY_PROPS"' EXIT
+          printf '%s' "$KEYSTORE_B64" | base64 -d > "$TMP_KEYSTORE"
+          if [[ ! -s "$TMP_KEYSTORE" ]]; then
+            echo "::error::Decoded keystore is empty. Check ANDROID_KEYSTORE_B64."
+            exit 1
+          fi
+
+          # Write the git-ignored local key.properties that the Gradle
+          # fail-closed logic reads for release builds; storeFile points at
+          # the temp keystore. Both files are removed by the trap above.
+          printf 'storeFile=%s\n' "$TMP_KEYSTORE" > "$KEY_PROPS"
+          printf 'storePassword=%s\n' "$KEYSTORE_PASSWORD" >> "$KEY_PROPS"
+          printf 'keyAlias=%s\n' "$KEY_ALIAS" >> "$KEY_PROPS"
+          printf 'keyPassword=%s\n' "$KEY_PASSWORD" >> "$KEY_PROPS"
+
+          flutter build appbundle --release \
+            --build-name "$RELEASE_BUILD_NAME" \
+            --build-number "$RELEASE_BUILD_NUMBER"
+
+      - name: Upload signed Android artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: excuse-me-${{ inputs.build_name }}+${{ inputs.build_number }}-signed-release
+          path: build/app/outputs/bundle/release/*.aab

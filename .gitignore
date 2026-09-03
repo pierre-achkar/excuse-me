@@ -5,3 +5,16 @@ build/
 .flutter-plugins-dependencies
 .idea/
 *.iml
+
+# Release signing material is NEVER committed.
+# See android/.gitignore and docs/release-signing.md.
+android/key.properties
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.cer
+*.crt
+*.pem
+*.apk
+*.aab

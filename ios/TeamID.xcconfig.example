@@ -1,0 +1,8 @@
+// Template for the iOS Apple Developer team identifier.
+//
+// Copy this file to ios/TeamID.xcconfig (it is git-ignored) and replace
+// CHANGE_ME with your real Apple Developer team identifier. Never commit
+// the real TeamID.xcconfig. See docs/release-signing.md.
+//
+//   cp ios/TeamID.xcconfig.example ios/TeamID.xcconfig
+TEAM_ID=CHANGE_ME

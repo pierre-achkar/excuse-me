@@ -84,7 +84,9 @@ Widget tests cover English localization rendering, RTL-direction safety, and lar
 
 ## CI
 
-`.github/workflows/ci.yml` runs on pull requests and pushes to `main`. It checks Dart formatting, runs `flutter analyze`, runs the full `flutter test` suite, builds a debug-signed Android APK without release signing secrets on `ubuntu-latest`, and builds an unsigned iOS release bundle without codesigning on `macos-latest`. Validation is deliberately free of release signing: no release keystore, certificate, provisioning profile, or signing secrets are used. See `docs/ci.md` for job details and the secrets required later for release signing.
+`.github/workflows/ci.yml` runs on pull requests and pushes to `main`. It checks Dart formatting, runs `flutter analyze`, runs the full `flutter test` suite, builds a debug-signed Android APK without release signing secrets on `ubuntu-latest`, and builds an unsigned iOS release bundle without codesigning on `macos-latest`. Validation is deliberately free of release signing: no release keystore, certificate, provisioning profile, or signing secrets are used. See `docs/ci.md` for job details and `docs/release-signing.md` for the exact release signing contract.
+
+A separate manual release workflow (`.github/workflows/release.yml`) targets the `release` environment, which must be configured in GitHub with required reviewers and environment secrets: `workflow_dispatch` only, `contents: read`, fail-closed on missing secrets, keystore decoded under the runner temp dir with cleanup traps, producing only a signed Android `.aab`. It never runs automatically. iOS signing has a non-secret boundary automated by `scripts/ios-sign.sh`; it requires your Apple Developer credentials and a macOS host and is not executed or claimed as tested here.
 
 Real-device validation is a separate release gate. Follow the versioned Android and iOS checklist in `docs/mobile-release-validation.md`; hosted CI cannot prove installation, accessibility, offline behavior, or privacy behavior on physical devices.
 
@@ -99,6 +101,6 @@ Real-device validation is a separate release gate. Follow the versioned Android 
 
 - This is an MVP, not a production safety or content-moderation system.
 - The curated deterministic library is an English-alpha baseline. Its 15 synthetic fixtures do not establish human-perceived usefulness or complete scenario coverage.
-- No authentication, saved history, accessibility audit, approved analytics provider, or release signing is included. The analytics boundary is present but disabled by default; see the Analytics section above.
+- No authentication, saved history, accessibility audit, or approved analytics provider is included. The analytics boundary is present but disabled by default; see the Analytics section above. A fail-closed, credential-free release signing boundary is included (see `docs/release-signing.md`), but no real Android keystore or Apple identity has been produced, and the signed iOS path and real Android Gradle signing execution require user-owned credentials and (for iOS) a macOS host.
 - `public/` is a temporary vanilla-browser harness for the Node API, not the Flutter product UI and not a deployment target.
 - Android and iOS are the delivery platforms; web is only for local development/testing.
