@@ -13,7 +13,7 @@ flutter pub get
 flutter run
 ```
 
-The Flutter app generates ideas on-device. Submitted situation text is not sent over the network.
+The Flutter app generates ideas on-device. The production Excuse Shop uses fixed mission, situation, and tone choices; it has no free-text situation field and makes no generation network requests.
 
 ## Local Excuse Engine
 
@@ -86,10 +86,12 @@ Widget tests cover English localization rendering, RTL-direction safety, and lar
 
 `.github/workflows/ci.yml` runs on pull requests and pushes to `main`. It checks Dart formatting, runs `flutter analyze`, runs the full `flutter test` suite, builds a debug-signed Android APK without release signing secrets on `ubuntu-latest`, and builds an unsigned iOS release bundle without codesigning on `macos-latest`. Validation is deliberately free of release signing: no release keystore, certificate, provisioning profile, or signing secrets are used. See `docs/ci.md` for job details and the secrets required later for release signing.
 
+Real-device validation is a separate release gate. Follow the versioned Android and iOS checklist in `docs/mobile-release-validation.md`; hosted CI cannot prove installation, accessibility, offline behavior, or privacy behavior on physical devices.
+
 ## Privacy And Safety
 
 - Generation is local-only. There are no API keys, model settings, external services, or generation network requests.
-- Situation text is held only in the active text field or local API request. The Flutter app does not persist or log it.
+- The production Flutter UI collects fixed choices rather than free-text situation text. Choices and generated ideas are not persisted or logged. The development-only local API accepts situation text only for its compatibility harness and makes no network calls.
 - The app labels output as an idea and applies guardrails that reject greetings, sign-offs, quotes, and first-person copy.
 - Copy and Share operate only after an idea is shown. Sharing uses the operating system share sheet.
 
