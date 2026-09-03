@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../analytics/analytics_client.dart';
 import '../domain/excuse_request.dart';
 import '../domain/idea_request.dart';
 import '../domain/shop_selection.dart';
@@ -10,9 +11,14 @@ import '../services/idea_client.dart';
 import 'shop_theme.dart';
 
 class ExcuseShopPage extends StatefulWidget {
-  const ExcuseShopPage({super.key, required this.client});
+  const ExcuseShopPage({
+    super.key,
+    required this.client,
+    this.analytics = const NoOpAnalyticsClient(),
+  });
 
   final IdeaClient client;
+  final AnalyticsClient analytics;
 
   @override
   State<ExcuseShopPage> createState() => _ExcuseShopPageState();
@@ -20,13 +26,55 @@ class ExcuseShopPage extends StatefulWidget {
 
 enum _Step { mission, situation, tone, brewing, result, error }
 
-class _ExcuseShopPageState extends State<ExcuseShopPage> {
+class _ExcuseShopPageState extends State<ExcuseShopPage>
+    with WidgetsBindingObserver {
   _Step _step = _Step.mission;
   ShopMission? _mission;
   ShopSituation? _situation;
   ShopTone? _tone;
   String? _idea;
   String? _error;
+  bool _didOpen = false;
+  bool _wasNonActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _recordOpenOnce();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) {
+      _wasNonActive = true;
+      return;
+    }
+    if (_wasNonActive) {
+      _wasNonActive = false;
+      _recordSafely(AnalyticsEvent.returnUse);
+    }
+  }
+
+  void _recordOpenOnce() {
+    if (_didOpen) return;
+    _didOpen = true;
+    _recordSafely(AnalyticsEvent.appOpen);
+  }
+
+  Future<void> _recordSafely(AnalyticsEvent event) async {
+    try {
+      await widget.analytics.record(event);
+    } catch (_) {
+      // Analytics must never block or crash the app.
+    }
+  }
 
   Future<void> _brew() async {
     setState(() {
@@ -53,6 +101,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
         _idea = idea;
         _step = _Step.result;
       });
+      await _recordSafely(AnalyticsEvent.generationCompleted);
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -155,6 +204,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
   }
 
   Future<void> _regenerate() async {
+    _recordSafely(AnalyticsEvent.regenerate);
     await _brew();
   }
 
@@ -164,6 +214,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(l10n.ideaCopied)));
     }
+    await _recordSafely(AnalyticsEvent.copy);
   }
 
   void _startNew() {
@@ -432,7 +483,10 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
               label: l10n.shareSemantics,
               button: true,
               child: OutlinedButton(
-                onPressed: () => Share.share(_idea!),
+                onPressed: () {
+                  Share.share(_idea!);
+                  _recordSafely(AnalyticsEvent.share);
+                },
                 child: Text(l10n.shareButton),
               ),
             ),

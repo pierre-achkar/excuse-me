@@ -43,6 +43,35 @@ flutter analyze
 
 The Node and Flutter suites cover deterministic local generation, complete request compatibility, safe fallback behavior, no-immediate-repeat regeneration, guardrails rejecting ready-to-send messages, versioned evaluation fixtures, and the unchanged API response contract. See `docs/generation-evaluation.md` for the baseline gates and known weaknesses.
 
+## Analytics
+
+Analytics is **disabled by default**. No analytics provider is approved or wired in as a dependency; the app ships with a `NoOpAnalyticsClient` that records nothing to disk or network. Enabling analytics requires a provider to be explicitly vetted and injected as an `AnalyticsClient` implementation.
+
+### Event allowlist
+
+The analytics boundary is deliberately narrow. The `AnalyticsClient` interface accepts exactly one call — `record(AnalyticsEvent)` — and the `AnalyticsEvent` enum contains only six values:
+
+- `app_open` — recorded once when the Excuse Shop initializes.
+- `generation_completed` — recorded after the client returns a generated idea.
+- `regenerate` — recorded when regeneration is requested.
+- `copy` — recorded after a successful clipboard copy.
+- `share` — recorded when the share sheet is requested.
+- `return_use` — recorded when the app resumes from a non-active lifecycle state.
+
+The `record` API accepts **only the event enum**. It accepts no maps, strings, free-form properties, situation text, generated output, identity fields, advertising identifiers, or account data. There is no event-properties, identify, or track-with-payload API. This is enforced by the type signature, and privacy tests assert that passing a string, map, or generated output is rejected.
+
+### Failure isolation
+
+Analytics recording is non-blocking. Every `record` call is wrapped so that a failing provider can never break or crash the generation, copy, share, or resume flows.
+
+### Data retention and opt-out
+
+No user data, generated ideas, situation text, or identifiers are ever collected, persisted, or transmitted. If a provider is later approved, this section must be updated to state the provider-specific retention window and an in-app opt-out control; neither exists today because analytics is disabled by default.
+
+### Disabled by default
+
+`main.dart` constructs the app with `const NoOpAnalyticsClient()`. Tests inject a fake recorder to prove the allowlist and event timing without touching a real provider. Until a provider is approved, no analytics code beyond the interface, the enum, and the no-op shim is compiled into shipped behavior.
+
 ## Localization
 
 The app ships with English-only localization using Flutter's generated localization (`flutter gen-l10n`). Configuration lives in `l10n.yaml`, the English template source is `lib/l10n/app_en.arb`, and the generated `AppLocalizations` class is wired into the `MaterialApp` via `localizationsDelegates` and `supportedLocales` (see `lib/app.dart`).
@@ -64,6 +93,6 @@ Widget tests cover English localization rendering, RTL-direction safety, and lar
 
 - This is an MVP, not a production safety or content-moderation system.
 - The curated deterministic library is an English-alpha baseline. Its 15 synthetic fixtures do not establish human-perceived usefulness or complete scenario coverage.
-- No authentication, analytics, saved history, accessibility audit, or release signing is included.
+- No authentication, saved history, accessibility audit, approved analytics provider, or release signing is included. The analytics boundary is present but disabled by default; see the Analytics section above.
 - `public/` is a temporary vanilla-browser harness for the Node API, not the Flutter product UI and not a deployment target.
 - Android and iOS are the delivery platforms; web is only for local development/testing.
