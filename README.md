@@ -82,6 +82,10 @@ Domain enums and generation logic stay non-UI: the structured `ExcuseRequest`/`E
 
 Widget tests cover English localization rendering, RTL-direction safety, and larger text-scaling safety without layout overflow (see `test/localization_test.dart`).
 
+## CI
+
+`.github/workflows/ci.yml` runs on pull requests and pushes to `main`. It checks Dart formatting, runs `flutter analyze`, runs the full `flutter test` suite, builds a debug-signed Android APK without release signing secrets on `ubuntu-latest`, and builds an unsigned iOS release bundle without codesigning on `macos-latest`. Validation is deliberately free of release signing: no release keystore, certificate, provisioning profile, or signing secrets are used. See `docs/ci.md` for job details and the secrets required later for release signing.
+
 ## Privacy And Safety
 
 - Generation is local-only. There are no API keys, model settings, external services, or generation network requests.
