@@ -1,48 +1,12 @@
-import 'package:excuse_me/main.dart';
-import 'package:flutter/material.dart';
+import 'package:excuse_me/app.dart';
+import 'package:excuse_me/domain/idea_request.dart';
+import 'package:excuse_me/services/idea_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-void main() {
-  testWidgets('shows a generated idea and its actions', (tester) async {
-    final client = FakeIdeaClient(
-      'Idea: Name a brief scheduling conflict and keep the explanation warm.',
-    );
-
-    await tester.pumpWidget(ExcuseMeApp(client: client));
-
-    await tester.enterText(
-      find.byKey(const Key('situation-field')),
-      'Running late to dinner',
-    );
-    await tester.pump();
-    await tester.ensureVisible(find.byType(FilledButton));
-    final generateButton = tester.widget<FilledButton>(
-      find.byType(FilledButton),
-    );
-    expect(generateButton.onPressed, isNotNull);
-    await tester.tap(find.byType(FilledButton));
-    await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.text('Your idea'),
-      500,
-      scrollable: find.byType(Scrollable).first,
-    );
-    expect(find.text('Your idea'), findsOneWidget);
-    expect(
-      find.textContaining('Idea: Name a brief scheduling conflict'),
-      findsOneWidget,
-    );
-    expect(find.text('Regenerate'), findsNWidgets(2));
-    expect(find.text('Copy'), findsOneWidget);
-    expect(find.text('Share'), findsOneWidget);
-  });
-}
-
-class FakeIdeaClient implements IdeaClient {
-  FakeIdeaClient(this.idea);
+class FakeShopIdeaClient implements IdeaClient {
+  FakeShopIdeaClient(this.idea);
 
   final String idea;
-
   bool called = false;
 
   @override
@@ -50,4 +14,31 @@ class FakeIdeaClient implements IdeaClient {
     called = true;
     return idea;
   }
+}
+
+void main() {
+  testWidgets('excuse shop shows mission choices and result', (tester) async {
+    final client = FakeShopIdeaClient(
+      'Idea: Use a simple capacity limit, keep the explanation low-detail, and offer a respectful alternative.',
+    );
+
+    await tester.pumpWidget(ExcuseMeApp(client: client));
+    await tester.pumpAndSettle();
+
+    expect(find.text('The Excuse Shop'), findsOneWidget);
+    expect(find.text('Get out of plans'), findsOneWidget);
+
+    await tester.tap(find.text('Get out of plans'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Dinner'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Straightforward'));
+    await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Your excuse'), findsOneWidget);
+    expect(find.text('Regenerate'), findsOneWidget);
+    expect(find.text('Copy'), findsOneWidget);
+    expect(find.text('Share'), findsOneWidget);
+  });
 }

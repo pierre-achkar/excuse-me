@@ -21,7 +21,7 @@ The product generation path uses the versioned English-alpha kernel library in `
 
 Each kernel also carries construction metadata for content review: family, cause type, responsibility strategy, audience, linguistic features, repair options, and prohibited high-risk claims. The app returns idea directions rather than ready-to-send first-person messages.
 
-The current conventional form is bridged to this schema by a small local mapper. The planned Excuse Shop flow will collect the structured dimensions directly.
+The Flutter product UI now uses the Excuse Shop flow to collect the mission, situation, and tone directly. The current conventional form is bridged to this schema by a small local mapper for the development API and browser harness.
 
 ## Local API
 
