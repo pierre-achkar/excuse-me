@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "libraryVersion": "1.0.0",
+  "cases": [
+    {
+      "id": "cancel-close-family-last-minute",
+      "intent": "getOutOfPlans",
+      "action": "cancel",
+      "timing": "lastMinute",
+      "relationship": "close",
+      "obligation": "expected",
+      "context": "family",
+      "tone": "nice",
+      "coverage": [
+        "noReadyMessage",
+        "repairOrientation"
+      ],
+      "expectedKernelId": "en_capacity_reset",
+      "expectedIdea": "Idea: Use a simple capacity limit, keep the explanation low-detail, and offer a respectful alternative."
+    },
+    {
+      "id": "decline-familiar-party-ahead",
+      "intent": "getOutOfPlans",
+      "action": "decline",
+      "timing": "plannedAhead",
+      "relationship": "familiar",
+      "obligation": "casual",
+      "context": "party",
+      "tone": "lowKey",
+      "coverage": [
+        "noReadyMessage",
+        "repairOrientation"
+      ],
+      "expectedKernelId": "en_honest_decline",
+      "expectedIdea": "Idea: Decline with a direct capacity or preference boundary rather than constructing a story."
+    },
+    {
+      "id": "delay-professional-work-today",
+      "intent": "buyTime",
+      "action": "delay",
+      "timing": "today",
+      "relationship": "professional",
+      "obligation": "important",
+      "context": "work",
+      "tone": "lowKey",
+      "expectedKernelId": "en_logistics_delay",
+      "expectedIdea": "Idea: Use a minor logistics delay, acknowledge the timing, and avoid elaborate claims."
+    },
+    {
+      "id": "late-authority-work-dramatic",
+      "intent": "recoverFromSituation",
+      "action": "explainLateness",
+      "timing": "alreadyLate",
+      "relationship": "authority",
+      "obligation": "hardToReplace",
+      "context": "work",
+      "tone": "dramatic",
+      "expectedKernelId": "en_planning_mistake",
+      "expectedIdea": "Idea: Turn a harmless planning mix-up into a playful angle without inventing an emergency."
+    },
+    {
+      "id": "leave-close-date-funny",
+      "intent": "getOutOfPlans",
+      "action": "leaveEarly",
+      "timing": "today",
+      "relationship": "close",
+      "obligation": "casual",
+      "context": "date",
+      "tone": "funny",
+      "expectedKernelId": "en_early_start",
+      "expectedIdea": "Idea: Use the need to protect an early start and keep the boundary brief and considerate."
+    },
+    {
+      "id": "back-out-friends-funny",
+      "intent": "getOutOfPlans",
+      "action": "backOut",
+      "timing": "lastMinute",
+      "relationship": "close",
+      "obligation": "casual",
+      "context": "friends",
+      "tone": "funny",
+      "expectedKernelId": "en_early_start",
+      "expectedIdea": "Idea: Use the need to protect an early start and keep the boundary brief and considerate."
+    },
+    {
+      "id": "reschedule-celebration-nice",
+      "intent": "buyTime",
+      "action": "reschedule",
+      "timing": "today",
+      "relationship": "familiar",
+      "obligation": "paidOrReserved",
+      "context": "celebration",
+      "tone": "nice",
+      "expectedKernelId": "en_schedule_collision",
+      "expectedIdea": "Idea: Frame the change as a scheduling collision and offer a clearer time if appropriate."
+    },
+    {
+      "id": "avoid-professional-commitment",
+      "intent": "buyTime",
+      "action": "avoidCommitting",
+      "timing": "plannedAhead",
+      "relationship": "professional",
+      "obligation": "important",
+      "context": "work",
+      "tone": "lowKey",
+      "expectedKernelId": "en_honest_boundary_fallback",
+      "expectedIdea": "Idea: Use an honest boundary, acknowledge the impact, and offer a practical next step."
+    },
+    {
+      "id": "travel-delay-familiar",
+      "intent": "recoverFromSituation",
+      "action": "explainLateness",
+      "timing": "alreadyLate",
+      "relationship": "familiar",
+      "obligation": "expected",
+      "context": "travel",
+      "tone": "lowKey",
+      "expectedKernelId": "en_logistics_delay",
+      "expectedIdea": "Idea: Use a minor logistics delay, acknowledge the timing, and avoid elaborate claims."
+    },
+    {
+      "id": "missed-hobby-funny",
+      "intent": "recoverFromSituation",
+      "action": "explainAbsence",
+      "timing": "alreadyMissed",
+      "relationship": "close",
+      "obligation": "casual",
+      "context": "hobby",
+      "tone": "funny",
+      "expectedKernelId": "en_planning_mistake",
+      "expectedIdea": "Idea: Turn a harmless planning mix-up into a playful angle without inventing an emergency."
+    },
+    {
+      "id": "alternative-distant-other",
+      "intent": "buyTime",
+      "action": "suggestAlternative",
+      "timing": "plannedAhead",
+      "relationship": "distant",
+      "obligation": "expected",
+      "context": "other",
+      "tone": "nice",
+      "clarity": "ambiguous",
+      "coverage": [
+        "ambiguity"
+      ],
+      "expectFallback": true,
+      "expectedKernelId": "en_honest_boundary_fallback",
+      "expectedIdea": "Idea: Use an honest boundary, acknowledge the impact, and offer a practical next step."
+    },
+    {
+      "id": "cancel-party-dramatic",
+      "intent": "getOutOfPlans",
+      "action": "cancel",
+      "timing": "lastMinute",
+      "relationship": "close",
+      "obligation": "expected",
+      "context": "party",
+      "tone": "dramatic",
+      "expectedKernelId": "en_work_overrun",
+      "expectedIdea": "Idea: Point to an overrun in an existing responsibility and keep the consequence proportionate."
+    },
+    {
+      "id": "missed-friends-unhinged",
+      "intent": "recoverFromSituation",
+      "action": "explainAbsence",
+      "timing": "alreadyMissed",
+      "relationship": "familiar",
+      "obligation": "casual",
+      "context": "friends",
+      "tone": "unhinged",
+      "expectedKernelId": "en_planning_mistake",
+      "expectedIdea": "Idea: Turn a harmless planning mix-up into a playful angle without inventing an emergency."
+    },
+    {
+      "id": "unsafe-combination-fallback",
+      "intent": "recoverFromSituation",
+      "action": "decline",
+      "timing": "recurring",
+      "relationship": "authority",
+      "obligation": "hardToReplace",
+      "context": "work",
+      "tone": "unhinged",
+      "risk": "highRiskFabrication",
+      "coverage": [
+        "unsafeRequest",
+        "repairOrientation"
+      ],
+      "expectFallback": true,
+      "expectedKernelId": "en_honest_boundary_fallback",
+      "expectedIdea": "Idea: Use an honest boundary, acknowledge the impact, and offer a practical next step."
+    },
+    {
+      "id": "reschedule-dinner-funny",
+      "intent": "buyTime",
+      "action": "reschedule",
+      "timing": "today",
+      "relationship": "familiar",
+      "obligation": "expected",
+      "context": "dinner",
+      "tone": "funny",
+      "expectedKernelId": "en_alternative_timing",
+      "expectedIdea": "Idea: Ask for a specific timing change and pair it with a realistic alternative."
+    }
+  ]
+}
