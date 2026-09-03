@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import '../domain/excuse_request.dart';
 import '../domain/idea_request.dart';
 import '../domain/shop_selection.dart';
+import '../l10n/app_localizations.dart';
 import '../services/idea_client.dart';
 import 'shop_theme.dart';
 
@@ -55,7 +56,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _error = 'Unable to generate an idea. Please try again.';
+        _error = l10n.generationError;
         _step = _Step.error;
       });
     }
@@ -86,7 +87,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
       ExcuseContext.travel => 'travel',
       ExcuseContext.other => 'other',
     };
-    return '${_mission!.label}: $actionCue, $contextCue';
+    return '${_mission!.slug}: $actionCue, $contextCue';
   }
 
   String _requestTone() {
@@ -96,6 +97,41 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
       ExcuseTone.funny => 'Funny',
       ExcuseTone.dramatic => 'Dramatic',
       ExcuseTone.unhinged => 'Unhinged',
+    };
+  }
+
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
+
+  String _missionLabel(ShopMission mission) {
+    return switch (mission.titleKey) {
+      'missionGetOutOfPlans' => l10n.missionGetOutOfPlans,
+      'missionBuyTime' => l10n.missionBuyTime,
+      'missionRecoverFromSituation' => l10n.missionRecoverFromSituation,
+      _ => mission.titleKey,
+    };
+  }
+
+  String _situationLabel(ShopSituation situation) {
+    return switch (situation.titleKey) {
+      'situationDinner' => l10n.situationDinner,
+      'situationParty' => l10n.situationParty,
+      'situationWork' => l10n.situationWork,
+      'situationFamily' => l10n.situationFamily,
+      'situationFriends' => l10n.situationFriends,
+      'situationReschedule' => l10n.situationReschedule,
+      'situationDelay' => l10n.situationDelay,
+      'situationLate' => l10n.situationLate,
+      'situationMissed' => l10n.situationMissed,
+      _ => situation.titleKey,
+    };
+  }
+
+  String _toneLabel(ShopTone tone) {
+    return switch (tone.titleKey) {
+      'toneStraightforward' => l10n.toneStraightforward,
+      'toneWarm' => l10n.toneWarm,
+      'toneFunny' => l10n.toneFunny,
+      _ => tone.titleKey,
     };
   }
 
@@ -126,7 +162,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
     await Clipboard.setData(ClipboardData(text: _idea!));
     if (mounted) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Idea copied.')));
+          .showSnackBar(SnackBar(content: Text(l10n.ideaCopied)));
     }
   }
 
@@ -144,7 +180,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('The Excuse Shop')),
+      appBar: AppBar(title: Text(l10n.shopTitle)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(24),
@@ -163,7 +199,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Semantics(
-          label: 'Pixel art shopkeeper',
+          label: l10n.shopkeeperAvatarLabel,
           image: true,
           child: SizedBox(
             key: const Key('shopkeeper-avatar'),
@@ -175,7 +211,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
         const SizedBox(width: 16),
         Expanded(
           child: Text(
-            'A friendly shopkeeper helps you craft the perfect excuse.',
+            l10n.shopHeaderDescription,
             style: Theme.of(context).textTheme.bodyMedium
                 ?.copyWith(color: ShopTheme.subtle),
           ),
@@ -199,7 +235,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Text(
-        'Step $current of $total',
+        l10n.stepIndicator(current, total),
         style: Theme.of(context).textTheme.labelMedium,
       ),
     );
@@ -207,7 +243,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
 
   Widget _buildShopkeeperBubble(String text) {
     return Semantics(
-      label: 'Shopkeeper says: $text',
+      label: '${l10n.shopkeeperSays} $text',
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(16),
@@ -253,16 +289,14 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildStepIndicator(1, 3),
-        _buildShopkeeperBubble(
-          'Welcome! Tell me what you need and I will help you out.',
-        ),
+        _buildShopkeeperBubble(l10n.shopkeeperWelcome),
         const SizedBox(height: 20),
         for (final mission in shopMissions)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: _buildChoiceCard(
-              label: mission.label,
-              semanticsLabel: 'Choose mission: ${mission.label}',
+              label: _missionLabel(mission),
+              semanticsLabel: l10n.chooseMission(_missionLabel(mission)),
               onTap: () => _onMissionSelected(mission),
             ),
           ),
@@ -276,10 +310,10 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildStepIndicator(2, 3),
-        _buildShopkeeperBubble('Great choice. Now pick a situation that fits.'),
+        _buildShopkeeperBubble(l10n.shopkeeperSituation),
         const SizedBox(height: 20),
         Text(
-          'Choose a situation',
+          l10n.situationSectionTitle,
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 12),
@@ -287,8 +321,8 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: _buildChoiceCard(
-              label: situation.label,
-              semanticsLabel: 'Choose situation: ${situation.label}',
+              label: _situationLabel(situation),
+              semanticsLabel: l10n.chooseSituation(_situationLabel(situation)),
               onTap: () => _onSituationSelected(situation),
             ),
           ),
@@ -301,12 +335,10 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildStepIndicator(3, 3),
-        _buildShopkeeperBubble(
-          'Almost there. Pick your ingredient for the tone.',
-        ),
+        _buildShopkeeperBubble(l10n.shopkeeperTone),
         const SizedBox(height: 20),
         Text(
-          'Choose your ingredient',
+          l10n.toneSectionTitle,
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 12),
@@ -314,8 +346,8 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: _buildChoiceCard(
-              label: tone.label,
-              semanticsLabel: 'Choose ingredient: ${tone.label}',
+              label: _toneLabel(tone),
+              semanticsLabel: l10n.chooseTone(_toneLabel(tone)),
               onTap: () => _onToneSelected(tone),
             ),
           ),
@@ -325,14 +357,14 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
 
   Widget _buildBrewingStep() {
     return Semantics(
-      label: 'Brewing your excuse',
+      label: l10n.brewingYourExcuseSemantic,
       container: true,
-      child: const Column(
+      child: Column(
         children: [
-          SizedBox(height: 48),
-          Center(child: CircularProgressIndicator()),
-          SizedBox(height: 24),
-          Center(child: Text('Brewing your excuse...')),
+          const SizedBox(height: 48),
+          const Center(child: CircularProgressIndicator()),
+          const SizedBox(height: 24),
+          Center(child: Text(l10n.brewingYourExcuse)),
         ],
       ),
     );
@@ -342,7 +374,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Your excuse', style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.resultTitle, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 12),
         Card(
           key: const Key('collectible-result-card'),
@@ -361,7 +393,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
                     const Icon(Icons.auto_awesome, size: 18),
                     const SizedBox(width: 8),
                     Text(
-                      'COLLECTIBLE IDEA',
+                      l10n.collectibleIdeaBadge,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: ShopTheme.accent,
                         fontWeight: FontWeight.w700,
@@ -381,40 +413,40 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
           spacing: 8,
           children: [
             Semantics(
-              label: 'Regenerate excuse',
+              label: l10n.regenerateSemantics,
               button: true,
               child: OutlinedButton(
                 onPressed: _regenerate,
-                child: const Text('Regenerate'),
+                child: Text(l10n.regenerateButton),
               ),
             ),
             Semantics(
-              label: 'Copy excuse to clipboard',
+              label: l10n.copySemantics,
               button: true,
               child: OutlinedButton(
                 onPressed: _copy,
-                child: const Text('Copy'),
+                child: Text(l10n.copyButton),
               ),
             ),
             Semantics(
-              label: 'Share excuse',
+              label: l10n.shareSemantics,
               button: true,
               child: OutlinedButton(
                 onPressed: () => Share.share(_idea!),
-                child: const Text('Share'),
+                child: Text(l10n.shareButton),
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
         Semantics(
-          label: 'Start new excuse',
+          label: l10n.newExcuseSemantics,
           button: true,
           child: SizedBox(
             width: double.infinity,
             child: OutlinedButton(
               onPressed: _startNew,
-              child: const Text('New excuse'),
+              child: Text(l10n.newExcuseButton),
             ),
           ),
         ),
@@ -429,13 +461,13 @@ class _ExcuseShopPageState extends State<ExcuseShopPage> {
         Text(_error!, style: TextStyle(color: ShopTheme.errorColor)),
         const SizedBox(height: 20),
         Semantics(
-          label: 'Start new excuse',
+          label: l10n.newExcuseSemantics,
           button: true,
           child: SizedBox(
             width: double.infinity,
             child: OutlinedButton(
               onPressed: _startNew,
-              child: const Text('New excuse'),
+              child: Text(l10n.newExcuseButton),
             ),
           ),
         ),

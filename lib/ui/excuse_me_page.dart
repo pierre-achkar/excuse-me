@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../domain/idea_request.dart';
+import '../l10n/app_localizations.dart';
 import '../services/idea_client.dart';
 
 class ExcuseMePage extends StatefulWidget {
@@ -23,6 +24,8 @@ class _ExcuseMePageState extends State<ExcuseMePage> {
   String? _error;
   bool _loading = false;
 
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
+
   @override
   void dispose() {
     _situationController.dispose();
@@ -32,9 +35,7 @@ class _ExcuseMePageState extends State<ExcuseMePage> {
   Future<void> _generate() async {
     final situation = _situationController.text.trim();
     if (situation.isEmpty) {
-      setState(
-        () => _error = 'Describe the situation before generating an idea.',
-      );
+      setState(() => _error = l10n.oldFormEmptyError);
       return;
     }
 
@@ -55,7 +56,7 @@ class _ExcuseMePageState extends State<ExcuseMePage> {
       setState(() => _idea = idea);
     } catch (_) {
       if (!mounted) return;
-      setState(() => _error = 'Unable to generate an idea. Please try again.');
+      setState(() => _error = l10n.generationError);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -65,54 +66,52 @@ class _ExcuseMePageState extends State<ExcuseMePage> {
     await Clipboard.setData(ClipboardData(text: _idea!));
     if (mounted) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Idea copied.')));
+          .showSnackBar(SnackBar(content: Text(l10n.ideaCopied)));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Excuse Me')),
+      appBar: AppBar(title: Text(l10n.oldFormTitle)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
             Text(
-              'Find a way to explain it.',
+              l10n.oldFormHeading,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Get one private, adaptable idea - never a message to send.',
-            ),
+            Text(l10n.oldFormSubheading),
             const SizedBox(height: 24),
             TextField(
               key: const Key('situation-field'),
               controller: _situationController,
               maxLines: 3,
               maxLength: 500,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'What happened?',
-                hintText: 'Describe the situation',
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText: l10n.oldFormSituationLabel,
+                hintText: l10n.oldFormSituationHint,
               ),
             ),
             const SizedBox(height: 12),
-            _selector('Relationship', _relationship, const [
-              'Friend',
-              'Family',
-              'Coworker',
-              'Client',
+            _selector(l10n.oldFormRelationshipLabel, _relationship, [
+              l10n.oldFormFriend,
+              l10n.oldFormFamily,
+              l10n.oldFormCoworker,
+              l10n.oldFormClient,
             ], (value) => setState(() => _relationship = value)),
-            _selector('Urgency', _urgency, const [
-              'Soon',
-              'Today',
-              'This week',
+            _selector(l10n.oldFormUrgencyLabel, _urgency, [
+              l10n.oldFormSoon,
+              l10n.oldFormToday,
+              l10n.oldFormThisWeek,
             ], (value) => setState(() => _urgency = value)),
-            _selector('Tone', _tone, const [
-              'Warm',
-              'Direct',
-              'Professional',
+            _selector(l10n.oldFormToneLabel, _tone, [
+              l10n.oldFormToneWarm,
+              l10n.oldFormToneDirect,
+              l10n.oldFormToneProfessional,
             ], (value) => setState(() => _tone = value)),
             const SizedBox(height: 20),
             FilledButton(
@@ -123,7 +122,11 @@ class _ExcuseMePageState extends State<ExcuseMePage> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Text(_idea == null ? 'Generate idea' : 'Regenerate'),
+                  : Text(
+                      _idea == null
+                          ? l10n.oldFormGenerateButton
+                          : l10n.oldFormRegenerateButton,
+                    ),
             ),
             if (_error != null) ...[
               const SizedBox(height: 12),
@@ -134,7 +137,10 @@ class _ExcuseMePageState extends State<ExcuseMePage> {
             ],
             if (_idea != null) ...[
               const SizedBox(height: 28),
-              Text('Your idea', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                l10n.oldFormResultTitle,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 8),
               Card(
                 child: Padding(
@@ -147,12 +153,15 @@ class _ExcuseMePageState extends State<ExcuseMePage> {
                 children: [
                   OutlinedButton(
                     onPressed: _generate,
-                    child: const Text('Regenerate'),
+                    child: Text(l10n.oldFormRegenerateButton),
                   ),
-                  OutlinedButton(onPressed: _copy, child: const Text('Copy')),
+                  OutlinedButton(
+                    onPressed: _copy,
+                    child: Text(l10n.copyButton),
+                  ),
                   OutlinedButton(
                     onPressed: () => Share.share(_idea!),
-                    child: const Text('Share'),
+                    child: Text(l10n.shareButton),
                   ),
                 ],
               ),
