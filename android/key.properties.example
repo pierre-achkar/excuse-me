@@ -1,0 +1,19 @@
+# Template for Android release signing.
+#
+# Copy this file to android/key.properties (it is git-ignored) and fill in
+# YOUR OWN local values. Never commit the real key.properties or your keystore.
+#
+#   cp android/key.properties.example android/key.properties
+#
+# All values below are FAKE placeholders shown only so the file format is
+# obvious. Replace every CHANGE_ME value with real, private values that live
+# only on the release build machine. See docs/release-signing.md for the full
+# secret contract, ownership, rotation, and recovery procedure.
+#
+# storeFile is a path, relative to the android/ directory, pointing at the
+# release keystore (e.g. android/upload-keystore.jks). Keep that keystore out
+# of version control.
+storeFile=CHANGE_ME-upload-keystore.jks
+storePassword=CHANGE_ME
+keyAlias=CHANGE_ME
+keyPassword=CHANGE_ME

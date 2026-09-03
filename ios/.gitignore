@@ -32,3 +32,13 @@ Runner/GeneratedPluginRegistrant.*
 !default.mode2v3
 !default.pbxuser
 !default.perspectivev3
+
+# Signing material is NEVER committed. See docs/release-signing.md.
+TeamID.xcconfig
+*.mobileprovision
+*.p12
+*.pfx
+*.cer
+*.crt
+*.pem
+*.provisionprofile
