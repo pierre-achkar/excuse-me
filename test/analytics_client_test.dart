@@ -58,10 +58,7 @@ void main() {
   group('AnalyticsClient interface', () {
     test('record accepts only AnalyticsEvent', () {
       final client = FakeAnalyticsRecorder();
-      expect(
-        client.record(AnalyticsEvent.appOpen),
-        isA<Future<void>>(),
-      );
+      expect(client.record(AnalyticsEvent.appOpen), isA<Future<void>>());
     });
 
     test('NoOpAnalyticsClient implements AnalyticsClient', () {
@@ -137,18 +134,23 @@ void main() {
   });
 
   group('Privacy tests', () {
-    test('record accepts exactly one AnalyticsEvent parameter and nothing else', () {
-      Future<void> Function(AnalyticsEvent) record = FakeAnalyticsRecorder().record;
-      expect(record, isNotNull);
-      expect(record, isA<Function>());
-    });
+    test(
+      'record accepts exactly one AnalyticsEvent parameter and nothing else',
+      () {
+        Future<void> Function(AnalyticsEvent) record =
+            FakeAnalyticsRecorder().record;
+        expect(record, isNotNull);
+        expect(record, isA<Function>());
+      },
+    );
 
     test('String and Map arguments are rejected at compile time', () {
       // The concrete implementations of AnalyticsClient expose only
       // `Future<void> record(AnalyticsEvent)`. Any attempt to pass a String,
       // Map, or arbitrary payload does not compile — there is no overload and no
       // dynamic-typed entry point. This is the primary privacy boundary.
-      Future<void> Function(AnalyticsEvent) record = FakeAnalyticsRecorder().record;
+      Future<void> Function(AnalyticsEvent) record =
+          FakeAnalyticsRecorder().record;
       expect(record, isNotNull);
 
       const expectedEvents = {
@@ -193,7 +195,8 @@ void main() {
     test('record throws when given a generated output String', () {
       final client = FakeAnalyticsRecorder();
       expect(
-        () => client.record('Idea: skip the meeting, claim capacity' as dynamic),
+        () =>
+            client.record('Idea: skip the meeting, claim capacity' as dynamic),
         throwsA(anyOf(isA<NoSuchMethodError>(), isA<TypeError>())),
       );
     });
