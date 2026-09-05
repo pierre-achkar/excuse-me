@@ -11,6 +11,10 @@ import '../l10n/app_localizations.dart';
 import '../services/idea_client.dart';
 import '../services/shop_flow_controller.dart';
 import 'shop_theme.dart';
+import 'excuse_card.dart';
+import 'collection_page.dart';
+import '../services/card_collection.dart';
+import 'reference_shop_painter.dart';
 
 class ExcuseShopPage extends StatefulWidget {
   const ExcuseShopPage({
@@ -30,6 +34,9 @@ class ExcuseShopPage extends StatefulWidget {
 
 class _ExcuseShopPageState extends State<ExcuseShopPage>
     with WidgetsBindingObserver {
+  final CardCollection _collection = CardCollection();
+  bool _saving = false;
+  final ScrollController _scroll = ScrollController();
   final ShopFlowController _controller = ShopFlowController();
 
   late ShopSession _session;
@@ -57,6 +64,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _scroll.dispose();
     _controller.cancelPending();
     super.dispose();
   }
@@ -72,11 +80,51 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
     }
   }
 
+  void _resetScroll() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _scroll.hasClients) _scroll.jumpTo(0);
+    });
+  }
+
+  void _back() {
+    final path = [
+      ShopFlowStage.entry,
+      ShopFlowStage.intent,
+      ShopFlowStage.action,
+      ShopFlowStage.context,
+      if (_action == null || shopTimingOptionsFor(_action!).isNotEmpty)
+        ShopFlowStage.timing,
+      ShopFlowStage.relationship,
+      ShopFlowStage.obligation,
+    ];
+    final index = path.indexOf(_stage);
+    final target = index > 0 ? path[index - 1] : ShopFlowStage.obligation;
+    _controller.cancelPending();
+    setState(() {
+      _stage = target;
+      if (target.index <= ShopFlowStage.intent.index) _intent = null;
+      if (target.index <= ShopFlowStage.action.index) _action = null;
+      if (target.index <= ShopFlowStage.context.index) _context = null;
+      if (target.index <= ShopFlowStage.timing.index) _timing = null;
+      if (target.index <= ShopFlowStage.relationship.index) {
+        _relationship = null;
+      }
+      _obligation = null;
+      _request = null;
+      _idea = null;
+      _error = null;
+      _kept = false;
+    });
+    _resetScroll();
+  }
+
   void _enterShop() {
+    _resetScroll();
     setState(() => _stage = ShopFlowStage.intent);
   }
 
   void _selectIntent(ShopIntentOption value) {
+    _resetScroll();
     setState(() {
       _intent = value;
       _stage = ShopFlowStage.action;
@@ -84,6 +132,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
   }
 
   void _selectAction(ShopActionOption value) {
+    _resetScroll();
     setState(() {
       _action = value;
       _timing = null;
@@ -92,6 +141,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
   }
 
   void _selectContext(ShopContextOption value) {
+    _resetScroll();
     final action = _action;
     if (action == null) return;
     final timings = shopTimingOptionsFor(action);
@@ -104,6 +154,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
   }
 
   void _selectTiming(ShopTimingOption value) {
+    _resetScroll();
     setState(() {
       _timing = value;
       _stage = ShopFlowStage.relationship;
@@ -111,6 +162,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
   }
 
   void _selectRelationship(ShopRelationshipOption value) {
+    _resetScroll();
     setState(() {
       _relationship = value;
       _stage = ShopFlowStage.obligation;
@@ -146,9 +198,15 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
 
   Future<void> _brew(ExcuseRequest request) async {
     final ticket = _controller.beginOperation();
-    setState(() => _stage = ShopFlowStage.search);
+    _resetScroll();
+    setState(() {
+      _stage = ShopFlowStage.search;
+      _error = null;
+      _kept = false;
+    });
 
-    if (!widget.disableAnimations) {
+    if (!widget.disableAnimations &&
+        !MediaQuery.of(context).disableAnimations) {
       await Future<void>.delayed(const Duration(milliseconds: 650));
     }
 
@@ -161,6 +219,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       setState(() {
         _idea = idea;
         _stage = ShopFlowStage.result;
+        _resetScroll();
       });
       widget.analytics.record(AnalyticsEvent.generationCompleted);
     } catch (error) {
@@ -173,6 +232,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
   }
 
   void _restart() {
+    _resetScroll();
     setState(() {
       _session = _controller.startSession();
       _stage = ShopFlowStage.entry;
@@ -189,8 +249,53 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
     });
   }
 
-  void _keepCard() {
-    setState(() => _kept = true);
+  Future<void> _keepCard() async {
+    final idea = _idea;
+    if (idea == null || _saving) return;
+    setState(() => _saving = true);
+    try {
+      await _collection.save(idea);
+      if (!mounted) return;
+      setState(() {
+        if (identical(_idea, idea)) _kept = true;
+      });
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not save this card. Please try again.'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _openCollection() async {
+    try {
+      await _collection.load();
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => CollectionPage(cards: _collection.cards),
+        ),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not open your collection. Please try again.'),
+          ),
+        );
+      }
+    }
+  }
+
+  void _anotherCard() {
+    if (_request != null && !_saving && _stage == ShopFlowStage.result) {
+      _brew(_request!);
+    }
   }
 
   Future<void> _copyIdea() async {
@@ -203,136 +308,254 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
   void _setTone(ExcuseTone tone) {
     final idea = _idea;
     if (idea == null) return;
-    setState(() => _idea = idea.withTone(tone));
+    setState(() {
+      _idea = idea.withTone(tone);
+      _kept = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          l10n.appTitle,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontFamily: 'PressStart2P',
-            fontSize: 16,
+    return Theme(
+      data: ShopTheme.theme.copyWith(
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: ShopTheme.pixelOutline,
+            minimumSize: const Size(44, 48),
+            padding: const EdgeInsets.all(12),
+            side: const BorderSide(color: ShopTheme.pixelOutline, width: 4),
+            shape: const RoundedRectangleBorder(),
           ),
         ),
-        actions: [
-          IconButton(
-            key: const ValueKey('restart-shop'),
-            tooltip: 'Start a new visit',
-            onPressed: _restart,
-            icon: const Icon(Icons.refresh),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            backgroundColor: ShopTheme.pixelViolet,
+            foregroundColor: ShopTheme.pixelOutline,
+            minimumSize: const Size.fromHeight(52),
+            side: const BorderSide(color: ShopTheme.pixelOutline, width: 4),
+            shape: const RoundedRectangleBorder(),
           ),
-        ],
+        ),
       ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+      child: Scaffold(
+        backgroundColor: ShopTheme.pixelOutline,
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Container(
+            decoration: const BoxDecoration(
+              color: ShopTheme.pixelOutline,
+              border: Border(
+                top: BorderSide(color: ShopTheme.pixelVioletDark, width: 3),
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextButton.icon(
+                    key: const ValueKey('open-collection'),
+                    onPressed: _saving ? null : _openCollection,
+                    style: TextButton.styleFrom(
+                      foregroundColor: ShopTheme.paperBody,
+                      minimumSize: const Size(44, 44),
+                    ),
+                    icon: const Icon(
+                      Icons.collections_bookmark_outlined,
+                      size: 18,
+                    ),
+                    label: const Text('Collection'),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                TextButton.icon(
+                  key: const ValueKey('restart-shop'),
+                  onPressed: _saving ? null : _restart,
+                  style: TextButton.styleFrom(
+                    foregroundColor: ShopTheme.paperBody,
+                    minimumSize: const Size(44, 44),
+                  ),
+                  icon: const Icon(Icons.refresh, size: 18),
+                  label: const Text('Restart'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final sceneHeight = _stage == ShopFlowStage.result
+                  ? 150.0
+                  : (constraints.maxHeight *
+                            (_stage == ShopFlowStage.entry ? .52 : .35))
+                        .clamp(180.0, 520.0);
+              return SingleChildScrollView(
+                controller: _scroll,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildShopScene(l10n),
-                    if (_stage != ShopFlowStage.entry &&
-                        _stage != ShopFlowStage.result &&
-                        _stage != ShopFlowStage.error)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: _ProgressTokens(
-                          completed: _completedTokens,
-                          activeIndex: _activeToken,
+                    if (_stage == ShopFlowStage.result)
+                      SizedBox(
+                        height: sceneHeight,
+                        child: ClipRect(
+                          child: OverflowBox(
+                            minHeight: 320,
+                            maxHeight: 320,
+                            child: _buildShopScene(l10n, 320),
+                          ),
+                        ),
+                      )
+                    else
+                      _buildShopScene(l10n, sceneHeight),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF241B30),
+                        border: Border(
+                          top: BorderSide(
+                            color: ShopTheme.pixelVioletDark,
+                            width: 6,
+                          ),
                         ),
                       ),
-                    const SizedBox(height: 14),
-                    AnimatedSwitcher(
-                      duration: widget.disableAnimations
-                          ? Duration.zero
-                          : const Duration(milliseconds: 180),
-                      child: _buildStageContent(l10n),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 640),
+                          child: Container(
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: ShopTheme.paperBody,
+                              border: Border.all(
+                                color: ShopTheme.pixelOutline,
+                                width: 7,
+                              ),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: ShopTheme.paperBody,
+                                  spreadRadius: 3,
+                                ),
+                                BoxShadow(
+                                  color: ShopTheme.pixelVioletDark,
+                                  spreadRadius: 7,
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const Text(
+                                  'EXCUSEE',
+                                  style: TextStyle(
+                                    fontFamily: 'PressStart2P',
+                                    fontSize: 8,
+                                    color: ShopTheme.pixelVioletDark,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                if (_stage != ShopFlowStage.entry &&
+                                    _stage != ShopFlowStage.search)
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: TextButton.icon(
+                                      key: const ValueKey('v6-back'),
+                                      onPressed: _back,
+                                      icon: const Icon(
+                                        Icons.arrow_back,
+                                        size: 16,
+                                      ),
+                                      label: const Text('Back'),
+                                    ),
+                                  ),
+                                if (_stage != ShopFlowStage.entry &&
+                                    _stage != ShopFlowStage.search)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: Text(
+                                      _dialogueMain(l10n),
+                                      style: const TextStyle(
+                                        fontSize: 23,
+                                        height: 1.25,
+                                        fontWeight: FontWeight.w500,
+                                        color: ShopTheme.pixelOutline,
+                                      ),
+                                    ),
+                                  ),
+                                _buildStageContent(l10n),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildShopScene(AppLocalizations l10n) {
-    final event = _session.ambientEvent;
+  Widget _buildShopScene(AppLocalizations l10n, double height) {
     return Semantics(
       container: true,
       label:
-          '${l10n.outfitSemantics(_session.outfit.paletteName)}. '
-          '${l10n.ambientEventSemantics(event.line)}',
-      child: Container(
+          '${l10n.outfitSemantics(_session.outfit.paletteName)}. ${l10n.ambientEventSemantics(_session.ambientEvent.line)}',
+      child: SizedBox(
         key: const ValueKey('shopkeeper-stage'),
-        height: 224,
-        decoration: BoxDecoration(
-          color: ShopTheme.pixelOutline,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: ShopTheme.pixelViolet, width: 2),
-        ),
-        clipBehavior: Clip.antiAlias,
+        height: height,
+        width: double.infinity,
         child: Stack(
           children: [
             Positioned.fill(
               child: CustomPaint(
-                painter: _ShopShelvesPainter(
+                painter: ReferenceShopPainter(
                   outfit: _session.outfit,
-                  eventIndex: _session.id - 1,
+                  mood: _stage.index,
+                  completed: _completedTokens,
                 ),
               ),
             ),
             Positioned(
-              left: 18,
-              bottom: 12,
-              child: _Shopkeeper(
-                key: const ValueKey('shopkeeper-avatar'),
-                outfit: _session.outfit,
-              ),
-            ),
-            Positioned(
-              right: 12,
-              top: 12,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: ShopTheme.pixelOutline.withValues(alpha: .86),
-                  border: Border.all(color: ShopTheme.pixelGlow),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Padding(
+              top: 8,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 6,
+                    horizontal: 20,
+                    vertical: 11,
                   ),
-                  child: Text(
-                    event.line.toUpperCase(),
-                    style: const TextStyle(
-                      color: ShopTheme.pixelGlow,
+                  decoration: BoxDecoration(
+                    color: ShopTheme.pixelOutline,
+                    border: Border.all(color: ShopTheme.pixelViolet, width: 5),
+                    boxShadow: const [
+                      BoxShadow(color: Color(0x6620182B), offset: Offset(8, 8)),
+                    ],
+                  ),
+                  child: const Text(
+                    'Excuse Me',
+                    style: TextStyle(
                       fontFamily: 'PressStart2P',
-                      fontSize: 8,
+                      fontSize: 12,
+                      color: ShopTheme.pixelGlow,
                     ),
                   ),
                 ),
               ),
             ),
             Positioned(
-              left: 112,
-              right: 12,
-              bottom: 14,
-              child: _DialogueBubble(
-                mainLine: _dialogueMain(l10n),
-                supportingLine: _dialogueSupporting(l10n),
+              left: 0,
+              right: 0,
+              bottom: height * .19,
+              child: Semantics(
+                key: const ValueKey('shopkeeper-avatar'),
+                label: 'Excusee, ${_session.outfit.paletteName}',
+                image: true,
+                child: const SizedBox(height: 1),
               ),
             ),
           ],
@@ -445,7 +668,13 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       children: [
         Text(
           _session.opening.mainLine,
-          style: Theme.of(context).textTheme.headlineSmall,
+          style: const TextStyle(
+            fontFamily: 'InterTight',
+            fontSize: 25,
+            height: 1.25,
+            color: ShopTheme.pixelOutline,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         const SizedBox(height: 6),
         Text(
@@ -459,7 +688,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
           onPressed: _enterShop,
           child: Text(
             l10n.entryCta,
-            style: const TextStyle(fontFamily: 'PressStart2P', fontSize: 11),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           ),
         ),
       ],
@@ -471,7 +700,6 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
     required String title,
     required List<_ChoiceData> options,
   }) {
-    final l10n = AppLocalizations.of(context)!;
     return Column(
       key: key,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -492,11 +720,6 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
               ),
             ),
           ),
-        ),
-        Text(
-          l10n.tokenLabel(_activeToken + 1, 6),
-          style: Theme.of(context).textTheme.labelMedium,
-          textAlign: TextAlign.center,
         ),
       ],
     );
@@ -521,7 +744,13 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
                 ?.copyWith(color: ShopTheme.uiTextSecondary),
           ),
           const SizedBox(height: 18),
-          const Center(child: _PixelSpinner()),
+          if (!widget.disableAnimations &&
+              !MediaQuery.of(context).disableAnimations)
+            const Center(child: _PixelSpinner())
+          else
+            const Center(
+              child: Icon(Icons.auto_awesome, color: ShopTheme.pixelViolet),
+            ),
         ],
       ),
     );
@@ -534,75 +763,10 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       key: const ValueKey('v6-result'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          l10n.handoverDialogue,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 12),
-        Semantics(
-          container: true,
-          label: '${idea.playfulName ?? l10n.cardIdeaLabel}. ${idea.idea}',
-          child: Card(
+        Center(
+          child: ExcuseCard(
             key: const ValueKey('collectible-result-card'),
-            color: ShopTheme.paperBody,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(
-                    key: const ValueKey('pixel-card-art'),
-                    height: 112,
-                    child: CustomPaint(painter: _CardArtPainter(idea: idea)),
-                  ),
-                  const Divider(color: ShopTheme.paperDivider),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        l10n.rarityCommon,
-                        style: const TextStyle(
-                          color: ShopTheme.pixelVioletDark,
-                          fontFamily: 'PressStart2P',
-                          fontSize: 9,
-                        ),
-                      ),
-                      Text(
-                        l10n.cardNumber(idea.kernelId ?? 'LOCAL'),
-                        style: const TextStyle(
-                          color: ShopTheme.paperMeta,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    idea.playfulName ?? 'A small card from the shelves',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: ShopTheme.pixelOutline,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    l10n.cardIdeaLabel,
-                    style: const TextStyle(
-                      color: ShopTheme.paperMeta,
-                      fontFamily: 'PressStart2P',
-                      fontSize: 9,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  SelectableText(
-                    idea.idea,
-                    key: const ValueKey('card-idea-body'),
-                    style: Theme.of(context).textTheme.bodyLarge
-                        ?.copyWith(color: ShopTheme.pixelOutline, height: 1.45),
-                  ),
-                ],
-              ),
-            ),
+            idea: idea,
           ),
         ),
         if (_request != null && shouldOfferRepair(_request!)) ...[
@@ -643,29 +807,44 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
           children: [
             _toneButton(l10n.tonePlainV6, ExcuseTone.lowKey, idea),
             _toneButton(l10n.toneWarmV6, ExcuseTone.nice, idea),
-            _toneButton(l10n.tonePlayfulV6, ExcuseTone.funny, idea),
+            if (_request?.relationship != RelationshipKind.formal &&
+                _request?.obligation != ObligationLevel.high &&
+                idea.toneDirections.containsKey(ExcuseTone.funny))
+              _toneButton(l10n.tonePlayfulV6, ExcuseTone.funny, idea),
           ],
         ),
         const SizedBox(height: 14),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                key: const ValueKey('v6-copy-card'),
-                onPressed: _copyIdea,
-                icon: const Icon(Icons.copy_outlined, size: 18),
-                label: const Text('COPY IDEA'),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton(
-                key: const ValueKey('v6-keep-card'),
-                onPressed: _kept ? null : _keepCard,
-                child: Text(_kept ? l10n.cardKept : l10n.keepCardButton),
-              ),
-            ),
-          ],
+        FilledButton(
+          key: const ValueKey('v6-keep-card'),
+          onPressed: _kept || _saving ? null : _keepCard,
+          child: Text(
+            _saving
+                ? 'SAVING…'
+                : _kept
+                ? 'SAVED TO COLLECTION'
+                : 'KEEP CARD',
+          ),
+        ),
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          key: const ValueKey('v6-another-card'),
+          onPressed: _saving ? null : _anotherCard,
+          icon: const Icon(Icons.style_outlined, size: 18),
+          label: const Text('ANOTHER ONE'),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          _kept
+              ? 'Your card is waiting in Collection.'
+              : 'Keep this one, or let Excusee find another.',
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 13, color: ShopTheme.paperMeta),
+        ),
+        TextButton.icon(
+          key: const ValueKey('v6-copy-card'),
+          onPressed: _copyIdea,
+          icon: const Icon(Icons.copy_outlined, size: 16),
+          label: const Text('Copy idea'),
         ),
         const SizedBox(height: 10),
         TextButton(
@@ -686,7 +865,10 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
         key: ValueKey('v6-tone-${tone.name}'),
         label: Text(label),
         selected: selected,
-        onSelected: (_) => _setTone(tone),
+        onSelected: idea.toneDirections.containsKey(tone)
+            ? (_) => _setTone(tone)
+            : null,
+        shape: const RoundedRectangleBorder(),
         selectedColor: ShopTheme.pixelGlow,
         side: BorderSide(
           color: selected ? ShopTheme.pixelVioletDark : ShopTheme.paperDivider,
@@ -739,6 +921,12 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       case ShopFlowStage.context:
         return l10n.dialogueContext;
       case ShopFlowStage.timing:
+        if (_action?.action == ExcuseAction.leaveEarly) {
+          return 'Planning your escape, or already there?';
+        }
+        if (_intent?.intent == ExcuseIntent.recoverFromSituation) {
+          return 'And when did this go wrong?';
+        }
         return l10n.dialogueTimingV6;
       case ShopFlowStage.relationship:
         return l10n.dialogueRelationshipV6;
@@ -750,21 +938,6 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
         return l10n.handoverDialogue;
       case ShopFlowStage.error:
         return 'A small shelf-related complication.';
-    }
-  }
-
-  String _dialogueSupporting(AppLocalizations l10n) {
-    switch (_stage) {
-      case ShopFlowStage.entry:
-        return _session.opening.supportingLine;
-      case ShopFlowStage.search:
-        return 'The good ones are never on the front shelf.';
-      case ShopFlowStage.result:
-        return 'One card. Keep the situation yours.';
-      case ShopFlowStage.error:
-        return 'No card was taken from the shelves.';
-      default:
-        return 'Tell me just enough. I will do the digging.';
     }
   }
 
@@ -788,7 +961,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       case ExcuseAction.leaveEarly:
         return l10n.actionLeaveEarly;
       case ExcuseAction.backOut:
-        return l10n.actionSayNo;
+        return 'Back out';
       case ExcuseAction.reschedule:
         return l10n.actionReschedule;
       case ExcuseAction.delay:
@@ -796,9 +969,9 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       case ExcuseAction.avoidCommitting:
         return l10n.actionAvoidCommitting;
       case ExcuseAction.explainLateness:
-        return l10n.actionExplainWhatHappened;
+        return "I'm late";
       case ExcuseAction.explainAbsence:
-        return l10n.actionAskMoreTime;
+        return "I didn't show";
       case ExcuseAction.acknowledgeMiss:
         return l10n.actionAcknowledgeMiss;
       case ExcuseAction.suggestAlternative:
@@ -874,28 +1047,6 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
     _relationship != null,
     _obligation != null,
   ];
-
-  int get _activeToken {
-    switch (_stage) {
-      case ShopFlowStage.intent:
-        return 0;
-      case ShopFlowStage.action:
-        return 1;
-      case ShopFlowStage.context:
-        return 2;
-      case ShopFlowStage.timing:
-        return 3;
-      case ShopFlowStage.relationship:
-        return 4;
-      case ShopFlowStage.obligation:
-        return 5;
-      default:
-        return math.min(
-          _completedTokens.where((completed) => completed).length,
-          5,
-        );
-    }
-  }
 }
 
 class _ChoiceData {
@@ -910,130 +1061,6 @@ class _ChoiceData {
   final String label;
   final String semantics;
   final VoidCallback onTap;
-}
-
-class _ProgressTokens extends StatelessWidget {
-  const _ProgressTokens({required this.completed, required this.activeIndex});
-
-  final List<bool> completed;
-  final int activeIndex;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      container: true,
-      label: AppLocalizations.of(context)!
-          .tokenLabel(activeIndex + 1, completed.length),
-      child: Row(
-        children: [
-          for (var index = 0; index < completed.length; index++) ...[
-            Expanded(
-              child: Container(
-                key: ValueKey('progress-token-$index'),
-                height: 8,
-                decoration: BoxDecoration(
-                  color: completed[index]
-                      ? ShopTheme.pixelTeal
-                      : index == activeIndex
-                      ? ShopTheme.pixelGlow
-                      : ShopTheme.paperDivider,
-                  borderRadius: BorderRadius.circular(2),
-                  border: Border.all(color: ShopTheme.pixelOutline, width: .5),
-                ),
-              ),
-            ),
-            if (index != completed.length - 1) const SizedBox(width: 4),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _DialogueBubble extends StatelessWidget {
-  const _DialogueBubble({required this.mainLine, required this.supportingLine});
-
-  final String mainLine;
-  final String supportingLine;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: ShopTheme.paperBody,
-        border: Border.all(color: ShopTheme.pixelOutline, width: 2),
-        borderRadius: BorderRadius.circular(6),
-        boxShadow: const [
-          BoxShadow(color: ShopTheme.pixelGlow, offset: Offset(3, 3)),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'EXCUSEE',
-              style: TextStyle(
-                color: ShopTheme.pixelVioletDark,
-                fontFamily: 'PressStart2P',
-                fontSize: 8,
-              ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              mainLine,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: ShopTheme.pixelOutline,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              supportingLine,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: ShopTheme.paperMeta, fontSize: 11),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Shopkeeper extends StatelessWidget {
-  const _Shopkeeper({super.key, required this.outfit});
-
-  final ShopOutfit outfit;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      image: true,
-      label: 'Excusee, ${outfit.paletteName}',
-      child: ColorFiltered(
-        colorFilter: ColorFilter.mode(
-          _parseColor(outfit.robeHex),
-          BlendMode.modulate,
-        ),
-        child: Image.asset(
-          'assets/design/shop-owner-sprite.png',
-          width: 106,
-          height: 174,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) => const Icon(
-            Icons.auto_awesome,
-            size: 90,
-            color: ShopTheme.pixelGlow,
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _PixelSpinner extends StatefulWidget {
@@ -1071,106 +1098,4 @@ class _PixelSpinnerState extends State<_PixelSpinner>
       ),
     );
   }
-}
-
-class _ShopShelvesPainter extends CustomPainter {
-  const _ShopShelvesPainter({required this.outfit, required this.eventIndex});
-
-  final ShopOutfit outfit;
-  final int eventIndex;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final background = Paint()..color = _parseColor(outfit.hatHex);
-    canvas.drawRect(Offset.zero & size, background);
-
-    final shelf = Paint()..color = const Color(0xFF3A2A47);
-    for (var row = 0; row < 3; row++) {
-      final y = 30.0 + row * 48;
-      canvas.drawRect(Rect.fromLTWH(8, y, size.width - 16, 5), shelf);
-      canvas.drawRect(Rect.fromLTWH(12, y + 5, 5, 35), shelf);
-      canvas.drawRect(Rect.fromLTWH(size.width - 17, y + 5, 5, 35), shelf);
-    }
-
-    final colors = [
-      ShopTheme.pixelTeal,
-      ShopTheme.pixelGlow,
-      ShopTheme.pixelEmber,
-      _parseColor(outfit.trimHex),
-    ];
-    for (var index = 0; index < 12; index++) {
-      final row = index ~/ 4;
-      final column = index % 4;
-      final left = 28.0 + column * 31;
-      final top = 12.0 + row * 48;
-      final color = colors[(index + eventIndex) % colors.length];
-      final item = Paint()..color = color;
-      canvas.drawRect(Rect.fromLTWH(left, top, 16, 14 + (index % 3) * 4), item);
-      canvas.drawRect(
-        Rect.fromLTWH(left + 4, top - 4, 8, 4),
-        Paint()..color = ShopTheme.pixelGlow.withValues(alpha: .65),
-      );
-    }
-
-    final floor = Paint()..color = ShopTheme.pixelOutline;
-    canvas.drawRect(Rect.fromLTWH(0, size.height - 28, size.width, 28), floor);
-    for (var x = 0.0; x < size.width; x += 24) {
-      canvas.drawRect(
-        Rect.fromLTWH(x, size.height - 25, 12, 2),
-        Paint()..color = ShopTheme.pixelVioletDark,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_ShopShelvesPainter oldDelegate) {
-    return oldDelegate.outfit != outfit || oldDelegate.eventIndex != eventIndex;
-  }
-}
-
-class _CardArtPainter extends CustomPainter {
-  const _CardArtPainter({required this.idea});
-
-  final GeneratedIdea idea;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final panel = Paint()..color = ShopTheme.paperPanel;
-    canvas.drawRect(Offset.zero & size, panel);
-    final violet = Paint()..color = ShopTheme.pixelViolet;
-    final teal = Paint()..color = ShopTheme.pixelTeal;
-    final ember = Paint()..color = ShopTheme.pixelEmber;
-    final outline = Paint()..color = ShopTheme.pixelOutline;
-
-    canvas.drawRect(Rect.fromLTWH(20, 22, 58, 58), violet);
-    canvas.drawRect(Rect.fromLTWH(32, 12, 34, 12), teal);
-    canvas.drawRect(Rect.fromLTWH(30, 48, 38, 36), outline);
-    canvas.drawRect(Rect.fromLTWH(36, 54, 10, 10), ShopThemePaint.skin);
-    canvas.drawRect(Rect.fromLTWH(52, 54, 10, 10), ShopThemePaint.skin);
-    canvas.drawRect(Rect.fromLTWH(39, 72, 24, 7), ember);
-    canvas.drawRect(Rect.fromLTWH(91, 25, 8, 62), outline);
-    canvas.drawRect(Rect.fromLTWH(87, 18, 16, 10), ShopThemePaint.glow);
-
-    final seed = idea.kernelId?.codeUnits.fold<int>(0, (a, b) => a + b) ?? 7;
-    final accentColors = [ShopTheme.pixelTeal, ShopTheme.pixelViolet];
-    for (var index = 0; index < 6; index++) {
-      final left = 150.0 + ((seed + index * 19) % 90);
-      final top = 16.0 + ((seed + index * 13) % 72);
-      final item = Paint()..color = accentColors[index % accentColors.length];
-      canvas.drawRect(Rect.fromLTWH(left, top, 9, 9), item);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_CardArtPainter oldDelegate) => oldDelegate.idea != idea;
-}
-
-class ShopThemePaint {
-  static final skin = Paint()..color = ShopTheme.paperSkin;
-  static final glow = Paint()..color = ShopTheme.pixelGlow;
-}
-
-Color _parseColor(String value) {
-  final normalized = value.replaceFirst('#', '');
-  return Color(int.parse('FF$normalized', radix: 16));
 }

@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:excuse_me/app.dart';
 import 'package:flutter/material.dart';
 import 'package:excuse_me/domain/idea_request.dart';
@@ -63,6 +64,7 @@ Future<void> completeV6Conversation(
 }
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   group('Excuse Shop v6', () {
     testWidgets('entry presents Excusee, scene, paired opening, and CTA', (
       tester,
@@ -173,33 +175,28 @@ void main() {
       );
     });
 
-    testWidgets(
-      'result card supports local tone change and keep confirmation',
-      (tester) async {
-        await tester.pumpWidget(
-          ExcuseMeApp(
-            client: FakeShopIdeaClient(
-              'Idea: keep the explanation low-detail.',
-            ),
-            disableAnimations: true,
-          ),
-        );
-        await completeV6Conversation(tester);
+    testWidgets('plain client hides unavailable funny tone and keeps card', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ExcuseMeApp(
+          client: FakeShopIdeaClient('Idea: keep the explanation low-detail.'),
+          disableAnimations: true,
+        ),
+      );
+      await completeV6Conversation(tester);
 
-        expect(
-          find.byKey(const ValueKey('collectible-result-card')),
-          findsOneWidget,
-        );
-        expect(find.text('THE IDEA'), findsOneWidget);
-        await tester.ensureVisible(find.byKey(const ValueKey('v6-tone-funny')));
-        await tester.tap(find.byKey(const ValueKey('v6-tone-funny')));
-        await tester.pump();
-        await tester.ensureVisible(find.byKey(const ValueKey('v6-keep-card')));
-        await tester.tap(find.byKey(const ValueKey('v6-keep-card')));
-        await tester.pump();
-        expect(find.text('KEPT FOR THIS VISIT'), findsOneWidget);
-      },
-    );
+      expect(
+        find.byKey(const ValueKey('collectible-result-card')),
+        findsOneWidget,
+      );
+      expect(find.text('THE IDEA'), findsOneWidget);
+      expect(find.byKey(const ValueKey('v6-tone-funny')), findsNothing);
+      await tester.ensureVisible(find.byKey(const ValueKey('v6-keep-card')));
+      await tester.tap(find.byKey(const ValueKey('v6-keep-card')));
+      await tester.pumpAndSettle();
+      expect(find.text('SAVED TO COLLECTION'), findsOneWidget);
+    });
 
     testWidgets(
       'generation failure stays inline and restart returns to entry',

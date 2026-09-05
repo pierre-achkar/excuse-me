@@ -22,6 +22,7 @@ class ExcuseMeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: ShopTheme.theme,
       darkTheme: ShopTheme.darkTheme,

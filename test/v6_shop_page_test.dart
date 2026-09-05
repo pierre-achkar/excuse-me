@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:excuse_me/app.dart';
 import 'package:excuse_me/domain/excuse_kernel.dart';
 import 'package:excuse_me/domain/idea_request.dart';
@@ -27,6 +28,7 @@ class _V6Client implements IdeaClient, DetailedIdeaClient {
 }
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   testWidgets('v6 shop completes the six-beat conversation and keeps locally', (
     tester,
   ) async {
@@ -71,7 +73,7 @@ void main() {
 
     await tester.ensureVisible(find.byKey(const ValueKey('v6-keep-card')));
     await tester.tap(find.byKey(const ValueKey('v6-keep-card')));
-    await tester.pump();
-    expect(find.text('KEPT FOR THIS VISIT'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.text('SAVED TO COLLECTION'), findsOneWidget);
   });
 }
