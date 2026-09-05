@@ -22,6 +22,8 @@ class ExcuseMeApp extends StatelessWidget {
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: ShopTheme.theme,
+      darkTheme: ShopTheme.darkTheme,
+      themeMode: ThemeMode.system,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

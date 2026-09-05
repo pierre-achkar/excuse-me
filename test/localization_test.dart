@@ -50,19 +50,18 @@ Widget _localizedApp(
 }
 
 Future<void> _completeFlow(WidgetTester tester) async {
-  await tester.ensureVisible(find.text('Get out of plans'));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text('Get out of plans'));
-  await tester.pumpAndSettle();
-  await tester.ensureVisible(find.text('Dinner'));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text('Dinner'));
-  await tester.pumpAndSettle();
-  await tester.ensureVisible(find.text('Straightforward'));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text('Straightforward'));
-  await tester.pumpAndSettle();
-  await tester.pumpAndSettle();
+  Future<void> choose(String label) async {
+    final option = find.text(label);
+    await tester.ensureVisible(option);
+    await tester.pumpAndSettle();
+    await tester.tap(option);
+    await tester.pumpAndSettle();
+  }
+
+  await choose("A dinner I can't face");
+  await choose('Today');
+  await choose('Someone close');
+  await choose('Nice text');
 }
 
 void main() {
@@ -79,13 +78,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('The Excuse Shop'), findsOneWidget);
-      expect(find.text('Get out of plans'), findsOneWidget);
-      expect(find.text('Buy time'), findsOneWidget);
-      expect(find.text('Recover from a situation'), findsOneWidget);
+      expect(find.text("What's the damage?"), findsOneWidget);
+      expect(find.text("A dinner I can't face"), findsOneWidget);
+      expect(find.text('A group work call'), findsOneWidget);
       expect(find.textContaining('shopkeeper'), findsWidgets);
     });
 
-    testWidgets('English flows through mission, situation, tone, and result', (
+    testWidgets('English flows through all four beats and the result', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -96,18 +95,27 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Get out of plans'));
+      expect(find.text("What's the damage?"), findsOneWidget);
+      await tester.ensureVisible(find.text("A dinner I can't face"));
+      await tester.tap(find.text("A dinner I can't face"));
       await tester.pumpAndSettle();
-      expect(find.text('Dinner'), findsOneWidget);
-      expect(find.text('Party'), findsOneWidget);
+      expect(find.text("When's the reckoning?"), findsOneWidget);
+      expect(find.text('Already missed'), findsOneWidget);
 
-      await tester.tap(find.text('Dinner'));
+      await tester.ensureVisible(find.text('Today'));
+      await tester.tap(find.text('Today'));
       await tester.pumpAndSettle();
-      expect(find.text('Straightforward'), findsOneWidget);
-      expect(find.text('Warm'), findsOneWidget);
-      expect(find.text('Funny'), findsOneWidget);
+      expect(find.text("Who's on the other end?"), findsOneWidget);
+      expect(find.text('Someone close'), findsOneWidget);
 
-      await tester.tap(find.text('Straightforward'));
+      await tester.ensureVisible(find.text('Someone close'));
+      await tester.tap(find.text('Someone close'));
+      await tester.pumpAndSettle();
+      expect(find.text('How loud do you want this?'), findsOneWidget);
+      expect(find.text('Nice text'), findsOneWidget);
+
+      await tester.ensureVisible(find.text('Nice text'));
+      await tester.tap(find.text('Nice text'));
       await tester.pumpAndSettle();
       await tester.pumpAndSettle();
 
@@ -144,7 +152,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.bySemanticsLabel('Choose mission: Get out of plans'),
+        find.bySemanticsLabel("Choose damage: A dinner I can't face"),
         findsOneWidget,
       );
 
@@ -167,19 +175,19 @@ void main() {
       final l10n = await AppLocalizations.delegate.load(const Locale('en'));
       expect(l10n.appTitle, 'Excuse Me');
       expect(l10n.shopTitle, 'The Excuse Shop');
-      expect(l10n.missionGetOutOfPlans, 'Get out of plans');
-      expect(l10n.situationDinner, 'Dinner');
-      expect(l10n.toneWarm, 'Warm');
+      expect(l10n.dialogueDamage, "What's the damage?");
+      expect(l10n.damageDinner, "A dinner I can't face");
+      expect(l10n.dialogueTiming, "When's the reckoning?");
+      expect(l10n.timingToday, 'Today');
+      expect(l10n.dialogueAudience, "Who's on the other end?");
+      expect(l10n.audienceSomeoneClose, 'Someone close');
+      expect(l10n.dialogueDelivery, 'How loud do you want this?');
+      expect(l10n.deliveryNiceText, 'Nice text');
       expect(l10n.brewingYourExcuse, 'Brewing your excuse...');
       expect(l10n.resultTitle, 'Your excuse');
-      expect(l10n.collectibleIdeaBadge, 'COLLECTIBLE IDEA');
-      expect(
-        l10n.generationError,
-        'Unable to generate an idea. Please try again.',
-      );
-      expect(l10n.ideaCopied, 'Idea copied.');
-      expect(l10n.stepIndicator(1, 3), 'Step 1 of 3');
-      expect(l10n.chooseMission('X'), 'Choose mission: X');
+      expect(l10n.repairDirectionLabel, 'Repair direction');
+      expect(l10n.stepIndicator(1, 4), 'Step 1 of 4');
+      expect(l10n.chooseDamage('X'), 'Choose damage: X');
     });
   });
 
@@ -214,7 +222,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Get out of plans'), findsOneWidget);
+      expect(find.text("What's the damage?"), findsOneWidget);
       expect(tester.takeException(), isNull);
 
       await _completeFlow(tester);
@@ -239,7 +247,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(tester.takeException(), isNull);
-        expect(find.text('Get out of plans'), findsOneWidget);
+        expect(find.text("What's the damage?"), findsOneWidget);
 
         await _completeFlow(tester);
 

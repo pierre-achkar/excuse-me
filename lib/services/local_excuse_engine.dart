@@ -4,10 +4,19 @@ import 'idea_quality_policy.dart';
 import 'idea_safety_policy.dart';
 
 class ExcuseResult {
-  const ExcuseResult({required this.kernelId, required this.idea});
+  const ExcuseResult({
+    required this.kernelId,
+    required this.playfulName,
+    required this.family,
+    required this.idea,
+    required this.isPlaceholder,
+  });
 
   final String kernelId;
+  final String playfulName;
+  final ExcuseFamily family;
   final String idea;
+  final bool isPlaceholder;
 }
 
 class LocalExcuseEngine {
@@ -52,10 +61,20 @@ class LocalExcuseEngine {
     if (!IdeaSafetyPolicy.isSafeIdea(kernel.ideaDirection)) {
       throw StateError('Generated idea failed safety checks.');
     }
-    if (IdeaQualityPolicy.isGeneric(kernel.ideaDirection)) {
+    if (!kernel.isPlaceholder &&
+        IdeaQualityPolicy.isGeneric(kernel.ideaDirection)) {
       throw StateError('Generated idea failed quality checks.');
     }
-    return ExcuseResult(kernelId: kernel.id, idea: kernel.ideaDirection);
+    final idea = kernel.isPlaceholder
+        ? 'Placeholder: Add the curated idea for ${kernel.playfulName}.'
+        : kernel.ideaDirection;
+    return ExcuseResult(
+      kernelId: kernel.id,
+      playfulName: kernel.playfulName,
+      family: kernel.family,
+      idea: idea,
+      isPlaceholder: kernel.isPlaceholder,
+    );
   }
 
   int _stableHash(String value) {

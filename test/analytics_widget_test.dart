@@ -15,6 +15,21 @@ class FakeShopIdeaClient implements IdeaClient {
   Future<String> generate(IdeaRequest request) async => idea;
 }
 
+Future<void> _completeShopFlow(WidgetTester tester) async {
+  for (final label in [
+    "A dinner I can't face",
+    'Today',
+    'Someone close',
+    'Nice text',
+  ]) {
+    final option = find.text(label);
+    await tester.ensureVisible(option);
+    await tester.pumpAndSettle();
+    await tester.tap(option);
+    await tester.pumpAndSettle();
+  }
+}
+
 class SpyAnalyticsClient implements AnalyticsClient {
   final List<AnalyticsEvent> events = [];
 
@@ -76,13 +91,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle();
+      await _completeShopFlow(tester);
 
       expect(analytics.count(AnalyticsEvent.generationCompleted), 1);
     });
@@ -99,13 +108,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle();
+      await _completeShopFlow(tester);
 
       await tester.tap(find.text('Regenerate'));
       await tester.pump();
@@ -128,13 +131,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle();
+      await _completeShopFlow(tester);
 
       await tester.tap(find.text('Copy'));
       await tester.pumpAndSettle();
@@ -152,13 +149,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle();
+      await _completeShopFlow(tester);
 
       await tester.tap(find.text('Share'));
       await tester.pumpAndSettle();
@@ -200,13 +191,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle();
+      await _completeShopFlow(tester);
       await tester.tap(find.text('Copy'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Regenerate'));

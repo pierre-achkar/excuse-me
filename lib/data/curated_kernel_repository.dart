@@ -1,11 +1,14 @@
 import '../domain/excuse_kernel.dart';
 
+const _placeholderIdea =
+    'Placeholder: Content pending for the local excuse database.';
+
 class CuratedKernelRepository {
   const CuratedKernelRepository({required this.version, required this.kernels});
 
   factory CuratedKernelRepository.englishAlpha() {
     return const CuratedKernelRepository(
-      version: '1.0.0',
+      version: '1.1.0',
       kernels: [
         ExcuseKernel(
           id: 'en_capacity_reset',
@@ -40,7 +43,8 @@ class CuratedKernelRepository {
             ExcuseContext.other,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.nice},
-          ideaDirection: 'Idea: Use a simple capacity limit, keep the explanation low-detail, and offer a respectful alternative.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
         ),
         ExcuseKernel(
           id: 'en_existing_commitment',
@@ -57,7 +61,8 @@ class CuratedKernelRepository {
           timings: {ExcuseTiming.plannedAhead, ExcuseTiming.today},
           obligations: {ObligationLevel.expected, ObligationLevel.important},
           tones: {ExcuseTone.lowKey, ExcuseTone.nice},
-          ideaDirection: 'Idea: Refer to a prior commitment without inventing names, emergencies, or unnecessary detail.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
         ),
         ExcuseKernel(
           id: 'en_schedule_collision',
@@ -81,7 +86,8 @@ class CuratedKernelRepository {
             ObligationLevel.paidOrReserved,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.nice, ExcuseTone.dramatic},
-          ideaDirection: 'Idea: Frame the change as a scheduling collision and offer a clearer time if appropriate.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
         ),
         ExcuseKernel(
           id: 'en_logistics_delay',
@@ -105,7 +111,8 @@ class CuratedKernelRepository {
             ExcuseContext.other,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.funny},
-          ideaDirection: 'Idea: Use a minor logistics delay, acknowledge the timing, and avoid elaborate claims.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
         ),
         ExcuseKernel(
           id: 'en_budget_boundary',
@@ -130,7 +137,8 @@ class CuratedKernelRepository {
             ExcuseContext.friends,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.nice},
-          ideaDirection: 'Idea: Set a straightforward budget boundary without blaming the plan or the people involved.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
         ),
         ExcuseKernel(
           id: 'en_work_overrun',
@@ -166,7 +174,8 @@ class CuratedKernelRepository {
             ExcuseContext.other,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.nice, ExcuseTone.dramatic},
-          ideaDirection: 'Idea: Point to an overrun in an existing responsibility and keep the consequence proportionate.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
         ),
         ExcuseKernel(
           id: 'en_household_responsibility',
@@ -190,7 +199,8 @@ class CuratedKernelRepository {
             ExcuseContext.other,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.nice},
-          ideaDirection: 'Idea: Use a routine household responsibility and offer a proportionate alternative.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
         ),
         ExcuseKernel(
           id: 'en_planning_mistake',
@@ -207,7 +217,8 @@ class CuratedKernelRepository {
             ExcuseTiming.alreadyMissed,
           },
           tones: {ExcuseTone.funny, ExcuseTone.dramatic, ExcuseTone.unhinged},
-          ideaDirection: 'Idea: Turn a harmless planning mix-up into a playful angle without inventing an emergency.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
         ),
         ExcuseKernel(
           id: 'en_early_start',
@@ -235,7 +246,8 @@ class CuratedKernelRepository {
             ExcuseContext.friends,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.nice, ExcuseTone.funny},
-          ideaDirection: 'Idea: Use the need to protect an early start and keep the boundary brief and considerate.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
         ),
         ExcuseKernel(
           id: 'en_honest_decline',
@@ -252,7 +264,8 @@ class CuratedKernelRepository {
           },
           obligations: {ObligationLevel.casual, ObligationLevel.expected},
           tones: {ExcuseTone.lowKey, ExcuseTone.nice},
-          ideaDirection: 'Idea: Decline with a direct capacity or preference boundary rather than constructing a story.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
         ),
         ExcuseKernel(
           id: 'en_alternative_timing',
@@ -279,7 +292,8 @@ class CuratedKernelRepository {
           },
           obligations: {ObligationLevel.casual, ObligationLevel.expected},
           tones: {ExcuseTone.lowKey, ExcuseTone.nice, ExcuseTone.funny},
-          ideaDirection: 'Idea: Ask for a specific timing change and pair it with a realistic alternative.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
         ),
         ExcuseKernel(
           id: 'en_honest_boundary_fallback',
@@ -311,7 +325,8 @@ class CuratedKernelRepository {
             ExcuseTone.dramatic,
             ExcuseTone.unhinged,
           },
-          ideaDirection: 'Idea: Use an honest boundary, acknowledge the impact, and offer a practical next step.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
           isFallback: true,
         ),
         ExcuseKernel(
@@ -344,7 +359,8 @@ class CuratedKernelRepository {
             ExcuseTone.dramatic,
             ExcuseTone.unhinged,
           },
-          ideaDirection: 'Idea: Acknowledge the constraint briefly and suggest one proportionate repair or alternative.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
           isFallback: true,
         ),
       ],

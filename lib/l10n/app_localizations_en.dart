@@ -36,8 +36,79 @@ class AppLocalizationsEn extends AppLocalizations {
       'Great choice. Now pick a situation that fits.';
 
   @override
-  String get shopkeeperTone =>
-      'Almost there. Pick your ingredient for the tone.';
+  String get shopkeeperTone => 'Almost there. Pick how loud you want this.';
+
+  @override
+  String get dialogueDamage => 'What\'s the damage?';
+
+  @override
+  String get dialogueTiming => 'When\'s the reckoning?';
+
+  @override
+  String get dialogueAudience => 'Who\'s on the other end?';
+
+  @override
+  String get dialogueDelivery => 'How loud do you want this?';
+
+  @override
+  String get damageDinner => 'A dinner I can\'t face';
+
+  @override
+  String get damageParty => 'A party I said yes to';
+
+  @override
+  String get damageGroupWorkCall => 'A group work call';
+
+  @override
+  String get damageDate => 'A date I\'m dreading';
+
+  @override
+  String get damageMissed => 'I missed something';
+
+  @override
+  String get timingPlannedAhead => 'Planned ahead';
+
+  @override
+  String get timingToday => 'Today';
+
+  @override
+  String get timingLastMinute => 'Last minute';
+
+  @override
+  String get timingAlreadyLate => 'Already late';
+
+  @override
+  String get timingAlreadyMissed => 'Already missed';
+
+  @override
+  String get audienceSomeoneClose => 'Someone close';
+
+  @override
+  String get audienceSomeoneFamiliar => 'Someone familiar';
+
+  @override
+  String get audienceAGroup => 'A group';
+
+  @override
+  String get audienceWorkContact => 'A work contact';
+
+  @override
+  String get audienceSomeoneInCharge => 'Someone in charge';
+
+  @override
+  String get deliveryLowKeyText => 'Low-key text';
+
+  @override
+  String get deliveryNiceText => 'Nice text';
+
+  @override
+  String get deliveryFunnyText => 'Funny text';
+
+  @override
+  String get deliveryDramaticVoiceNote => 'Dramatic voice note';
+
+  @override
+  String get deliveryUnhingedCall => 'Unhinged call';
 
   @override
   String get shopkeeperSays => 'Shopkeeper says:';
@@ -94,6 +165,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toneFunny => 'Funny';
 
   @override
+  String get toneLowKey => 'Low-key';
+
+  @override
+  String get toneNice => 'Nice';
+
+  @override
+  String get toneDramatic => 'Dramatic';
+
+  @override
+  String get toneUnhinged => 'Unhinged';
+
+  @override
   String chooseMission(String mission) {
     return 'Choose mission: $mission';
   }
@@ -109,6 +192,26 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String chooseDamage(String option) {
+    return 'Choose damage: $option';
+  }
+
+  @override
+  String chooseTiming(String option) {
+    return 'Choose timing: $option';
+  }
+
+  @override
+  String chooseAudience(String option) {
+    return 'Choose audience: $option';
+  }
+
+  @override
+  String chooseDelivery(String option) {
+    return 'Choose delivery: $option';
+  }
+
+  @override
   String get brewingYourExcuse => 'Brewing your excuse...';
 
   @override
@@ -116,6 +219,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resultTitle => 'Your excuse';
+
+  @override
+  String get repairDirectionLabel => 'Repair direction';
+
+  @override
+  String get repairDirectionPending =>
+      'A small repair direction is available for you to phrase in your own words.';
 
   @override
   String get collectibleIdeaBadge => 'COLLECTIBLE IDEA';

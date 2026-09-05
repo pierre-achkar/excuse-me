@@ -1,5 +1,15 @@
 enum ExcuseIntent { getOutOfPlans, buyTime, recoverFromSituation }
 
+enum ExcuseFamily {
+  capacityWellbeing,
+  careFamily,
+  workStudy,
+  moneyLogistics,
+  planningFailure,
+  boundaryPreference,
+  absurdDramatic,
+}
+
 enum ExcuseAction {
   cancel,
   decline,
@@ -47,6 +57,18 @@ enum ExcuseContext {
 
 enum ExcuseTone { lowKey, nice, funny, dramatic, unhinged }
 
+enum AudienceSize { individual, group }
+
+enum ExcuseChannel { text, voiceNote, call, inPerson }
+
+enum RepairOption {
+  none,
+  briefApology,
+  offerAnotherTime,
+  alternativePlan,
+  acknowledgeInconvenience,
+}
+
 enum RequestRisk { none, highRiskFabrication }
 
 enum RequestClarity { structured, ambiguous }
@@ -60,6 +82,10 @@ class ExcuseRequest {
     required this.obligation,
     required this.context,
     required this.tone,
+    this.family,
+    this.audienceSize = AudienceSize.individual,
+    this.channel = ExcuseChannel.text,
+    this.repairPreference = RepairOption.none,
     this.risk = RequestRisk.none,
     this.clarity = RequestClarity.structured,
   });
@@ -71,6 +97,10 @@ class ExcuseRequest {
   final ObligationLevel obligation;
   final ExcuseContext context;
   final ExcuseTone tone;
+  final ExcuseFamily? family;
+  final AudienceSize audienceSize;
+  final ExcuseChannel channel;
+  final RepairOption repairPreference;
   final RequestRisk risk;
   final RequestClarity clarity;
 
@@ -82,6 +112,10 @@ class ExcuseRequest {
     obligation.name,
     context.name,
     tone.name,
+    if (family != null) family!.name,
+    if (audienceSize != AudienceSize.individual) audienceSize.name,
+    if (channel != ExcuseChannel.text) channel.name,
+    if (repairPreference != RepairOption.none) repairPreference.name,
     risk.name,
     clarity.name,
   ].join('|');

@@ -2,18 +2,6 @@ export 'excuse_request.dart';
 
 import 'excuse_request.dart';
 
-enum ExcuseFamily {
-  capacityWellbeing,
-  careFamily,
-  workStudy,
-  moneyLogistics,
-  planningFailure,
-  boundaryPreference,
-  absurdDramatic,
-}
-
-enum AudienceSize { individual, group }
-
 enum CauseType {
   capacity,
   priorCommitment,
@@ -40,13 +28,6 @@ enum LinguisticFeature {
   playfulExaggeration,
 }
 
-enum RepairOption {
-  briefApology,
-  offerAnotherTime,
-  alternativePlan,
-  acknowledgeInconvenience,
-}
-
 enum RiskFlag {
   medicalClaim,
   familyEmergency,
@@ -56,6 +37,12 @@ enum RiskFlag {
 }
 
 const allAudienceSizes = {AudienceSize.individual, AudienceSize.group};
+const allExcuseChannels = {
+  ExcuseChannel.text,
+  ExcuseChannel.voiceNote,
+  ExcuseChannel.call,
+  ExcuseChannel.inPerson,
+};
 const defaultLinguisticFeatures = {LinguisticFeature.minimalDetail};
 const defaultRepairOptions = {RepairOption.briefApology};
 const allProhibitedRiskFlags = {
@@ -112,12 +99,14 @@ class ExcuseKernel {
     required this.actions,
     required this.tones,
     required this.ideaDirection,
+    this.isPlaceholder = false,
     this.isFallback = false,
     this.timings = allExcuseTimings,
     this.relationships = allRelationshipKinds,
     this.obligations = allObligationLevels,
     this.contexts = allExcuseContexts,
     this.audienceSizes = allAudienceSizes,
+    this.channels = allExcuseChannels,
     this.linguisticFeatures = defaultLinguisticFeatures,
     this.repairOptions = defaultRepairOptions,
     this.prohibitedRiskFlags = allProhibitedRiskFlags,
@@ -135,20 +124,27 @@ class ExcuseKernel {
   final Set<ObligationLevel> obligations;
   final Set<ExcuseContext> contexts;
   final Set<AudienceSize> audienceSizes;
+  final Set<ExcuseChannel> channels;
   final Set<ExcuseTone> tones;
   final Set<LinguisticFeature> linguisticFeatures;
   final Set<RepairOption> repairOptions;
   final Set<RiskFlag> prohibitedRiskFlags;
   final String ideaDirection;
+  final bool isPlaceholder;
   final bool isFallback;
 
   bool supports(ExcuseRequest request) {
     return intents.contains(request.intent) &&
         actions.contains(request.action) &&
+        (request.family == null || family == request.family) &&
         timings.contains(request.timing) &&
         relationships.contains(request.relationship) &&
         obligations.contains(request.obligation) &&
         contexts.contains(request.context) &&
+        audienceSizes.contains(request.audienceSize) &&
+        channels.contains(request.channel) &&
+        (request.repairPreference == RepairOption.none ||
+            repairOptions.contains(request.repairPreference)) &&
         tones.contains(request.tone);
   }
 }

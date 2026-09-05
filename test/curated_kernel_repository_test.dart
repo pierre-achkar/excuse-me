@@ -6,7 +6,7 @@ void main() {
   test('curated repository is versioned and uses unique stable kernel IDs', () {
     final repository = CuratedKernelRepository.englishAlpha();
 
-    expect(repository.version, '1.0.0');
+    expect(repository.version, '1.1.0');
     expect(repository.kernels.length, greaterThanOrEqualTo(12));
     expect(
       repository.kernels.map((kernel) => kernel.id).toSet().length,
@@ -33,8 +33,11 @@ void main() {
       kernels.expand((kernel) => kernel.tones).toSet(),
       containsAll(ExcuseTone.values),
     );
+    expect(kernels.every((kernel) => kernel.isPlaceholder), isTrue);
     expect(
-      kernels.every((kernel) => kernel.ideaDirection.startsWith('Idea:')),
+      kernels.every(
+        (kernel) => kernel.ideaDirection.startsWith('Placeholder:'),
+      ),
       isTrue,
     );
   });

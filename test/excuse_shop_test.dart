@@ -1,4 +1,5 @@
 import 'package:excuse_me/app.dart';
+import 'package:excuse_me/domain/excuse_request.dart';
 import 'package:excuse_me/domain/idea_request.dart';
 import 'package:excuse_me/services/idea_client.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +10,10 @@ class FakeShopIdeaClient implements IdeaClient {
 
   final String idea;
   int callCount = 0;
-  List<dynamic> receivedRequests = [];
+  List<IdeaRequest> receivedRequests = [];
 
   @override
-  Future<String> generate(request) async {
+  Future<String> generate(IdeaRequest request) async {
     callCount++;
     receivedRequests.add(request);
     return idea;
@@ -27,7 +28,7 @@ class DelayedShopIdeaClient implements IdeaClient {
   int callCount = 0;
 
   @override
-  Future<String> generate(request) async {
+  Future<String> generate(IdeaRequest request) async {
     callCount++;
     await Future<void>.delayed(delay);
     return idea;
@@ -36,239 +37,220 @@ class DelayedShopIdeaClient implements IdeaClient {
 
 class FakeFailingClient implements IdeaClient {
   @override
-  Future<String> generate(request) async {
+  Future<String> generate(IdeaRequest request) async {
     throw Exception('generation failed');
+  }
+}
+
+Future<void> chooseShopOption(WidgetTester tester, String label) async {
+  final option = find.text(label);
+  await tester.ensureVisible(option);
+  await tester.pumpAndSettle();
+  await tester.tap(option);
+  await tester.pumpAndSettle();
+}
+
+Future<void> completeShopConversation(
+  WidgetTester tester, {
+  String damage = "A dinner I can't face",
+  String timing = 'Today',
+  String audience = 'Someone close',
+  String delivery = 'Nice text',
+  bool settleFinal = true,
+}) async {
+  await chooseShopOption(tester, damage);
+  await chooseShopOption(tester, timing);
+  await chooseShopOption(tester, audience);
+
+  final deliveryOption = find.text(delivery);
+  await tester.ensureVisible(deliveryOption);
+  await tester.pumpAndSettle();
+  await tester.tap(deliveryOption);
+  await tester.pump();
+  if (settleFinal) {
+    await tester.pumpAndSettle();
   }
 }
 
 void main() {
   group('Excuse Shop', () {
-    testWidgets('shopkeeper greets and shows mission choices', (tester) async {
+    testWidgets('shopkeeper opens the four-beat conversation', (tester) async {
       final client = FakeShopIdeaClient('Idea: test');
       await tester.pumpWidget(ExcuseMeApp(client: client));
       await tester.pumpAndSettle();
 
       expect(find.text('The Excuse Shop'), findsOneWidget);
       expect(find.textContaining('shopkeeper'), findsOneWidget);
-      expect(find.text('Get out of plans'), findsOneWidget);
-      expect(find.text('Buy time'), findsOneWidget);
-      expect(find.text('Recover from a situation'), findsOneWidget);
+      expect(find.text("What's the damage?"), findsOneWidget);
+      expect(find.text("A dinner I can't face"), findsOneWidget);
+      expect(find.text('A party I said yes to'), findsOneWidget);
+      expect(find.text('A group work call'), findsOneWidget);
+      expect(find.text('A date I\'m dreading'), findsOneWidget);
+      expect(find.text('I missed something'), findsOneWidget);
+      expect(find.byKey(const Key('shopkeeper-avatar')), findsOneWidget);
+      expect(find.byKey(const Key('shopkeeper-stage')), findsOneWidget);
     });
 
-    testWidgets('mission card has accessible semantics', (tester) async {
+    testWidgets('each beat replaces the previous response set', (tester) async {
       final client = FakeShopIdeaClient('Idea: test');
       await tester.pumpWidget(ExcuseMeApp(client: client));
       await tester.pumpAndSettle();
 
-      final missionFinder = find.text('Get out of plans');
-      expect(missionFinder, findsOneWidget);
-
-      final card = find.ancestor(
-        of: missionFinder,
-        matching: find.byType(Card),
-      );
-      expect(card, findsOneWidget);
-
+      expect(find.text('Step 1 of 4'), findsOneWidget);
       expect(
-        find.bySemanticsLabel('Choose mission: Get out of plans'),
+        find.bySemanticsLabel("Choose damage: A dinner I can't face"),
         findsOneWidget,
       );
+
+      await chooseShopOption(tester, "A dinner I can't face");
+      expect(find.text("When's the reckoning?"), findsOneWidget);
+      expect(find.text('Step 2 of 4'), findsOneWidget);
+      expect(find.text('Planned ahead'), findsOneWidget);
+      expect(find.text('Already missed'), findsOneWidget);
+
+      await chooseShopOption(tester, 'Today');
+      expect(find.text("Who's on the other end?"), findsOneWidget);
+      expect(find.text('Step 3 of 4'), findsOneWidget);
+      expect(find.text('Someone close'), findsOneWidget);
+      expect(find.text('Someone in charge'), findsOneWidget);
+
+      await chooseShopOption(tester, 'Someone close');
+      expect(find.text('How loud do you want this?'), findsOneWidget);
+      expect(find.text('Step 4 of 4'), findsOneWidget);
+      expect(find.text('Low-key text'), findsOneWidget);
+      expect(find.text('Unhinged call'), findsOneWidget);
     });
 
-    testWidgets('selecting Get out of plans shows context choices', (
+    testWidgets('typed four-beat request reaches the local idea client', (
       tester,
     ) async {
       final client = FakeShopIdeaClient('Idea: test');
       await tester.pumpWidget(ExcuseMeApp(client: client));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
+      await completeShopConversation(tester);
 
-      expect(find.text('Choose a situation'), findsOneWidget);
-      expect(find.text('Dinner'), findsOneWidget);
-      expect(find.text('Party'), findsOneWidget);
-      expect(find.text('Work'), findsOneWidget);
+      final request = client.receivedRequests.single.structuredRequest!;
+      expect(request.intent, ExcuseIntent.getOutOfPlans);
+      expect(request.action, ExcuseAction.cancel);
+      expect(request.context, ExcuseContext.dinner);
+      expect(request.timing, ExcuseTiming.today);
+      expect(request.relationship, RelationshipKind.close);
+      expect(request.audienceSize, AudienceSize.individual);
+      expect(request.channel, ExcuseChannel.text);
+      expect(request.tone, ExcuseTone.nice);
     });
 
-    testWidgets('selecting Buy time shows context choices', (tester) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Buy time'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Choose a situation'), findsOneWidget);
-      expect(find.text('Reschedule'), findsOneWidget);
-      expect(find.text('Delay'), findsOneWidget);
-    });
-
-    testWidgets('selecting Recover shows context choices', (tester) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Recover from a situation'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Choose a situation'), findsOneWidget);
-      expect(find.text('Late'), findsOneWidget);
-      expect(find.text('Missed'), findsOneWidget);
-    });
-
-    testWidgets('selecting situation shows tone/ingredient choices', (
-      tester,
-    ) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Choose your ingredient'), findsOneWidget);
-      expect(find.text('Straightforward'), findsOneWidget);
-      expect(find.text('Warm'), findsOneWidget);
-      expect(find.text('Funny'), findsOneWidget);
-    });
-
-    testWidgets('completing all steps shows brewing then result', (
+    testWidgets('delayed generation has a visible brewing state', (
       tester,
     ) async {
       final client = DelayedShopIdeaClient(
-        'Idea: Use a simple capacity limit, keep the explanation low-detail, and offer a respectful alternative.',
+        'Idea: Use a low-detail capacity direction.',
       );
       await tester.pumpWidget(ExcuseMeApp(client: client));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pump();
-
+      await completeShopConversation(tester, settleFinal: false);
+      expect(find.text('Brewing your excuse...'), findsOneWidget);
+      expect(find.text('Your excuse'), findsNothing);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
+      expect(find.text('Your excuse'), findsOneWidget);
+      expect(find.byKey(const Key('pixel-idea-card')), findsOneWidget);
+    });
+
+    testWidgets('result card exposes regenerate, copy, share, and new flow', (
+      tester,
+    ) async {
+      final client = FakeShopIdeaClient(
+        'Idea: Use a simple capacity limit and keep the explanation low-detail.',
+      );
+      await tester.pumpWidget(ExcuseMeApp(client: client));
       await tester.pumpAndSettle();
 
-      expect(find.text('Your excuse'), findsOneWidget);
+      await completeShopConversation(tester);
+
+      expect(find.byKey(const Key('pixel-idea-card')), findsOneWidget);
+      expect(find.text('Regenerate'), findsOneWidget);
+      expect(find.text('Copy'), findsOneWidget);
+      expect(find.text('Share'), findsOneWidget);
+      expect(find.text('New excuse'), findsOneWidget);
       expect(
         find.textContaining('Use a simple capacity limit'),
         findsOneWidget,
       );
+      expect(find.bySemanticsLabel('Regenerate excuse'), findsOneWidget);
+      expect(find.bySemanticsLabel('Start new excuse'), findsOneWidget);
     });
 
-    testWidgets('result card shows regenerate copy share buttons', (
-      tester,
-    ) async {
-      final client = FakeShopIdeaClient(
-        'Idea: Use a simple capacity limit, keep the explanation low-detail, and offer a respectful alternative.',
-      );
+    testWidgets('regenerate calls the local client again', (tester) async {
+      final client = FakeShopIdeaClient('Idea: test');
       await tester.pumpWidget(ExcuseMeApp(client: client));
       await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle();
-
-      expect(find.text('Regenerate'), findsOneWidget);
-      expect(find.text('Copy'), findsOneWidget);
-      expect(find.text('Share'), findsOneWidget);
-    });
-
-    testWidgets('regenerate calls client again', (tester) async {
-      final client = FakeShopIdeaClient(
-        'Idea: Use a simple capacity limit, keep the explanation low-detail, and offer a respectful alternative.',
-      );
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle();
+      await completeShopConversation(tester);
 
       expect(client.callCount, 1);
-
       await tester.tap(find.text('Regenerate'));
       await tester.pumpAndSettle();
-
       expect(client.callCount, 2);
     });
 
-    testWidgets(
-      'selecting Recover then Missed then Funny maps to correct idea',
-      (tester) async {
-        final client = FakeShopIdeaClient(
-          'Idea: Turn a harmless planning mix-up into a playful angle without inventing an emergency.',
-        );
-        await tester.pumpWidget(ExcuseMeApp(client: client));
-        await tester.pumpAndSettle();
-
-        await tester.tap(find.text('Recover from a situation'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Missed'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Funny'));
-        await tester.pumpAndSettle();
-        await tester.pumpAndSettle();
-
-        expect(find.textContaining('planning mix-up'), findsOneWidget);
-      },
-    );
-
-    testWidgets('error state displays inline error message', (tester) async {
-      await tester.pumpWidget(ExcuseMeApp(client: FakeFailingClient()));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle();
-
-      expect(find.textContaining('Unable to'), findsOneWidget);
-    });
-
-    testWidgets('new flow button restarts the shop', (tester) async {
-      final client = FakeShopIdeaClient(
-        'Idea: Use a simple capacity limit, keep the explanation low-detail, and offer a respectful alternative.',
-      );
+    testWidgets('recovery path preserves typed metadata and repair direction', (
+      tester,
+    ) async {
+      final client = FakeShopIdeaClient('Idea: planning mix-up direction');
       await tester.pumpWidget(ExcuseMeApp(client: client));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Get out of plans'));
+      await completeShopConversation(
+        tester,
+        damage: 'I missed something',
+        timing: 'Already missed',
+        audience: 'Someone familiar',
+        delivery: 'Funny text',
+      );
+
+      final request = client.receivedRequests.single.structuredRequest!;
+      expect(request.intent, ExcuseIntent.recoverFromSituation);
+      expect(request.action, ExcuseAction.explainAbsence);
+      expect(request.context, ExcuseContext.work);
+      expect(request.timing, ExcuseTiming.alreadyMissed);
+      expect(request.relationship, RelationshipKind.familiar);
+      expect(request.tone, ExcuseTone.funny);
+      expect(find.byKey(const Key('repair-direction')), findsOneWidget);
+    });
+
+    testWidgets('generation failure stays inline and actionable', (
+      tester,
+    ) async {
+      await tester.pumpWidget(ExcuseMeApp(client: FakeFailingClient()));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
+
+      await completeShopConversation(tester);
+      expect(find.textContaining('Unable to'), findsOneWidget);
+      expect(find.text('New excuse'), findsOneWidget);
+    });
+
+    testWidgets('new excuse returns to the shop entrance', (tester) async {
+      final client = FakeShopIdeaClient('Idea: test');
+      await tester.pumpWidget(ExcuseMeApp(client: client));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle();
+      await completeShopConversation(tester);
 
       await tester.tap(find.text('New excuse'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Get out of plans'), findsOneWidget);
-      expect(find.text('Buy time'), findsOneWidget);
-      expect(find.text('Recover from a situation'), findsOneWidget);
+      expect(find.text("What's the damage?"), findsOneWidget);
+      expect(find.text('Step 1 of 4'), findsOneWidget);
+      expect(find.byKey(const Key('pixel-idea-card')), findsNothing);
     });
 
-    testWidgets('no old form elements present', (tester) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
+    testWidgets('legacy free-form form elements remain absent', (tester) async {
+      await tester.pumpWidget(
+        ExcuseMeApp(client: FakeShopIdeaClient('Idea: test')),
+      );
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('situation-field')), findsNothing);
@@ -276,242 +258,36 @@ void main() {
       expect(find.text('Find a way to explain it.'), findsNothing);
     });
 
-    testWidgets('shop has accessible navigation semantics', (tester) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      expect(
-        find.bySemanticsLabel('Choose mission: Get out of plans'),
-        findsOneWidget,
-      );
-      expect(find.bySemanticsLabel('Choose mission: Buy time'), findsOneWidget);
-      expect(
-        find.bySemanticsLabel('Choose mission: Recover from a situation'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('reduced-motion still functions', (tester) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pump();
-
-      final mediaQuery = MediaQuery.of(
-        tester.element(find.byType(MaterialApp)),
-      );
-      expect(mediaQuery.disableAnimations, isFalse);
-    });
-
-    testWidgets('brewing state has semantic label', (tester) async {
-      final client = DelayedShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pump();
-
-      expect(find.text('Brewing your excuse...'), findsOneWidget);
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-      final semantics = tester.getSemantics(
-        find.text('Brewing your excuse...'),
-      );
-      expect(semantics.label, contains('Brewing'));
-
-      await tester.pump(const Duration(seconds: 2));
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('context choices are accessible', (tester) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-
-      expect(find.bySemanticsLabel('Choose situation: Dinner'), findsOneWidget);
-    });
-
-    testWidgets('tone choices are accessible', (tester) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-
-      expect(
-        find.bySemanticsLabel('Choose ingredient: Straightforward'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('result action buttons are accessible', (tester) async {
-      final client = FakeShopIdeaClient(
-        'Idea: Use a simple capacity limit, keep the explanation low-detail, and offer a respectful alternative.',
-      );
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle();
-
-      expect(find.bySemanticsLabel('Regenerate excuse'), findsOneWidget);
-      expect(find.bySemanticsLabel('Copy excuse to clipboard'), findsOneWidget);
-      expect(find.bySemanticsLabel('Share excuse'), findsOneWidget);
-      expect(find.bySemanticsLabel('Start new excuse'), findsOneWidget);
-    });
-
-    testWidgets('choice cards render without overflow', (tester) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(Card), findsWidgets);
-
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      expect(find.byType(Card), findsWidgets);
-
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      expect(find.byType(Card), findsWidgets);
-
-      await tester.tap(find.text('Straightforward'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Your excuse'), findsOneWidget);
-    });
-
-    testWidgets('shop step counter is accessible', (tester) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Step 1 of 3'), findsOneWidget);
-
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Step 2 of 3'), findsOneWidget);
-
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Step 3 of 3'), findsOneWidget);
-    });
-
-    testWidgets('brewing has a visible moment before the result', (
-      tester,
-    ) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pump();
-
-      expect(find.text('Brewing your excuse...'), findsOneWidget);
-      expect(find.text('Your excuse'), findsNothing);
-
-      await tester.pump(const Duration(milliseconds: 400));
-      await tester.pumpAndSettle();
-      expect(find.text('Your excuse'), findsOneWidget);
-    });
-
-    testWidgets('reduced motion skips the brewing pause', (tester) async {
-      final client = FakeShopIdeaClient('Idea: test');
+    testWidgets('reduced motion still reaches a result', (tester) async {
       await tester.pumpWidget(
         MediaQuery(
           data: const MediaQueryData(disableAnimations: true),
-          child: ExcuseMeApp(client: client),
+          child: ExcuseMeApp(client: FakeShopIdeaClient('Idea: test')),
         ),
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pump();
-
+      await completeShopConversation(tester);
       expect(find.text('Your excuse'), findsOneWidget);
     });
 
-    testWidgets('selected shop choices reach the idea client', (tester) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Buy time'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Delay'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Funny'));
-      await tester.pumpAndSettle();
-
-      final request = client.receivedRequests.single as IdeaRequest;
-      expect(request.situation.toLowerCase(), contains('buy time'));
-      expect(request.situation.toLowerCase(), contains('delay'));
-      expect(request.tone, 'Funny');
-    });
-
-    testWidgets('shop has a pixel-art keeper and collectible result label', (
+    testWidgets('short screens keep the conversation and card usable', (
       tester,
     ) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-      expect(find.byKey(const Key('shopkeeper-avatar')), findsOneWidget);
-      expect(find.text('COLLECTIBLE IDEA'), findsNothing);
+      await tester.pumpWidget(
+        ExcuseMeApp(client: FakeShopIdeaClient('Idea: test')),
+      );
+      await tester.pumpAndSettle();
+      await completeShopConversation(tester);
 
-      await tester.tap(find.text('Get out of plans'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Dinner'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Straightforward'));
-      await tester.pump(const Duration(milliseconds: 400));
-      await tester.pumpAndSettle();
-
-      expect(find.text('COLLECTIBLE IDEA'), findsOneWidget);
-    });
-
-    testWidgets('shop choices preserve action and context metadata', (
-      tester,
-    ) async {
-      final client = FakeShopIdeaClient('Idea: test');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Recover from a situation'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Missed'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Funny'));
-      await tester.pumpAndSettle();
-
-      final request = client.receivedRequests.single as IdeaRequest;
-      expect(request.situation.toLowerCase(), contains('missed'));
-      expect(request.situation.toLowerCase(), contains('work'));
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(const Key('pixel-idea-card')), findsOneWidget);
+      expect(find.bySemanticsLabel('Start new excuse'), findsOneWidget);
     });
   });
 }

@@ -19,7 +19,7 @@ void main() {
       final idea = await LocalIdeaClient().generate(request);
 
       expect(IdeaGuardrails.isSafeIdea(idea), isTrue);
-      expect(idea, startsWith('Idea:'));
+      expect(idea, startsWith('Placeholder:'));
     },
   );
 

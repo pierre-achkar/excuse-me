@@ -1,0 +1,2095 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Excuse Me — Decision Tree Prototype</title>
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --paper: #fffdf8;
+      --ink: #1e2028;
+      --muted: #656875;
+      --line: #d8d3c8;
+      --accent: #6f4cff;
+      --accent-soft: #eee9ff;
+      --teal: #147d76;
+      --teal-soft: #e3f4f1;
+      --orange: #c76427;
+      --orange-soft: #fff0e3;
+      --danger: #a43d4b;
+      --danger-soft: #fae8eb;
+      --shadow: 0 14px 40px rgba(35, 32, 27, 0.08);
+      --radius: 18px;
+      --radius-small: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(111, 76, 255, 0.10), transparent 30rem),
+        radial-gradient(circle at 88% 12%, rgba(20, 125, 118, 0.09), transparent 28rem),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button, select, input { font: inherit; }
+
+    a { color: inherit; }
+
+    .page-shell {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: start;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: currentColor;
+      box-shadow: 0 0 0 5px var(--accent-soft);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 840px;
+      font-size: clamp(2.2rem, 5vw, 4.8rem);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+    }
+
+    .hero-copy {
+      max-width: 790px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.4vw, 1.18rem);
+    }
+
+    .version-chip {
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 9px 13px;
+      background: rgba(255, 253, 248, 0.78);
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+      backdrop-filter: blur(8px);
+    }
+
+    .guardrail {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      margin-top: 20px;
+      max-width: 900px;
+      border: 1px solid #d8cef9;
+      border-radius: var(--radius-small);
+      padding: 13px 15px;
+      background: rgba(238, 233, 255, 0.72);
+      color: #47388f;
+      font-size: 0.93rem;
+    }
+
+    .guardrail strong { color: #342474; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(330px, 430px) minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid rgba(216, 211, 200, 0.95);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.93);
+      box-shadow: var(--shadow);
+    }
+
+    .form-panel {
+      position: sticky;
+      top: 16px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 20px 21px 17px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-header h2,
+    .section-head h2,
+    .result-head h2 {
+      margin: 0;
+      font-size: 1.12rem;
+      letter-spacing: -0.02em;
+    }
+
+    .panel-header p,
+    .section-head p,
+    .result-head p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .presets {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 14px 20px 6px;
+      scrollbar-width: thin;
+    }
+
+    .preset-button,
+    .secondary-button {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 11px;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 0.79rem;
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    .preset-button {
+      flex: 0 0 auto;
+    }
+
+    .preset-button:hover,
+    .secondary-button:hover {
+      transform: translateY(-1px);
+      border-color: #aa9dea;
+      background: var(--accent-soft);
+    }
+
+    form { padding: 10px 20px 20px; }
+
+    fieldset {
+      margin: 0;
+      padding: 14px 0 17px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    fieldset:last-of-type { border-bottom: 0; }
+
+    legend {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      padding: 0 0 11px;
+      font-size: 0.83rem;
+      font-weight: 850;
+      letter-spacing: 0.02em;
+    }
+
+    .step-number {
+      display: inline-grid;
+      width: 24px;
+      height: 24px;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--ink);
+      color: white;
+      font-size: 0.72rem;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 11px;
+    }
+
+    .field-grid.one { grid-template-columns: 1fr; }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: #4c4f59;
+      font-size: 0.76rem;
+      font-weight: 750;
+    }
+
+    select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0 34px 0 11px;
+      background-color: #fffefa;
+      color: var(--ink);
+      cursor: pointer;
+      outline: none;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(111, 76, 255, 0.15);
+    }
+
+    .field-help {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .truth-note {
+      margin-top: 10px;
+      border-left: 3px solid var(--teal);
+      padding: 8px 10px;
+      background: var(--teal-soft);
+      color: #315b57;
+      font-size: 0.77rem;
+    }
+
+    .form-actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .primary-button {
+      border: 0;
+      border-radius: 12px;
+      min-height: 48px;
+      padding: 0 18px;
+      background: var(--ink);
+      color: white;
+      font-weight: 850;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(30, 32, 40, 0.18);
+      transition: transform 120ms ease, background 120ms ease;
+    }
+
+    .primary-button:hover {
+      transform: translateY(-1px);
+      background: #313440;
+    }
+
+    .secondary-button.square {
+      border-radius: 12px;
+      padding-inline: 16px;
+    }
+
+    .workspace {
+      display: grid;
+      gap: 22px;
+      min-width: 0;
+    }
+
+    .result-panel {
+      overflow: hidden;
+    }
+
+    .result-topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      align-items: start;
+      padding: 20px 22px 0;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: var(--teal-soft);
+      color: #17655f;
+      font-size: 0.76rem;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .status-chip::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .status-chip.caution {
+      background: var(--orange-soft);
+      color: var(--orange);
+    }
+
+    .status-chip.blocked {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .output-wrap {
+      padding: 18px 22px 22px;
+    }
+
+    .output-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      padding: 22px;
+      background: var(--ink);
+      color: white;
+    }
+
+    .output-card::after {
+      content: "";
+      position: absolute;
+      right: -50px;
+      top: -60px;
+      width: 180px;
+      height: 180px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(111, 76, 255, 0.62), transparent 68%);
+      pointer-events: none;
+    }
+
+    .output-label {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 9px;
+      color: #c6bddf;
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .idea-direction {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      max-width: 900px;
+      font-size: clamp(1.12rem, 2vw, 1.58rem);
+      line-height: 1.36;
+      letter-spacing: -0.022em;
+    }
+
+    .repair-box {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      margin-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      padding-top: 16px;
+      color: #e1deea;
+      font-size: 0.9rem;
+    }
+
+    .repair-box[hidden] { display: none; }
+
+    .repair-label {
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: rgba(255, 255, 255, 0.10);
+      color: white;
+      font-size: 0.67rem;
+      font-weight: 850;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .policy-note {
+      display: none;
+      margin-top: 14px;
+      border: 1px solid #edc99f;
+      border-radius: 11px;
+      padding: 11px 12px;
+      background: var(--orange-soft);
+      color: #81441f;
+      font-size: 0.82rem;
+    }
+
+    .policy-note.visible { display: block; }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .meta-item {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 10px 11px;
+      background: #fffefa;
+    }
+
+    .meta-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 850;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .meta-item strong {
+      display: block;
+      overflow: hidden;
+      margin-top: 4px;
+      font-size: 0.84rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .flow-panel { overflow: hidden; }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 16px;
+      padding: 20px 22px 13px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      white-space: nowrap;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend i {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 3px;
+      background: #ece8de;
+      border: 1px solid #ccc5b7;
+    }
+
+    .legend .active-key i {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .flow-scroll {
+      overflow-x: auto;
+      padding: 0 14px 12px;
+    }
+
+    .flowchart {
+      display: block;
+      width: 100%;
+      min-width: 880px;
+      height: auto;
+      border-radius: 14px;
+      background:
+        linear-gradient(rgba(90, 83, 70, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(90, 83, 70, 0.045) 1px, transparent 1px),
+        #fbfaf6;
+      background-size: 24px 24px;
+    }
+
+    .flow-edge {
+      fill: none;
+      stroke: #cfc9bc;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke 160ms ease, stroke-width 160ms ease, opacity 160ms ease;
+    }
+
+    .flow-edge.muted { opacity: 0.5; }
+
+    .flow-edge.active {
+      stroke: var(--accent);
+      stroke-width: 5;
+      opacity: 1;
+    }
+
+    .flow-node rect {
+      fill: #fffdf8;
+      stroke: #cfc9bc;
+      stroke-width: 2;
+      rx: 16;
+      transition: fill 160ms ease, stroke 160ms ease, stroke-width 160ms ease, filter 160ms ease;
+    }
+
+    .flow-node .node-title {
+      fill: var(--ink);
+      font-size: 17px;
+      font-weight: 800;
+      text-anchor: middle;
+    }
+
+    .flow-node .node-subtitle {
+      fill: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      text-anchor: middle;
+    }
+
+    .flow-node.active rect {
+      fill: var(--accent-soft);
+      stroke: var(--accent);
+      stroke-width: 3;
+      filter: drop-shadow(0 8px 10px rgba(74, 52, 170, 0.15));
+    }
+
+    .flow-node.active .node-title { fill: #3d278e; }
+    .flow-node.active .node-subtitle { fill: #6b55b5; }
+
+    .flow-node.caution.active rect {
+      fill: var(--orange-soft);
+      stroke: var(--orange);
+    }
+
+    .flow-node.caution.active .node-title { fill: #834116; }
+    .flow-node.caution.active .node-subtitle { fill: #9b633d; }
+
+    .flow-node.blocked.active rect {
+      fill: var(--danger-soft);
+      stroke: var(--danger);
+    }
+
+    .flow-node.blocked.active .node-title { fill: #7d2836; }
+    .flow-node.blocked.active .node-subtitle { fill: #9b5360; }
+
+    .trace-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0 22px 22px;
+    }
+
+    .trace-step {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 13px;
+      background: #fffefa;
+    }
+
+    .trace-index {
+      display: inline-grid;
+      width: 23px;
+      height: 23px;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.7rem;
+      font-weight: 900;
+    }
+
+    .trace-step strong {
+      display: block;
+      margin-top: 7px;
+      font-size: 0.83rem;
+    }
+
+    .trace-step p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    details.dev-panel {
+      border-top: 1px solid var(--line);
+      background: #faf8f2;
+    }
+
+    details.dev-panel summary {
+      padding: 14px 22px;
+      cursor: pointer;
+      color: #4f515a;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .dev-content {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      padding: 0 22px 20px;
+    }
+
+    .code-block {
+      min-width: 0;
+    }
+
+    .code-block h3 {
+      margin: 0 0 7px;
+      font-size: 0.75rem;
+    }
+
+    pre {
+      overflow: auto;
+      max-height: 320px;
+      margin: 0;
+      border: 1px solid #d6d0c3;
+      border-radius: 11px;
+      padding: 12px;
+      background: #242630;
+      color: #ecedf2;
+      font: 0.72rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .research-note {
+      padding: 22px;
+    }
+
+    .research-note h2 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .research-note p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .source-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .source-links a {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: #fffefa;
+      color: #4f515a;
+      font-size: 0.72rem;
+      text-decoration: none;
+    }
+
+    .source-links a:hover { border-color: var(--accent); color: var(--accent); }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.74rem;
+      text-align: center;
+    }
+
+    @media (max-width: 1120px) {
+      .layout { grid-template-columns: 370px minmax(0, 1fr); }
+      .meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .version-chip { justify-self: start; }
+      .layout { grid-template-columns: 1fr; }
+      .form-panel { position: static; }
+      .trace-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .page-shell { width: min(100% - 18px, 1480px); padding-top: 18px; }
+      .field-grid { grid-template-columns: 1fr; }
+      .meta-grid { grid-template-columns: 1fr 1fr; }
+      .result-topline { flex-direction: column; }
+      .section-head { flex-direction: column; }
+      .legend, .flow-scroll { display: none; }
+      .trace-grid { padding-top: 2px; }
+      .trace-step { position: relative; margin-left: 18px; }
+      .trace-step::before {
+        content: "";
+        position: absolute;
+        left: -22px;
+        top: 17px;
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 0 4px var(--accent-soft);
+      }
+      .trace-step:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        left: -18px;
+        top: 30px;
+        bottom: -12px;
+        width: 2px;
+        background: #cfc5fa;
+      }
+      .dev-content { grid-template-columns: 1fr; }
+      .form-actions { grid-template-columns: 1fr; }
+      .secondary-button.square { min-height: 44px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">M1.2 functional prototype</div>
+        <h1>Excuse decision tree</h1>
+        <p class="hero-copy">
+          Classify the social situation, pass it through safety and relationship gates, then select one reusable excuse kernel. The result is an idea to adapt, not a message to copy.
+        </p>
+        <div class="guardrail">
+          <span aria-hidden="true">◆</span>
+          <div><strong>Honesty gate:</strong> the engine will not invent a medical condition, family problem, emergency, financial crisis, identity claim or supporting evidence. Without a truthful basis, it routes to a boundary or accountability direction.</div>
+        </div>
+      </div>
+      <div class="version-chip">Prototype 0.1 · local only</div>
+    </header>
+
+    <main class="layout">
+      <aside class="panel form-panel">
+        <div class="panel-header">
+          <h2>Structured request</h2>
+          <p>All M1.2 dimensions are represented, with one added truth-basis gate.</p>
+        </div>
+
+        <div class="presets" aria-label="Scenario presets">
+          <button class="preset-button" type="button" data-preset="dinner">Cancel dinner</button>
+          <button class="preset-button" type="button" data-preset="delay">Professional delay</button>
+          <button class="preset-button" type="button" data-preset="missed">Missed a plan</button>
+          <button class="preset-button" type="button" data-preset="playful">Playful exit</button>
+        </div>
+
+        <form id="excuse-form">
+          <fieldset>
+            <legend><span class="step-number">1</span> Goal and action</legend>
+            <div class="field-grid">
+              <label>
+                Intent
+                <select id="intent" name="intent">
+                  <option value="exit">Get out of plans</option>
+                  <option value="buy_time">Buy time</option>
+                  <option value="recover">Recover from a situation</option>
+                </select>
+              </label>
+              <label>
+                Action
+                <select id="action" name="action">
+                  <option value="cancel">Cancel</option>
+                  <option value="decline">Decline</option>
+                  <option value="leave_early">Leave early</option>
+                  <option value="back_out">Back out</option>
+                  <option value="reschedule">Reschedule</option>
+                  <option value="delay">Delay</option>
+                  <option value="avoid_committing">Avoid committing</option>
+                  <option value="explain_lateness">Explain lateness</option>
+                  <option value="explain_absence">Explain absence</option>
+                  <option value="suggest_alternative">Suggest an alternative</option>
+                </select>
+              </label>
+              <label>
+                Timing
+                <select id="timing" name="timing">
+                  <option value="planned_ahead">Planned ahead</option>
+                  <option value="today" selected>Today</option>
+                  <option value="last_minute">Last minute</option>
+                  <option value="already_late">Already late</option>
+                  <option value="already_missed">Already missed</option>
+                  <option value="recurring">Recurring pattern</option>
+                </select>
+              </label>
+              <label>
+                Commitment clarity
+                <select id="clarity" name="clarity">
+                  <option value="clear">Clear commitment</option>
+                  <option value="tentative">Tentative plan</option>
+                  <option value="unclear">Unclear expectation</option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend><span class="step-number">2</span> Social stakes</legend>
+            <div class="field-grid">
+              <label>
+                Audience
+                <select id="audience" name="audience">
+                  <option value="one">One person</option>
+                  <option value="group">Group</option>
+                </select>
+              </label>
+              <label>
+                Relationship
+                <select id="relationship" name="relationship">
+                  <option value="close">Close</option>
+                  <option value="familiar" selected>Familiar</option>
+                  <option value="distant">Distant</option>
+                  <option value="professional">Professional</option>
+                  <option value="authority">Authority</option>
+                </select>
+              </label>
+              <label>
+                Obligation
+                <select id="obligation" name="obligation">
+                  <option value="casual">Casual</option>
+                  <option value="expected" selected>Expected</option>
+                  <option value="important">Important</option>
+                  <option value="paid_reserved">Paid or reserved</option>
+                  <option value="hard_to_replace">Difficult to replace</option>
+                </select>
+              </label>
+              <label>
+                Context
+                <select id="context" name="context">
+                  <option value="celebration">Celebration</option>
+                  <option value="party">Party</option>
+                  <option value="dinner" selected>Dinner</option>
+                  <option value="date">Date</option>
+                  <option value="family">Family</option>
+                  <option value="work">Work</option>
+                  <option value="friends">Friends</option>
+                  <option value="hobby">Hobby</option>
+                  <option value="travel">Travel</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend><span class="step-number">3</span> Delivery and repair</legend>
+            <div class="field-grid">
+              <label>
+                Channel
+                <select id="channel" name="channel">
+                  <option value="text" selected>Text</option>
+                  <option value="voice_note">Voice note</option>
+                  <option value="call">Call</option>
+                  <option value="in_person">In person</option>
+                </select>
+              </label>
+              <label>
+                Tone
+                <select id="tone" name="tone">
+                  <option value="low_key">Low-key</option>
+                  <option value="nice" selected>Nice</option>
+                  <option value="funny">Funny</option>
+                  <option value="dramatic">Dramatic</option>
+                  <option value="unhinged">Unhinged</option>
+                </select>
+              </label>
+              <label>
+                Repair preference
+                <select id="repair" name="repair">
+                  <option value="none">No follow-up</option>
+                  <option value="brief_apology">Brief apology</option>
+                  <option value="offer_another_time" selected>Offer another time</option>
+                  <option value="alternative_plan">Alternative plan</option>
+                  <option value="acknowledge_inconvenience">Acknowledge inconvenience</option>
+                </select>
+              </label>
+              <label>
+                Risk level
+                <select id="risk" name="risk">
+                  <option value="low" selected>Low-stakes</option>
+                  <option value="sensitive">Sensitive</option>
+                  <option value="high">High-consequence</option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend><span class="step-number">4</span> Cause and safety</legend>
+            <div class="field-grid one">
+              <label>
+                Truthful basis available
+                <select id="truthBasis" name="truthBasis">
+                  <option value="none">No specific factual cause — use an honest boundary</option>
+                  <option value="capacity" selected>Real capacity or wellbeing limit</option>
+                  <option value="care">Real care, family or household duty</option>
+                  <option value="work">Real work or study constraint</option>
+                  <option value="logistics">Real money, transport, weather or appointment constraint</option>
+                  <option value="planning">Real planning failure or mistake</option>
+                  <option value="boundary">Direct boundary or preference</option>
+                  <option value="playful">Obviously fictional, playful low-stakes bit</option>
+                </select>
+              </label>
+              <label>
+                Optional family constraint
+                <select id="familyConstraint" name="familyConstraint">
+                  <option value="any" selected>Let the safety gate decide</option>
+                  <option value="capacity">Capacity and wellbeing</option>
+                  <option value="care">Care and family</option>
+                  <option value="work">Work and study</option>
+                  <option value="logistics">Money and logistics</option>
+                  <option value="planning">Planning failure</option>
+                  <option value="boundary">Boundary and preference</option>
+                  <option value="absurd">Absurd and dramatic</option>
+                </select>
+              </label>
+            </div>
+            <p class="truth-note">Selecting a cause family means the underlying fact is real. The engine only changes framing, detail and repair.</p>
+          </fieldset>
+
+          <div class="form-actions">
+            <button class="primary-button" type="submit">Run decision tree</button>
+            <button class="secondary-button square" id="reset-button" type="button">Reset</button>
+          </div>
+        </form>
+      </aside>
+
+      <div class="workspace">
+        <section class="panel result-panel" aria-live="polite">
+          <div class="result-topline">
+            <div class="result-head">
+              <h2>Selected idea</h2>
+              <p>Exactly one direction, with a repair suggestion only when applicable.</p>
+            </div>
+            <div id="status-chip" class="status-chip">Safe route</div>
+          </div>
+
+          <div class="output-wrap">
+            <div class="output-card">
+              <div class="output-label">Idea direction · not a message</div>
+              <p id="idea-direction" class="idea-direction"></p>
+              <div id="repair-box" class="repair-box">
+                <span class="repair-label">Repair</span>
+                <span id="repair-direction"></span>
+              </div>
+            </div>
+
+            <div id="policy-note" class="policy-note"></div>
+
+            <div class="meta-grid">
+              <div class="meta-item"><span>Family</span><strong id="meta-family"></strong></div>
+              <div class="meta-item"><span>Kernel</span><strong id="meta-kernel"></strong></div>
+              <div class="meta-item"><span>Effective tone</span><strong id="meta-tone"></strong></div>
+              <div class="meta-item"><span>Responsibility</span><strong id="meta-responsibility"></strong></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel flow-panel">
+          <div class="section-head">
+            <div>
+              <h2>Decision tree</h2>
+              <p>The highlighted route updates from the structured request.</p>
+            </div>
+            <div class="legend" aria-label="Decision tree legend">
+              <span class="active-key"><i></i> active route</span>
+              <span><i></i> inactive route</span>
+            </div>
+          </div>
+
+          <div class="flow-scroll">
+            <svg class="flowchart" viewBox="0 0 1240 1490" role="img" aria-labelledby="tree-title tree-desc">
+              <title id="tree-title">Excuse generation decision tree</title>
+              <desc id="tree-desc">A flowchart from a structured request through safety, timing, obligation, kernel selection, register, tone and output.</desc>
+
+              <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"></path>
+                </marker>
+              </defs>
+
+              <!-- Edges -->
+              <path id="edge-start-safety" class="flow-edge" marker-end="url(#arrow)" d="M620 90 L620 135"></path>
+              <path id="edge-safety-blocked" class="flow-edge muted" marker-end="url(#arrow)" d="M535 215 C455 245 335 250 240 290"></path>
+              <path id="edge-safety-eligible" class="flow-edge muted" marker-end="url(#arrow)" d="M705 215 C790 245 910 250 1000 290"></path>
+              <path id="edge-blocked-accountability" class="flow-edge muted" marker-end="url(#arrow)" d="M240 365 L240 430"></path>
+              <path id="edge-eligible-time" class="flow-edge muted" marker-end="url(#arrow)" d="M1000 365 L1000 430"></path>
+              <path id="edge-time-past" class="flow-edge muted" marker-end="url(#arrow)" d="M925 510 C865 545 800 550 735 590"></path>
+              <path id="edge-time-current" class="flow-edge muted" marker-end="url(#arrow)" d="M1075 510 C1090 545 1080 560 1060 590"></path>
+              <path id="edge-past-repair" class="flow-edge muted" marker-end="url(#arrow)" d="M735 665 L735 730"></path>
+              <path id="edge-current-obligation" class="flow-edge muted" marker-end="url(#arrow)" d="M1060 665 L1060 730"></path>
+              <path id="edge-obligation-high" class="flow-edge muted" marker-end="url(#arrow)" d="M1005 810 C970 840 925 845 880 875"></path>
+              <path id="edge-obligation-low" class="flow-edge muted" marker-end="url(#arrow)" d="M1115 810 C1130 835 1125 850 1112 875"></path>
+              <path id="edge-high-family" class="flow-edge muted" marker-end="url(#arrow)" d="M880 950 C880 985 895 1000 910 1035"></path>
+              <path id="edge-low-family" class="flow-edge muted" marker-end="url(#arrow)" d="M1112 950 C1085 995 1030 1010 980 1035"></path>
+              <path id="edge-repair-family" class="flow-edge muted" marker-end="url(#arrow)" d="M735 805 C750 910 825 965 860 1035"></path>
+              <path id="edge-accountability-register" class="flow-edge muted" marker-end="url(#arrow)" d="M240 505 C240 820 350 1035 500 1165"></path>
+              <path id="edge-family-register" class="flow-edge muted" marker-end="url(#arrow)" d="M930 1120 C860 1145 800 1150 750 1185"></path>
+              <path id="edge-register-tone" class="flow-edge muted" marker-end="url(#arrow)" d="M620 1245 L620 1280"></path>
+              <path id="edge-tone-output" class="flow-edge muted" marker-end="url(#arrow)" d="M620 1360 L620 1395"></path>
+
+              <!-- Nodes -->
+              <g id="node-start" class="flow-node" transform="translate(515,25)">
+                <rect width="210" height="65"></rect>
+                <text class="node-title" x="105" y="29">Structured request</text>
+                <text class="node-subtitle" x="105" y="49">intent · action · social context</text>
+              </g>
+
+              <g id="node-safety" class="flow-node" transform="translate(485,135)">
+                <rect width="270" height="80"></rect>
+                <text class="node-title" x="135" y="34">Safety &amp; truth gate</text>
+                <text class="node-subtitle" x="135" y="57">risk · truthful basis · no invented claims</text>
+              </g>
+
+              <g id="node-blocked" class="flow-node blocked" transform="translate(90,290)">
+                <rect width="300" height="75"></rect>
+                <text class="node-title" x="150" y="31">Restricted route</text>
+                <text class="node-subtitle" x="150" y="53">high consequence or unsafe mismatch</text>
+              </g>
+
+              <g id="node-eligible" class="flow-node" transform="translate(850,290)">
+                <rect width="300" height="75"></rect>
+                <text class="node-title" x="150" y="31">Eligible route</text>
+                <text class="node-subtitle" x="150" y="53">low-detail cause can be considered</text>
+              </g>
+
+              <g id="node-accountability" class="flow-node caution" transform="translate(85,430)">
+                <rect width="310" height="75"></rect>
+                <text class="node-title" x="155" y="31">Accountability / boundary</text>
+                <text class="node-subtitle" x="155" y="53">do not manufacture a cover story</text>
+              </g>
+
+              <g id="node-time" class="flow-node" transform="translate(855,430)">
+                <rect width="290" height="80"></rect>
+                <text class="node-title" x="145" y="34">Timing &amp; recurrence</text>
+                <text class="node-subtitle" x="145" y="57">future/current vs past/recurring</text>
+              </g>
+
+              <g id="node-past" class="flow-node caution" transform="translate(600,590)">
+                <rect width="270" height="75"></rect>
+                <text class="node-title" x="135" y="31">Past or recurring</text>
+                <text class="node-subtitle" x="135" y="53">repair should lead the account</text>
+              </g>
+
+              <g id="node-current" class="flow-node" transform="translate(925,590)">
+                <rect width="270" height="75"></rect>
+                <text class="node-title" x="135" y="31">Current or future</text>
+                <text class="node-subtitle" x="135" y="53">continue to obligation check</text>
+              </g>
+
+              <g id="node-repair" class="flow-node caution" transform="translate(600,730)">
+                <rect width="270" height="75"></rect>
+                <text class="node-title" x="135" y="31">Repair-first direction</text>
+                <text class="node-subtitle" x="135" y="53">acknowledge pattern or impact</text>
+              </g>
+
+              <g id="node-obligation" class="flow-node" transform="translate(925,730)">
+                <rect width="270" height="80"></rect>
+                <text class="node-title" x="135" y="34">Obligation gate</text>
+                <text class="node-subtitle" x="135" y="57">casual · important · reserved · replaceability</text>
+              </g>
+
+              <g id="node-high" class="flow-node caution" transform="translate(745,875)">
+                <rect width="270" height="75"></rect>
+                <text class="node-title" x="135" y="31">Higher obligation</text>
+                <text class="node-subtitle" x="135" y="53">minimal detail + corrective action</text>
+              </g>
+
+              <g id="node-low" class="flow-node" transform="translate(995,875)">
+                <rect width="235" height="75"></rect>
+                <text class="node-title" x="117.5" y="31">Lower obligation</text>
+                <text class="node-subtitle" x="117.5" y="53">normal family filtering</text>
+              </g>
+
+              <g id="node-family" class="flow-node" transform="translate(780,1035)">
+                <rect width="270" height="85"></rect>
+                <text class="node-title" x="135" y="32">Kernel family filter</text>
+                <text class="node-subtitle" x="135" y="55">action · timing · audience · channel</text>
+                <text class="node-subtitle" x="135" y="72">repair · context · deterministic tie-break</text>
+              </g>
+
+              <g id="node-register" class="flow-node" transform="translate(490,1165)">
+                <rect width="260" height="80"></rect>
+                <text class="node-title" x="130" y="31">Relationship &amp; register</text>
+                <text class="node-subtitle" x="130" y="53">adapt detail and politeness</text>
+                <text class="node-subtitle" x="130" y="68">to audience and channel</text>
+              </g>
+
+              <g id="node-tone" class="flow-node" transform="translate(490,1280)">
+                <rect width="260" height="80"></rect>
+                <text class="node-title" x="130" y="31">Tone gate</text>
+                <text class="node-subtitle" x="130" y="53">adapt the register without</text>
+                <text class="node-subtitle" x="130" y="68">changing the social meaning</text>
+              </g>
+
+              <g id="node-output" class="flow-node" transform="translate(460,1395)">
+                <rect width="320" height="80"></rect>
+                <text class="node-title" x="160" y="31">One idea direction</text>
+                <text class="node-subtitle" x="160" y="53">plus an optional repair suggestion</text>
+                <text class="node-subtitle" x="160" y="68">never a ready-to-send message</text>
+              </g>
+            </svg>
+          </div>
+
+          <div id="trace-grid" class="trace-grid"></div>
+
+          <details class="dev-panel">
+            <summary>Developer view: request and selected kernel</summary>
+            <div class="dev-content">
+              <div class="code-block">
+                <h3>Normalized ExcuseRequest</h3>
+                <pre id="request-json"></pre>
+              </div>
+              <div class="code-block">
+                <h3>Selected kernel metadata</h3>
+                <pre id="kernel-json"></pre>
+              </div>
+            </div>
+          </details>
+        </section>
+
+        <section class="panel research-note">
+          <h2>Functional interpretation</h2>
+          <p>
+            The prototype treats an excuse as a compact social account: situation, action, cause, responsibility, politeness, timing and repair. Dramatic detail is never a selection objective; contextual fit and relationship preservation are.
+          </p>
+          <div class="source-links" aria-label="Research sources supplied for M1.2">
+            <a href="https://doi.org/10.1525/collabra.57549" target="_blank" rel="noreferrer">Cancellation reactions</a>
+            <a href="https://journals.sagepub.com/doi/10.1207/S15327957PSPR0501_2" target="_blank" rel="noreferrer">Excuse strategies</a>
+            <a href="https://doi.org/10.1111/j.1559-1816.2000.tb02498.x" target="_blank" rel="noreferrer">Responsibility accounts</a>
+            <a href="https://ipa.co.uk/news/flaking-data" target="_blank" rel="noreferrer">Public categories</a>
+            <a href="https://www.mirror.co.uk/lifestyle/going-out/social-gatherings-work-life-balance-33219900" target="_blank" rel="noreferrer">Survey categories</a>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div class="footer-note">Standalone HTML · no network calls · no data leaves the browser</div>
+  </div>
+
+  <script>
+    "use strict";
+
+    const WILDCARD = "*";
+
+    const LABELS = {
+      intent: {
+        exit: "Get out of plans",
+        buy_time: "Buy time",
+        recover: "Recover from a situation"
+      },
+      action: {
+        cancel: "Cancel",
+        decline: "Decline",
+        leave_early: "Leave early",
+        back_out: "Back out",
+        reschedule: "Reschedule",
+        delay: "Delay",
+        avoid_committing: "Avoid committing",
+        explain_lateness: "Explain lateness",
+        explain_absence: "Explain absence",
+        suggest_alternative: "Suggest an alternative"
+      },
+      timing: {
+        planned_ahead: "Planned ahead",
+        today: "Today",
+        last_minute: "Last minute",
+        already_late: "Already late",
+        already_missed: "Already missed",
+        recurring: "Recurring pattern"
+      },
+      audience: { one: "One person", group: "Group" },
+      relationship: {
+        close: "Close",
+        familiar: "Familiar",
+        distant: "Distant",
+        professional: "Professional",
+        authority: "Authority"
+      },
+      obligation: {
+        casual: "Casual",
+        expected: "Expected",
+        important: "Important",
+        paid_reserved: "Paid or reserved",
+        hard_to_replace: "Difficult to replace"
+      },
+      context: {
+        celebration: "Celebration",
+        party: "Party",
+        dinner: "Dinner",
+        date: "Date",
+        family: "Family",
+        work: "Work",
+        friends: "Friends",
+        hobby: "Hobby",
+        travel: "Travel",
+        other: "Other"
+      },
+      channel: {
+        text: "Text",
+        voice_note: "Voice note",
+        call: "Call",
+        in_person: "In person"
+      },
+      tone: {
+        low_key: "Low-key",
+        nice: "Nice",
+        funny: "Funny",
+        dramatic: "Dramatic",
+        unhinged: "Unhinged"
+      },
+      repair: {
+        none: "No follow-up",
+        brief_apology: "Brief apology",
+        offer_another_time: "Offer another time",
+        alternative_plan: "Alternative plan",
+        acknowledge_inconvenience: "Acknowledge inconvenience"
+      },
+      risk: { low: "Low-stakes", sensitive: "Sensitive", high: "High-consequence" },
+      clarity: { clear: "Clear commitment", tentative: "Tentative plan", unclear: "Unclear expectation" },
+      truthBasis: {
+        none: "No specific factual cause",
+        capacity: "Real capacity or wellbeing limit",
+        care: "Real care, family or household duty",
+        work: "Real work or study constraint",
+        logistics: "Real money or logistics constraint",
+        planning: "Real planning failure",
+        boundary: "Direct boundary or preference",
+        playful: "Obviously fictional low-stakes bit"
+      },
+      family: {
+        capacity: "Capacity and wellbeing",
+        care: "Care and family",
+        work: "Work and study",
+        logistics: "Money and logistics",
+        planning: "Planning failure",
+        boundary: "Boundary and preference",
+        absurd: "Absurd and dramatic"
+      },
+      responsibility: {
+        limited_control: "Reduce perceived control",
+        obligation_clarity: "Clarify the real obligation",
+        honest_choice: "Own a choice or boundary",
+        planning_accountability: "Own planning responsibility",
+        playful_distance: "Make fiction unmistakable",
+        repair_first: "Lead with repair"
+      }
+    };
+
+    const ACTION_FRAMES = {
+      cancel: "changing or cancelling the plan",
+      decline: "declining the invitation",
+      leave_early: "leaving earlier than expected",
+      back_out: "backing out of the commitment",
+      reschedule: "moving the plan to another time",
+      delay: "asking for more time",
+      avoid_committing: "keeping the commitment open",
+      explain_lateness: "accounting for the delay",
+      explain_absence: "accounting for the absence",
+      suggest_alternative: "redirecting toward an alternative"
+    };
+
+    const CONTEXT_FRAMES = {
+      celebration: "the celebration",
+      party: "the party",
+      dinner: "the dinner",
+      date: "the date",
+      family: "the family commitment",
+      work: "the work commitment",
+      friends: "the plan with friends",
+      hobby: "the hobby commitment",
+      travel: "the travel plan",
+      other: "the commitment"
+    };
+
+    const TRUTH_TO_FAMILY = {
+      none: "boundary",
+      capacity: "capacity",
+      care: "care",
+      work: "work",
+      logistics: "logistics",
+      planning: "planning",
+      boundary: "boundary",
+      playful: "absurd"
+    };
+
+    const HIGH_OBLIGATIONS = new Set(["important", "paid_reserved", "hard_to_replace"]);
+    const PAST_OR_RECURRING = new Set(["already_late", "already_missed", "recurring"]);
+    const PROFESSIONAL_RELATIONSHIPS = new Set(["professional", "authority"]);
+    const HIGH_DRAMA_TONES = new Set(["dramatic", "unhinged"]);
+    const SOCIAL_CONTEXTS = new Set(["party", "dinner", "friends", "hobby", "celebration", "other"]);
+    const PLAYFUL_ACTIONS = new Set(["cancel", "decline", "leave_early", "back_out", "reschedule", "delay", "suggest_alternative"]);
+
+    const REPAIR_DIRECTIONS = {
+      none: "",
+      brief_apology: "Add one brief acknowledgement of the change, without turning it into a long defence.",
+      offer_another_time: "Offer one concrete alternative only if you genuinely intend to follow through.",
+      alternative_plan: "Suggest a lower-effort, lower-cost or shorter alternative that still respects the relationship.",
+      acknowledge_inconvenience: "Name the practical inconvenience and pair it with one realistic corrective action."
+    };
+
+    const TONE_GUIDANCE = {
+      low_key: "Keep the register neutral and compact.",
+      nice: "Keep the register warm, but do not over-apologize.",
+      funny: "Use light self-deprecation, never humour at the recipient's expense.",
+      dramatic: "Make the theatricality obviously playful and avoid emergency language.",
+      unhinged: "Use surreal exaggeration that cannot be mistaken for a real-world claim."
+    };
+
+    const KERNELS = [
+      {
+        kernel_id: "CAP-001",
+        playful_name: "Capacity, Not a Diagnosis",
+        excuse_family: "capacity",
+        supported_actions: [WILDCARD], compatible_timing: [WILDCARD], suitable_relationships: [WILDCARD],
+        audience_size: [WILDCARD], obligation_range: [WILDCARD], supported_contexts: [WILDCARD],
+        supported_tones: ["low_key", "nice", "funny"], supported_channels: [WILDCARD], repair_options: [WILDCARD],
+        cause_type: "capacity", responsibility_strategy: "limited_control",
+        linguistic_features: ["general cause", "no diagnosis", "low detail", "recipient-respecting"],
+        idea_direction: ({ actionFrame }) => `Frame ${actionFrame} around a real limit in energy or wellbeing, while keeping the cause general and free of diagnoses or invented symptoms.`,
+        risk_flags: ["Do not imply a medical condition that is not real."]
+      },
+      {
+        kernel_id: "CAP-014",
+        playful_name: "Show Up Properly",
+        excuse_family: "capacity",
+        supported_actions: ["cancel", "decline", "reschedule", "back_out"], compatible_timing: ["planned_ahead", "today", "last_minute"],
+        suitable_relationships: ["close", "familiar", "distant"], audience_size: [WILDCARD], obligation_range: ["casual", "expected"],
+        supported_contexts: ["dinner", "date", "friends", "party", "hobby", "celebration"], supported_tones: ["low_key", "nice"],
+        supported_channels: ["text", "voice_note", "call"], repair_options: [WILDCARD], cause_type: "capacity",
+        responsibility_strategy: "honest_choice", linguistic_features: ["presence quality", "warm boundary", "minimal detail"],
+        idea_direction: ({ actionFrame, contextFrame }) => `Use not having enough capacity to be properly present for ${contextFrame} as the angle for ${actionFrame}; make clear that the limitation is yours, not a judgement on the plan.`,
+        risk_flags: []
+      },
+      {
+        kernel_id: "CAP-021",
+        playful_name: "Leave Before Empty",
+        excuse_family: "capacity",
+        supported_actions: ["leave_early", "delay", "suggest_alternative"], compatible_timing: ["planned_ahead", "today", "last_minute"],
+        suitable_relationships: ["close", "familiar", "distant"], audience_size: [WILDCARD], obligation_range: ["casual", "expected"],
+        supported_contexts: ["party", "dinner", "friends", "hobby", "celebration", "family"], supported_tones: ["low_key", "nice", "funny"],
+        supported_channels: [WILDCARD], repair_options: [WILDCARD], cause_type: "capacity", responsibility_strategy: "honest_choice",
+        linguistic_features: ["clear limit", "time-bounded", "no blame"],
+        idea_direction: ({ actionFrame }) => `Frame ${actionFrame} as a real need to conserve energy, using a clear limit rather than a dramatic explanation.`,
+        risk_flags: []
+      },
+
+      {
+        kernel_id: "CARE-001",
+        playful_name: "Real Care Duty",
+        excuse_family: "care",
+        supported_actions: [WILDCARD], compatible_timing: [WILDCARD], suitable_relationships: [WILDCARD],
+        audience_size: [WILDCARD], obligation_range: [WILDCARD], supported_contexts: [WILDCARD],
+        supported_tones: ["low_key", "nice"], supported_channels: [WILDCARD], repair_options: [WILDCARD],
+        cause_type: "care", responsibility_strategy: "limited_control",
+        linguistic_features: ["truth-required", "privacy-preserving", "no named person", "no emergency claim"],
+        idea_direction: ({ actionFrame }) => `Use a real caring, family or household responsibility as the basis for ${actionFrame}, but keep the person and circumstances private and non-dramatic.`,
+        risk_flags: ["Only use when a genuine duty exists.", "Do not imply illness, death or emergency."]
+      },
+      {
+        kernel_id: "CARE-012",
+        playful_name: "Household Has Priority",
+        excuse_family: "care",
+        supported_actions: ["cancel", "delay", "leave_early", "reschedule", "explain_lateness"], compatible_timing: ["today", "last_minute", "already_late"],
+        suitable_relationships: ["close", "familiar", "distant", "professional"], audience_size: [WILDCARD], obligation_range: ["casual", "expected", "important"],
+        supported_contexts: [WILDCARD], supported_tones: ["low_key", "nice"], supported_channels: [WILDCARD], repair_options: [WILDCARD],
+        cause_type: "household responsibility", responsibility_strategy: "limited_control",
+        linguistic_features: ["bounded detail", "present-tense constraint", "privacy"],
+        idea_direction: ({ actionFrame }) => `Anchor ${actionFrame} in a real household responsibility that needs attention now, without expanding it into a family crisis narrative.`,
+        risk_flags: ["Only use a genuine responsibility."]
+      },
+
+      {
+        kernel_id: "WORK-001",
+        playful_name: "Constraint, Not Corporate Theatre",
+        excuse_family: "work",
+        supported_actions: [WILDCARD], compatible_timing: [WILDCARD], suitable_relationships: [WILDCARD],
+        audience_size: [WILDCARD], obligation_range: [WILDCARD], supported_contexts: [WILDCARD],
+        supported_tones: ["low_key", "nice", "funny"], supported_channels: [WILDCARD], repair_options: [WILDCARD],
+        cause_type: "work or study", responsibility_strategy: "limited_control",
+        linguistic_features: ["truth-required", "no invented deadline", "plain register"],
+        idea_direction: ({ actionFrame }) => `Base ${actionFrame} on a real work or study constraint, naming only the type of pressure and not inventing a deadline, client or crisis.`,
+        risk_flags: ["Do not fabricate a deadline or authority request."]
+      },
+      {
+        kernel_id: "WORK-015",
+        playful_name: "Deadline Compression",
+        excuse_family: "work",
+        supported_actions: ["cancel", "decline", "back_out", "reschedule", "delay"], compatible_timing: ["planned_ahead", "today", "last_minute"],
+        suitable_relationships: ["close", "familiar", "distant"], audience_size: [WILDCARD], obligation_range: ["casual", "expected"],
+        supported_contexts: ["dinner", "party", "date", "friends", "hobby", "family", "other"], supported_tones: ["low_key", "nice", "funny"],
+        supported_channels: ["text", "voice_note", "call"], repair_options: [WILDCARD], cause_type: "deadline pressure",
+        responsibility_strategy: "limited_control", linguistic_features: ["time pressure", "no employer detail", "brief"],
+        idea_direction: ({ actionFrame }) => `Use a real period of compressed work or study as the constraint behind ${actionFrame}, without embellishing who demanded it or how severe it is.`,
+        risk_flags: []
+      },
+      {
+        kernel_id: "WORK-022",
+        playful_name: "Early Start, Earlier Boundary",
+        excuse_family: "work",
+        supported_actions: ["decline", "leave_early", "cancel", "suggest_alternative"], compatible_timing: ["planned_ahead", "today"],
+        suitable_relationships: ["close", "familiar", "distant"], audience_size: [WILDCARD], obligation_range: ["casual", "expected"],
+        supported_contexts: ["party", "dinner", "date", "friends", "celebration"], supported_tones: ["low_key", "nice", "funny"],
+        supported_channels: [WILDCARD], repair_options: [WILDCARD], cause_type: "early start", responsibility_strategy: "honest_choice",
+        linguistic_features: ["forward-looking", "clear end time", "practical"],
+        idea_direction: ({ actionFrame }) => `Frame ${actionFrame} around a real early start or next-day demand, using it to set a practical time boundary rather than to dramatize workload.`,
+        risk_flags: []
+      },
+
+      {
+        kernel_id: "LOG-001",
+        playful_name: "Practical Constraint",
+        excuse_family: "logistics",
+        supported_actions: [WILDCARD], compatible_timing: [WILDCARD], suitable_relationships: [WILDCARD],
+        audience_size: [WILDCARD], obligation_range: [WILDCARD], supported_contexts: [WILDCARD],
+        supported_tones: ["low_key", "nice", "funny"], supported_channels: [WILDCARD], repair_options: [WILDCARD],
+        cause_type: "money or logistics", responsibility_strategy: "limited_control",
+        linguistic_features: ["truth-required", "concrete category", "no evidence claim"],
+        idea_direction: ({ actionFrame }) => `Use the real practical constraint behind ${actionFrame}—budget, transport, weather, an appointment or an errand—while omitting invented proof and unnecessary detail.`,
+        risk_flags: ["Do not invent cancellations, costs, tickets or appointments."]
+      },
+      {
+        kernel_id: "LOG-013",
+        playful_name: "Budget Is the Boundary",
+        excuse_family: "logistics",
+        supported_actions: ["decline", "cancel", "back_out", "suggest_alternative", "avoid_committing"], compatible_timing: ["planned_ahead", "today"],
+        suitable_relationships: ["close", "familiar", "distant"], audience_size: [WILDCARD], obligation_range: ["casual", "expected", "paid_reserved"],
+        supported_contexts: ["dinner", "party", "date", "friends", "hobby", "travel", "celebration"], supported_tones: ["low_key", "nice"],
+        supported_channels: [WILDCARD], repair_options: ["none", "brief_apology", "alternative_plan", "offer_another_time"], cause_type: "budget",
+        responsibility_strategy: "honest_choice", linguistic_features: ["direct boundary", "alternative-friendly", "no shame"],
+        idea_direction: ({ actionFrame, contextFrame }) => `Treat a real budget limit as the reason for ${actionFrame} around ${contextFrame}, and frame it as a practical boundary rather than a personal rejection.`,
+        risk_flags: ["Do not imply a financial emergency."]
+      },
+      {
+        kernel_id: "LOG-018",
+        playful_name: "Transport Friction",
+        excuse_family: "logistics",
+        supported_actions: ["delay", "explain_lateness", "cancel", "reschedule"], compatible_timing: ["today", "last_minute", "already_late"],
+        suitable_relationships: [WILDCARD], audience_size: [WILDCARD], obligation_range: ["casual", "expected", "important"],
+        supported_contexts: [WILDCARD], supported_tones: ["low_key", "nice"], supported_channels: [WILDCARD], repair_options: [WILDCARD],
+        cause_type: "transport", responsibility_strategy: "limited_control", linguistic_features: ["current constraint", "no fabricated service detail", "updated expectation"],
+        idea_direction: ({ actionFrame }) => `Use a real transport problem to account for ${actionFrame}, state only its practical effect, and avoid inventing service notices or exact causes.`,
+        risk_flags: ["Only use a transport problem that actually occurred."]
+      },
+      {
+        kernel_id: "LOG-024",
+        playful_name: "Appointment Collision",
+        excuse_family: "logistics",
+        supported_actions: ["cancel", "decline", "reschedule", "delay", "explain_lateness"], compatible_timing: ["planned_ahead", "today", "last_minute", "already_late"],
+        suitable_relationships: [WILDCARD], audience_size: [WILDCARD], obligation_range: ["casual", "expected", "important"],
+        supported_contexts: [WILDCARD], supported_tones: ["low_key", "nice"], supported_channels: [WILDCARD], repair_options: [WILDCARD],
+        cause_type: "appointment", responsibility_strategy: "limited_control", linguistic_features: ["privacy", "schedule conflict", "no medical implication"],
+        idea_direction: ({ actionFrame }) => `Use a real appointment collision as the scheduling reason for ${actionFrame}, without implying that it is medical, urgent or externally verified.`,
+        risk_flags: ["Do not invent an appointment."]
+      },
+
+      {
+        kernel_id: "PLAN-001",
+        playful_name: "Own the Planning Error",
+        excuse_family: "planning",
+        supported_actions: [WILDCARD], compatible_timing: [WILDCARD], suitable_relationships: [WILDCARD],
+        audience_size: [WILDCARD], obligation_range: [WILDCARD], supported_contexts: [WILDCARD],
+        supported_tones: ["low_key", "nice", "funny"], supported_channels: [WILDCARD], repair_options: [WILDCARD],
+        cause_type: "planning failure", responsibility_strategy: "planning_accountability",
+        linguistic_features: ["ownership", "brief explanation", "repair-compatible"],
+        idea_direction: ({ actionFrame }) => `Treat ${actionFrame} as the consequence of a real planning mistake, own the error plainly, and resist replacing it with a more flattering story.`,
+        risk_flags: []
+      },
+      {
+        kernel_id: "PLAN-011",
+        playful_name: "Double-Booked, Not Double-Fiction",
+        excuse_family: "planning",
+        supported_actions: ["cancel", "back_out", "reschedule", "delay"], compatible_timing: ["planned_ahead", "today", "last_minute"],
+        suitable_relationships: [WILDCARD], audience_size: [WILDCARD], obligation_range: ["casual", "expected", "important", "paid_reserved"],
+        supported_contexts: [WILDCARD], supported_tones: ["low_key", "nice", "funny"], supported_channels: [WILDCARD], repair_options: [WILDCARD],
+        cause_type: "double-booking", responsibility_strategy: "planning_accountability", linguistic_features: ["direct ownership", "no blame transfer", "corrective option"],
+        idea_direction: ({ actionFrame }) => `Use the real double-booking as the reason for ${actionFrame}, acknowledge that it is your scheduling error, and keep the competing commitment undescribed.`,
+        risk_flags: []
+      },
+      {
+        kernel_id: "PLAN-019",
+        playful_name: "Lost Track, Found Responsibility",
+        excuse_family: "planning",
+        supported_actions: ["explain_lateness", "explain_absence", "delay"], compatible_timing: ["already_late", "already_missed", "today"],
+        suitable_relationships: ["close", "familiar", "distant", "professional"], audience_size: [WILDCARD], obligation_range: ["casual", "expected", "important"],
+        supported_contexts: [WILDCARD], supported_tones: ["low_key", "nice"], supported_channels: [WILDCARD],
+        repair_options: ["brief_apology", "offer_another_time", "acknowledge_inconvenience", "alternative_plan"], cause_type: "lost time",
+        responsibility_strategy: "repair_first", linguistic_features: ["past failure", "impact acknowledgment", "updated expectation"],
+        idea_direction: ({ actionFrame }) => `For ${actionFrame}, own that you lost track of time or the commitment and lead with the impact rather than searching for a less embarrassing cause.`,
+        risk_flags: []
+      },
+      {
+        kernel_id: "PLAN-027",
+        playful_name: "Date Confusion",
+        excuse_family: "planning",
+        supported_actions: ["explain_absence", "cancel", "reschedule", "back_out"], compatible_timing: ["already_missed", "today", "last_minute"],
+        suitable_relationships: [WILDCARD], audience_size: [WILDCARD], obligation_range: ["casual", "expected", "important"],
+        supported_contexts: [WILDCARD], supported_tones: ["low_key", "nice"], supported_channels: [WILDCARD],
+        repair_options: ["brief_apology", "offer_another_time", "acknowledge_inconvenience"], cause_type: "date confusion",
+        responsibility_strategy: "planning_accountability", linguistic_features: ["specific error type", "no fake calendar evidence", "repair"],
+        idea_direction: ({ actionFrame }) => `Use the real date or time confusion behind ${actionFrame}, identify it simply as your mistake, and move quickly to correction.`,
+        risk_flags: ["Do not invent calendar evidence."]
+      },
+
+      {
+        kernel_id: "BOUND-001",
+        playful_name: "Boundary Without Backstory",
+        excuse_family: "boundary",
+        supported_actions: [WILDCARD], compatible_timing: [WILDCARD], suitable_relationships: [WILDCARD],
+        audience_size: [WILDCARD], obligation_range: [WILDCARD], supported_contexts: [WILDCARD],
+        supported_tones: ["low_key", "nice", "funny"], supported_channels: [WILDCARD], repair_options: [WILDCARD],
+        cause_type: "boundary or preference", responsibility_strategy: "honest_choice",
+        linguistic_features: ["agency", "no false cause", "recipient-respecting", "minimal detail"],
+        idea_direction: ({ actionFrame }) => `Frame ${actionFrame} as a clear limit or choice you can honestly stand behind, without manufacturing an external cause or criticizing the invitation.`,
+        risk_flags: []
+      },
+      {
+        kernel_id: "BOUND-010",
+        playful_name: "Gentle No",
+        excuse_family: "boundary",
+        supported_actions: ["decline", "cancel", "back_out"], compatible_timing: ["planned_ahead", "today", "last_minute"],
+        suitable_relationships: ["close", "familiar", "distant"], audience_size: [WILDCARD], obligation_range: ["casual", "expected"],
+        supported_contexts: [WILDCARD], supported_tones: ["low_key", "nice"], supported_channels: [WILDCARD], repair_options: [WILDCARD],
+        cause_type: "preference", responsibility_strategy: "honest_choice", linguistic_features: ["soft refusal", "no recipient devaluation", "compact"],
+        idea_direction: ({ actionFrame, contextFrame }) => `Use a gentle but direct preference boundary for ${actionFrame} around ${contextFrame}, keeping the refusal about your decision rather than the recipient's plan.`,
+        risk_flags: []
+      },
+      {
+        kernel_id: "BOUND-017",
+        playful_name: "Not Ready to Commit",
+        excuse_family: "boundary",
+        supported_actions: ["avoid_committing", "delay", "suggest_alternative"], compatible_timing: ["planned_ahead", "today"],
+        suitable_relationships: [WILDCARD], audience_size: [WILDCARD], obligation_range: ["casual", "expected", "important"],
+        supported_contexts: [WILDCARD], supported_tones: ["low_key", "nice"], supported_channels: [WILDCARD], repair_options: [WILDCARD],
+        cause_type: "uncertainty", responsibility_strategy: "obligation_clarity", linguistic_features: ["uncertainty", "decision boundary", "no false promise"],
+        idea_direction: ({ actionFrame }) => `Use genuine uncertainty as the basis for ${actionFrame}, set a clear point for revisiting the decision, and avoid a vague promise that shifts the burden to the other person.`,
+        risk_flags: []
+      },
+      {
+        kernel_id: "BOUND-026",
+        playful_name: "Reset the Pattern",
+        excuse_family: "boundary",
+        supported_actions: [WILDCARD], compatible_timing: ["recurring"], suitable_relationships: [WILDCARD],
+        audience_size: [WILDCARD], obligation_range: [WILDCARD], supported_contexts: [WILDCARD],
+        supported_tones: ["low_key", "nice"], supported_channels: [WILDCARD], repair_options: ["brief_apology", "offer_another_time", "alternative_plan", "acknowledge_inconvenience"],
+        cause_type: "recurring capacity or commitment mismatch", responsibility_strategy: "repair_first",
+        linguistic_features: ["pattern acknowledgment", "future expectation", "no escalation"],
+        idea_direction: () => `Acknowledge the recurring pattern and reset the underlying commitment or boundary, rather than offering another one-off reason that leaves future expectations unchanged.`,
+        risk_flags: []
+      },
+      {
+        kernel_id: "BOUND-900",
+        playful_name: "Accountability, Not an Excuse",
+        excuse_family: "boundary",
+        supported_actions: [WILDCARD], compatible_timing: [WILDCARD], suitable_relationships: [WILDCARD],
+        audience_size: [WILDCARD], obligation_range: [WILDCARD], supported_contexts: [WILDCARD],
+        supported_tones: ["low_key", "nice"], supported_channels: [WILDCARD], repair_options: [WILDCARD],
+        cause_type: "accountability", responsibility_strategy: "repair_first",
+        linguistic_features: ["high-risk fallback", "no excuse construction", "corrective action"],
+        idea_direction: ({ actionFrame }) => `Do not construct an excuse for ${actionFrame}; state the limit or mistake at the level needed for accountability and focus on the concrete next step.`,
+        risk_flags: ["Used when an excuse could enable high-consequence evasion."]
+      },
+
+      {
+        kernel_id: "ABS-001",
+        playful_name: "Obviously Fictional",
+        excuse_family: "absurd",
+        supported_actions: ["cancel", "decline", "leave_early", "back_out", "reschedule", "delay", "suggest_alternative"],
+        compatible_timing: ["planned_ahead", "today", "last_minute"], suitable_relationships: ["close", "familiar"], audience_size: [WILDCARD],
+        obligation_range: ["casual"], supported_contexts: ["party", "dinner", "friends", "hobby", "celebration", "other"],
+        supported_tones: ["funny", "dramatic", "unhinged"], supported_channels: [WILDCARD],
+        repair_options: [WILDCARD], cause_type: "explicit fiction",
+        responsibility_strategy: "playful_distance", linguistic_features: ["unmistakably fictional", "mundane stakes", "no emergency"],
+        idea_direction: ({ actionFrame }) => `Use an obviously fictional, mundane mini-drama as the playful wrapper for ${actionFrame}; it must be impossible to confuse with a real illness, family event or emergency.`,
+        risk_flags: ["Low-stakes only.", "Never use emergency themes."]
+      },
+      {
+        kernel_id: "ABS-014",
+        playful_name: "Epic Battle With a Chore",
+        excuse_family: "absurd",
+        supported_actions: ["leave_early", "cancel", "delay", "suggest_alternative"], compatible_timing: ["today", "last_minute"],
+        suitable_relationships: ["close", "familiar"], audience_size: ["one", "group"], obligation_range: ["casual"],
+        supported_contexts: ["party", "dinner", "friends", "hobby", "other"], supported_tones: ["funny", "dramatic", "unhinged"],
+        supported_channels: ["text", "voice_note", "in_person"], repair_options: ["none", "brief_apology", "alternative_plan"],
+        cause_type: "explicitly fictional mundane obstacle", responsibility_strategy: "playful_distance",
+        linguistic_features: ["mundane object", "mock-epic scale", "obvious fiction"],
+        idea_direction: ({ actionFrame }) => `Wrap ${actionFrame} in a mock-epic struggle with an ordinary chore or household object, keeping the fiction transparent and the stakes deliberately trivial.`,
+        risk_flags: ["Do not mention injury, police, hospitals, death or disasters."]
+      }
+    ];
+
+    const PRESETS = {
+      dinner: {
+        intent: "exit", action: "cancel", timing: "today", clarity: "clear", audience: "one",
+        relationship: "familiar", obligation: "expected", context: "dinner", channel: "text",
+        tone: "nice", repair: "offer_another_time", risk: "low", truthBasis: "capacity", familyConstraint: "any"
+      },
+      delay: {
+        intent: "buy_time", action: "delay", timing: "today", clarity: "clear", audience: "one",
+        relationship: "authority", obligation: "important", context: "work", channel: "call",
+        tone: "low_key", repair: "acknowledge_inconvenience", risk: "sensitive", truthBasis: "planning", familyConstraint: "any"
+      },
+      missed: {
+        intent: "recover", action: "explain_absence", timing: "already_missed", clarity: "clear", audience: "one",
+        relationship: "close", obligation: "expected", context: "friends", channel: "text",
+        tone: "low_key", repair: "brief_apology", risk: "low", truthBasis: "planning", familyConstraint: "any"
+      },
+      playful: {
+        intent: "exit", action: "leave_early", timing: "today", clarity: "tentative", audience: "group",
+        relationship: "close", obligation: "casual", context: "party", channel: "voice_note",
+        tone: "unhinged", repair: "alternative_plan", risk: "low", truthBasis: "playful", familyConstraint: "absurd"
+      }
+    };
+
+    function matches(list, value) {
+      return list.includes(WILDCARD) || list.includes(value);
+    }
+
+    function label(group, value) {
+      return (LABELS[group] && LABELS[group][value]) || value;
+    }
+
+    function getRequest() {
+      const ids = [
+        "intent", "action", "timing", "clarity", "audience", "relationship", "obligation",
+        "context", "channel", "tone", "repair", "risk", "truthBasis", "familyConstraint"
+      ];
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function setRequest(values) {
+      Object.entries(values).forEach(([key, value]) => {
+        const element = document.getElementById(key);
+        if (element) element.value = value;
+      });
+      generate();
+    }
+
+    function fnv1a(input) {
+      let hash = 0x811c9dc5;
+      for (let i = 0; i < input.length; i += 1) {
+        hash ^= input.charCodeAt(i);
+        hash = Math.imul(hash, 0x01000193);
+      }
+      return hash >>> 0;
+    }
+
+    function derivePolicy(request) {
+      const notes = [];
+      const pastOrRecurring = PAST_OR_RECURRING.has(request.timing);
+      const highObligation = HIGH_OBLIGATIONS.has(request.obligation);
+      const professional = PROFESSIONAL_RELATIONSHIPS.has(request.relationship);
+      const highRisk = request.risk === "high";
+      const sensitive = request.risk === "sensitive";
+      const noTruthfulCause = request.truthBasis === "none";
+      const requestedFamily = request.familyConstraint;
+      let effectiveFamily = TRUTH_TO_FAMILY[request.truthBasis];
+      let effectiveTone = request.tone;
+      let effectiveRepair = request.repair;
+      let safetyRoute = "eligible";
+
+      if (request.timing === "recurring") {
+        effectiveFamily = "boundary";
+        effectiveRepair = "acknowledge_inconvenience";
+        notes.push("Recurring failures are routed to a pattern reset instead of a stronger one-off excuse.");
+      } else if (highRisk) {
+        effectiveFamily = "boundary";
+        effectiveRepair = "acknowledge_inconvenience";
+        safetyRoute = "accountability";
+        notes.push("High-consequence situations are routed to accountability rather than excuse construction.");
+      } else if (noTruthfulCause && pastOrRecurring) {
+        effectiveFamily = request.timing === "recurring" ? "boundary" : "planning";
+        notes.push("With no factual cause for a past failure, the engine uses ownership rather than inventing a reason.");
+      } else if (noTruthfulCause) {
+        effectiveFamily = "boundary";
+        notes.push("No truthful cause was selected, so the engine uses a direct boundary.");
+      }
+
+      const playfulAllowed = request.truthBasis === "playful"
+        && request.risk === "low"
+        && request.obligation === "casual"
+        && ["close", "familiar"].includes(request.relationship)
+        && SOCIAL_CONTEXTS.has(request.context)
+        && PLAYFUL_ACTIONS.has(request.action)
+        && !pastOrRecurring
+        && !PROFESSIONAL_RELATIONSHIPS.has(request.relationship);
+
+      if (request.truthBasis === "playful" && !playfulAllowed) {
+        effectiveFamily = "boundary";
+        effectiveTone = request.tone === "nice" ? "nice" : "low_key";
+        safetyRoute = "accountability";
+        notes.push("Absurd invention is limited to clearly playful, low-stakes social situations; this request was redirected.");
+      }
+
+      if (requestedFamily !== "any" && requestedFamily !== effectiveFamily) {
+        notes.push(`The requested family “${label("family", requestedFamily)}” conflicts with the truthful or safety basis and was ignored.`);
+      }
+
+      if (effectiveFamily === "absurd" && !["funny", "dramatic", "unhinged"].includes(effectiveTone)) {
+        effectiveTone = "funny";
+        notes.push("The playful family requires an unmistakably playful tone, so the register was changed to Funny.");
+      }
+
+      if (HIGH_DRAMA_TONES.has(effectiveTone) && effectiveFamily !== "absurd") {
+        const familyCanBeFunny = ["capacity", "work", "logistics", "planning", "boundary"].includes(effectiveFamily);
+        const lightToneIsSafe = familyCanBeFunny && !professional && !highObligation && request.risk === "low" && !pastOrRecurring
+          && ["close", "familiar"].includes(request.relationship);
+        effectiveTone = lightToneIsSafe ? "funny" : "low_key";
+        notes.push(`The selected dramatic tone was reduced to ${label("tone", effectiveTone)} because a real-world cause should not be made more dramatic.`);
+      }
+
+      if (effectiveTone === "funny" && (effectiveFamily === "care" || professional || highObligation || request.risk !== "low" || pastOrRecurring || request.relationship === "distant")) {
+        effectiveTone = request.relationship === "close" && !pastOrRecurring ? "nice" : "low_key";
+        notes.push("Humour was reduced because it could weaken accountability in this context.");
+      }
+
+      if ((pastOrRecurring || highObligation) && effectiveRepair === "none") {
+        effectiveRepair = highObligation ? "acknowledge_inconvenience" : "brief_apology";
+        notes.push("A repair step was added because the situation is already past, recurring or high-obligation.");
+      }
+
+      if (request.timing === "already_missed" && effectiveRepair === "offer_another_time" && highObligation) {
+        effectiveRepair = "acknowledge_inconvenience";
+        notes.push("Repair was shifted from social rescheduling to acknowledging impact because the missed obligation had higher stakes.");
+      }
+
+      if (request.clarity === "unclear" && request.action === "avoid_committing" && effectiveFamily !== "boundary") {
+        effectiveFamily = "boundary";
+        notes.push("An unclear obligation plus non-commitment is best handled by clarifying expectations, not by adding a cause story.");
+      }
+
+      return {
+        pastOrRecurring,
+        highObligation,
+        professional,
+        highRisk,
+        effectiveFamily,
+        effectiveTone,
+        effectiveRepair,
+        safetyRoute,
+        notes
+      };
+    }
+
+    function kernelCompatible(kernel, request, policy) {
+      return kernel.excuse_family === policy.effectiveFamily
+        && matches(kernel.supported_actions, request.action)
+        && matches(kernel.compatible_timing, request.timing)
+        && matches(kernel.suitable_relationships, request.relationship)
+        && matches(kernel.audience_size, request.audience)
+        && matches(kernel.obligation_range, request.obligation)
+        && matches(kernel.supported_contexts, request.context)
+        && matches(kernel.supported_tones, policy.effectiveTone)
+        && matches(kernel.supported_channels, request.channel)
+        && matches(kernel.repair_options, policy.effectiveRepair);
+    }
+
+    function specializationScore(kernel, request, policy) {
+      const dimensions = [
+        [kernel.supported_actions, request.action, 9],
+        [kernel.compatible_timing, request.timing, 8],
+        [kernel.suitable_relationships, request.relationship, 6],
+        [kernel.audience_size, request.audience, 3],
+        [kernel.obligation_range, request.obligation, 7],
+        [kernel.supported_contexts, request.context, 5],
+        [kernel.supported_tones, policy.effectiveTone, 4],
+        [kernel.supported_channels, request.channel, 3],
+        [kernel.repair_options, policy.effectiveRepair, 4]
+      ];
+      return dimensions.reduce((score, [list, value, weight]) => score + (list.includes(value) ? weight : 0), 0);
+    }
+
+    function selectKernel(request, policy) {
+      let candidates = KERNELS.filter((kernel) => kernelCompatible(kernel, request, policy));
+
+      if (policy.highRisk) {
+        const accountabilityKernel = KERNELS.find((kernel) => kernel.kernel_id === "BOUND-900");
+        return { kernel: accountabilityKernel, candidateCount: 1, fallback: false };
+      }
+
+      if (!candidates.length) {
+        candidates = KERNELS.filter((kernel) =>
+          kernel.excuse_family === policy.effectiveFamily
+          && matches(kernel.supported_actions, request.action)
+          && matches(kernel.compatible_timing, request.timing)
+          && matches(kernel.suitable_relationships, request.relationship)
+          && matches(kernel.obligation_range, request.obligation)
+          && matches(kernel.supported_tones, policy.effectiveTone)
+        );
+      }
+
+      if (!candidates.length) {
+        const safeFallback = KERNELS.find((kernel) => kernel.kernel_id === "BOUND-001");
+        return { kernel: safeFallback, candidateCount: 0, fallback: true };
+      }
+
+      const scored = candidates.map((kernel) => ({
+        kernel,
+        score: specializationScore(kernel, request, policy)
+      }));
+      const maxScore = Math.max(...scored.map((item) => item.score));
+      const top = scored
+        .filter((item) => item.score === maxScore)
+        .sort((a, b) => a.kernel.kernel_id.localeCompare(b.kernel.kernel_id));
+      const key = JSON.stringify({ ...request, effectiveFamily: policy.effectiveFamily, effectiveTone: policy.effectiveTone, effectiveRepair: policy.effectiveRepair });
+      const chosen = top[fnv1a(key) % top.length].kernel;
+      return { kernel: chosen, candidateCount: candidates.length, fallback: false };
+    }
+
+    function buildIdea(kernel, request, policy) {
+      const base = kernel.idea_direction({
+        actionFrame: ACTION_FRAMES[request.action],
+        contextFrame: CONTEXT_FRAMES[request.context],
+        request,
+        policy
+      });
+      return `${base} ${TONE_GUIDANCE[policy.effectiveTone]}`;
+    }
+
+    function buildTrace(request, policy, selection) {
+      const classification = {
+        title: `${label("intent", request.intent)} → ${label("action", request.action)}`,
+        detail: `${label("timing", request.timing)}; ${label("clarity", request.clarity)}.`
+      };
+      const selectedFamily = {
+        title: label("family", policy.effectiveFamily),
+        detail: `${selection.candidateCount} compatible kernel${selection.candidateCount === 1 ? "" : "s"}; selected ${selection.kernel.kernel_id} deterministically.`
+      };
+      const delivery = {
+        title: `${label("tone", policy.effectiveTone)} via ${label("channel", request.channel)}`,
+        detail: `Repair: ${label("repair", policy.effectiveRepair)}.`
+      };
+
+      if (policy.safetyRoute === "accountability") {
+        return [
+          classification,
+          {
+            title: "Accountability route",
+            detail: `${label("risk", request.risk)}; requested basis: ${label("truthBasis", request.truthBasis)}.`
+          },
+          {
+            title: "No cause escalation",
+            detail: "The tree declines to manufacture or intensify a cover story."
+          },
+          {
+            title: `${label("family", policy.effectiveFamily)} · ${selection.kernel.kernel_id}`,
+            detail: "Use the minimum explanation needed for responsibility and correction."
+          },
+          {
+            title: `${label("relationship", request.relationship)} via ${label("channel", request.channel)}`,
+            detail: `Register constrained to ${label("tone", policy.effectiveTone)}.`
+          },
+          {
+            title: "Repair-led output",
+            detail: `${label("repair", policy.effectiveRepair)}; one direction, not a message.`
+          }
+        ];
+      }
+
+      if (policy.pastOrRecurring) {
+        return [
+          classification,
+          {
+            title: "Eligible cause route",
+            detail: `${label("risk", request.risk)}; basis: ${label("truthBasis", request.truthBasis)}.`
+          },
+          {
+            title: "Repair-first path",
+            detail: "A past or repeated failure makes acknowledgement more important than explanation."
+          },
+          {
+            title: "Repair calibrated to impact",
+            detail: `${label("obligation", request.obligation)} with a ${label("relationship", request.relationship).toLowerCase()} relationship.`
+          },
+          selectedFamily,
+          delivery
+        ];
+      }
+
+      return [
+        classification,
+        {
+          title: "Eligible cause route",
+          detail: `${label("risk", request.risk)}; basis: ${label("truthBasis", request.truthBasis)}.`
+        },
+        {
+          title: "Current/future path",
+          detail: "The account can still shape expectations before or during the event."
+        },
+        {
+          title: policy.highObligation ? "Higher-obligation handling" : "Normal obligation handling",
+          detail: `${label("obligation", request.obligation)} with a ${label("relationship", request.relationship).toLowerCase()} relationship.`
+        },
+        selectedFamily,
+        delivery
+      ];
+    }
+
+    function clearFlowState() {
+      document.querySelectorAll(".flow-node, .flow-edge").forEach((element) => element.classList.remove("active"));
+    }
+
+    function activate(ids) {
+      ids.forEach((id) => {
+        const element = document.getElementById(id);
+        if (element) element.classList.add("active");
+      });
+    }
+
+    function updateFlow(request, policy) {
+      clearFlowState();
+      activate(["node-start", "node-safety", "edge-start-safety"]);
+
+      if (policy.safetyRoute === "accountability") {
+        activate([
+          "edge-safety-blocked", "node-blocked", "edge-blocked-accountability", "node-accountability",
+          "edge-accountability-register", "node-register", "edge-register-tone", "node-tone", "edge-tone-output", "node-output"
+        ]);
+        return;
+      }
+
+      activate(["edge-safety-eligible", "node-eligible", "edge-eligible-time", "node-time"]);
+
+      if (policy.pastOrRecurring) {
+        activate([
+          "edge-time-past", "node-past", "edge-past-repair", "node-repair", "edge-repair-family", "node-family",
+          "edge-family-register", "node-register", "edge-register-tone", "node-tone", "edge-tone-output", "node-output"
+        ]);
+      } else {
+        activate(["edge-time-current", "node-current", "edge-current-obligation", "node-obligation"]);
+        if (policy.highObligation) {
+          activate(["edge-obligation-high", "node-high", "edge-high-family"]);
+        } else {
+          activate(["edge-obligation-low", "node-low", "edge-low-family"]);
+        }
+        activate([
+          "node-family", "edge-family-register", "node-register", "edge-register-tone", "node-tone", "edge-tone-output", "node-output"
+        ]);
+      }
+    }
+
+    function updateStatus(policy) {
+      const chip = document.getElementById("status-chip");
+      chip.className = "status-chip";
+      if (policy.safetyRoute === "accountability") {
+        chip.textContent = "Restricted → accountability";
+        chip.classList.add("blocked");
+      } else if (policy.notes.length) {
+        chip.textContent = "Safe with adjustments";
+        chip.classList.add("caution");
+      } else {
+        chip.textContent = "Safe route";
+      }
+    }
+
+    function compactKernelForDisplay(kernel) {
+      return {
+        kernel_id: kernel.kernel_id,
+        playful_name: kernel.playful_name,
+        excuse_family: kernel.excuse_family,
+        cause_type: kernel.cause_type,
+        responsibility_strategy: kernel.responsibility_strategy,
+        linguistic_features: kernel.linguistic_features,
+        repair_options: kernel.repair_options,
+        risk_flags: kernel.risk_flags
+      };
+    }
+
+    function generate() {
+      const request = getRequest();
+      const policy = derivePolicy(request);
+      const selection = selectKernel(request, policy);
+      const kernel = selection.kernel;
+      const idea = buildIdea(kernel, request, policy);
+      const repair = REPAIR_DIRECTIONS[policy.effectiveRepair] || "";
+
+      document.getElementById("idea-direction").textContent = idea;
+      document.getElementById("repair-direction").textContent = repair;
+      document.getElementById("repair-box").hidden = !repair;
+      document.getElementById("meta-family").textContent = label("family", kernel.excuse_family);
+      document.getElementById("meta-kernel").textContent = `${kernel.kernel_id} · ${kernel.playful_name}`;
+      document.getElementById("meta-tone").textContent = label("tone", policy.effectiveTone);
+      document.getElementById("meta-responsibility").textContent = label("responsibility", kernel.responsibility_strategy);
+
+      const policyNote = document.getElementById("policy-note");
+      const allNotes = [...policy.notes];
+      if (selection.fallback) allNotes.push("No exact kernel matched, so the safest general boundary kernel was used.");
+      policyNote.textContent = allNotes.join(" ");
+      policyNote.classList.toggle("visible", allNotes.length > 0);
+
+      updateStatus(policy);
+      updateFlow(request, policy);
+
+      const trace = buildTrace(request, policy, selection);
+      document.getElementById("trace-grid").innerHTML = trace.map((step, index) => `
+        <article class="trace-step">
+          <span class="trace-index">${index + 1}</span>
+          <strong>${step.title}</strong>
+          <p>${step.detail}</p>
+        </article>
+      `).join("");
+
+      const normalizedRequest = {
+        ...request,
+        effective_family: policy.effectiveFamily,
+        effective_tone: policy.effectiveTone,
+        effective_repair: policy.effectiveRepair,
+        safety_route: policy.safetyRoute
+      };
+      document.getElementById("request-json").textContent = JSON.stringify(normalizedRequest, null, 2);
+      document.getElementById("kernel-json").textContent = JSON.stringify(compactKernelForDisplay(kernel), null, 2);
+    }
+
+    document.getElementById("excuse-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      generate();
+    });
+
+    document.getElementById("reset-button").addEventListener("click", () => {
+      document.getElementById("excuse-form").reset();
+      generate();
+    });
+
+    document.querySelectorAll("[data-preset]").forEach((button) => {
+      button.addEventListener("click", () => setRequest(PRESETS[button.dataset.preset]));
+    });
+
+    document.querySelectorAll("select").forEach((select) => {
+      select.addEventListener("change", generate);
+    });
+
+    generate();
+  </script>
+</body>
+</html>

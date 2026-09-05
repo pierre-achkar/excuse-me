@@ -28,8 +28,80 @@
   "shopkeeperSituation": "Great choice. Now pick a situation that fits.",
   "@shopkeeperSituation": { "description": "Shopkeeper speech bubble on the situation step." },
 
-  "shopkeeperTone": "Almost there. Pick your ingredient for the tone.",
-  "@shopkeeperTone": { "description": "Shopkeeper speech bubble on the tone step." },
+  "shopkeeperTone": "Almost there. Pick how loud you want this.",
+  "@shopkeeperTone": { "description": "Shopkeeper speech bubble on the delivery step." },
+
+  "dialogueDamage": "What's the damage?",
+  "@dialogueDamage": { "description": "Question for the first shop dialogue beat." },
+
+  "dialogueTiming": "When's the reckoning?",
+  "@dialogueTiming": { "description": "Question for the timing shop dialogue beat." },
+
+  "dialogueAudience": "Who's on the other end?",
+  "@dialogueAudience": { "description": "Question for the audience shop dialogue beat." },
+
+  "dialogueDelivery": "How loud do you want this?",
+  "@dialogueDelivery": { "description": "Question for the channel and tone shop dialogue beat." },
+
+  "damageDinner": "A dinner I can't face",
+  "@damageDinner": { "description": "Damage choice for a dinner commitment." },
+
+  "damageParty": "A party I said yes to",
+  "@damageParty": { "description": "Damage choice for a party commitment." },
+
+  "damageGroupWorkCall": "A group work call",
+  "@damageGroupWorkCall": { "description": "Damage choice for a group work call." },
+
+  "damageDate": "A date I'm dreading",
+  "@damageDate": { "description": "Damage choice for a date commitment." },
+
+  "damageMissed": "I missed something",
+  "@damageMissed": { "description": "Damage choice for a missed commitment." },
+
+  "timingPlannedAhead": "Planned ahead",
+  "@timingPlannedAhead": { "description": "Timing choice for a planned-ahead change." },
+
+  "timingToday": "Today",
+  "@timingToday": { "description": "Timing choice for a change happening today." },
+
+  "timingLastMinute": "Last minute",
+  "@timingLastMinute": { "description": "Timing choice for a last-minute change." },
+
+  "timingAlreadyLate": "Already late",
+  "@timingAlreadyLate": { "description": "Timing choice when the user is already late." },
+
+  "timingAlreadyMissed": "Already missed",
+  "@timingAlreadyMissed": { "description": "Timing choice when the commitment was missed." },
+
+  "audienceSomeoneClose": "Someone close",
+  "@audienceSomeoneClose": { "description": "Audience choice for a close relationship." },
+
+  "audienceSomeoneFamiliar": "Someone familiar",
+  "@audienceSomeoneFamiliar": { "description": "Audience choice for a familiar relationship." },
+
+  "audienceAGroup": "A group",
+  "@audienceAGroup": { "description": "Audience choice for a group." },
+
+  "audienceWorkContact": "A work contact",
+  "@audienceWorkContact": { "description": "Audience choice for a professional relationship." },
+
+  "audienceSomeoneInCharge": "Someone in charge",
+  "@audienceSomeoneInCharge": { "description": "Audience choice for an authority relationship." },
+
+  "deliveryLowKeyText": "Low-key text",
+  "@deliveryLowKeyText": { "description": "Delivery choice for low-key tone over text." },
+
+  "deliveryNiceText": "Nice text",
+  "@deliveryNiceText": { "description": "Delivery choice for nice tone over text." },
+
+  "deliveryFunnyText": "Funny text",
+  "@deliveryFunnyText": { "description": "Delivery choice for funny tone over text." },
+
+  "deliveryDramaticVoiceNote": "Dramatic voice note",
+  "@deliveryDramaticVoiceNote": { "description": "Delivery choice for dramatic tone in a voice note." },
+
+  "deliveryUnhingedCall": "Unhinged call",
+  "@deliveryUnhingedCall": { "description": "Delivery choice for unhinged tone over a call." },
 
   "shopkeeperSays": "Shopkeeper says:",
   "@shopkeeperSays": { "description": "Prefix for the shopkeeper speech bubble semantics label." },
@@ -85,6 +157,18 @@
   "toneFunny": "Funny",
   "@toneFunny": { "description": "Tone label for funny tone." },
 
+  "toneLowKey": "Low-key",
+  "@toneLowKey": { "description": "Design-system label for low-key tone." },
+
+  "toneNice": "Nice",
+  "@toneNice": { "description": "Design-system label for nice tone." },
+
+  "toneDramatic": "Dramatic",
+  "@toneDramatic": { "description": "Design-system label for dramatic tone." },
+
+  "toneUnhinged": "Unhinged",
+  "@toneUnhinged": { "description": "Design-system label for unhinged tone." },
+
   "chooseMission": "Choose mission: {mission}",
   "@chooseMission": {
     "description": "Semantics label for mission choice cards.",
@@ -103,6 +187,30 @@
     "placeholders": { "tone": { "type": "String" } }
   },
 
+  "chooseDamage": "Choose damage: {option}",
+  "@chooseDamage": {
+    "description": "Semantics label for the first dialogue beat.",
+    "placeholders": { "option": { "type": "String" } }
+  },
+
+  "chooseTiming": "Choose timing: {option}",
+  "@chooseTiming": {
+    "description": "Semantics label for the timing dialogue beat.",
+    "placeholders": { "option": { "type": "String" } }
+  },
+
+  "chooseAudience": "Choose audience: {option}",
+  "@chooseAudience": {
+    "description": "Semantics label for the audience dialogue beat.",
+    "placeholders": { "option": { "type": "String" } }
+  },
+
+  "chooseDelivery": "Choose delivery: {option}",
+  "@chooseDelivery": {
+    "description": "Semantics label for the delivery dialogue beat.",
+    "placeholders": { "option": { "type": "String" } }
+  },
+
   "brewingYourExcuse": "Brewing your excuse...",
   "@brewingYourExcuse": { "description": "Text shown while generating the excuse idea." },
 
@@ -111,6 +219,12 @@
 
   "resultTitle": "Your excuse",
   "@resultTitle": { "description": "Title above the result card." },
+
+  "repairDirectionLabel": "Repair direction",
+  "@repairDirectionLabel": { "description": "Small label for an optional repair direction on a card." },
+
+  "repairDirectionPending": "A small repair direction is available for you to phrase in your own words.",
+  "@repairDirectionPending": { "description": "Non-sendable placeholder copy for the optional repair direction." },
 
   "collectibleIdeaBadge": "COLLECTIBLE IDEA",
   "@collectibleIdeaBadge": { "description": "Badge label inside the result card." },

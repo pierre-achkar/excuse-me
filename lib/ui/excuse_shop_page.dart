@@ -24,15 +24,19 @@ class ExcuseShopPage extends StatefulWidget {
   State<ExcuseShopPage> createState() => _ExcuseShopPageState();
 }
 
-enum _Step { mission, situation, tone, brewing, result, error }
+enum _Step { damage, timing, audience, delivery, brewing, result, error }
 
 class _ExcuseShopPageState extends State<ExcuseShopPage>
     with WidgetsBindingObserver {
-  _Step _step = _Step.mission;
-  ShopMission? _mission;
-  ShopSituation? _situation;
-  ShopTone? _tone;
+  _Step _step = _Step.damage;
+  ShopDamageOption? _damage;
+  ShopTimingOption? _timing;
+  ShopAudienceOption? _audience;
+  ShopDeliveryOption? _delivery;
+  ExcuseRequest? _request;
   String? _idea;
+  GeneratedIdea? _generatedIdea;
+  bool _offerRepair = false;
   String? _error;
   bool _didOpen = false;
   bool _wasNonActive = false;
@@ -88,17 +92,14 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
     if (!mounted) return;
 
     try {
-      final idea = await widget.client.generate(
-        IdeaRequest(
-          situation: _requestSituation(),
-          relationship: 'Friend',
-          urgency: 'Today',
-          tone: _requestTone(),
-        ),
+      final generated = await generateDetailedIdea(
+        widget.client,
+        IdeaRequest.fromExcuseRequest(_request!),
       );
       if (!mounted) return;
       setState(() {
-        _idea = idea;
+        _idea = generated.idea;
+        _generatedIdea = generated;
         _step = _Step.result;
       });
       await _recordSafely(AnalyticsEvent.generationCompleted);
@@ -111,95 +112,95 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
     }
   }
 
-  String _requestSituation() {
-    final action = _situation!.action ?? _mission!.action;
-    final actionCue = switch (action) {
-      ExcuseAction.cancel => 'cancel',
-      ExcuseAction.decline => 'decline',
-      ExcuseAction.leaveEarly => 'leave early',
-      ExcuseAction.backOut => 'back out',
-      ExcuseAction.reschedule => 'reschedule',
-      ExcuseAction.delay || ExcuseAction.avoidCommitting => 'delay',
-      ExcuseAction.explainLateness => 'late',
-      ExcuseAction.explainAbsence => 'missed',
-      ExcuseAction.suggestAlternative => 'reschedule',
-    };
-    final contextCue = switch (_situation!.context) {
-      ExcuseContext.celebration => 'celebration',
-      ExcuseContext.party => 'party',
-      ExcuseContext.dinner => 'dinner',
-      ExcuseContext.date => 'date',
-      ExcuseContext.family => 'family',
-      ExcuseContext.work => 'work',
-      ExcuseContext.friends => 'friends',
-      ExcuseContext.hobby => 'hobby',
-      ExcuseContext.travel => 'travel',
-      ExcuseContext.other => 'other',
-    };
-    return '${_mission!.slug}: $actionCue, $contextCue';
-  }
-
-  String _requestTone() {
-    return switch (_tone!.tone) {
-      ExcuseTone.lowKey => 'Straightforward',
-      ExcuseTone.nice => 'Warm',
-      ExcuseTone.funny => 'Funny',
-      ExcuseTone.dramatic => 'Dramatic',
-      ExcuseTone.unhinged => 'Unhinged',
-    };
-  }
-
   AppLocalizations get l10n => AppLocalizations.of(context)!;
 
-  String _missionLabel(ShopMission mission) {
-    return switch (mission.titleKey) {
-      'missionGetOutOfPlans' => l10n.missionGetOutOfPlans,
-      'missionBuyTime' => l10n.missionBuyTime,
-      'missionRecoverFromSituation' => l10n.missionRecoverFromSituation,
-      _ => mission.titleKey,
+  String _damageLabel(ShopDamageOption option) {
+    return switch (option.labelKey) {
+      'damageDinner' => l10n.damageDinner,
+      'damageParty' => l10n.damageParty,
+      'damageGroupWorkCall' => l10n.damageGroupWorkCall,
+      'damageDate' => l10n.damageDate,
+      'damageMissed' => l10n.damageMissed,
+      _ => option.labelKey,
     };
   }
 
-  String _situationLabel(ShopSituation situation) {
-    return switch (situation.titleKey) {
-      'situationDinner' => l10n.situationDinner,
-      'situationParty' => l10n.situationParty,
-      'situationWork' => l10n.situationWork,
-      'situationFamily' => l10n.situationFamily,
-      'situationFriends' => l10n.situationFriends,
-      'situationReschedule' => l10n.situationReschedule,
-      'situationDelay' => l10n.situationDelay,
-      'situationLate' => l10n.situationLate,
-      'situationMissed' => l10n.situationMissed,
-      _ => situation.titleKey,
+  String _timingLabel(ShopTimingOption option) {
+    return switch (option.labelKey) {
+      'timingPlannedAhead' => l10n.timingPlannedAhead,
+      'timingToday' => l10n.timingToday,
+      'timingLastMinute' => l10n.timingLastMinute,
+      'timingAlreadyLate' => l10n.timingAlreadyLate,
+      'timingAlreadyMissed' => l10n.timingAlreadyMissed,
+      _ => option.labelKey,
     };
   }
 
-  String _toneLabel(ShopTone tone) {
-    return switch (tone.titleKey) {
-      'toneStraightforward' => l10n.toneStraightforward,
-      'toneWarm' => l10n.toneWarm,
-      'toneFunny' => l10n.toneFunny,
-      _ => tone.titleKey,
+  String _audienceLabel(ShopAudienceOption option) {
+    return switch (option.labelKey) {
+      'audienceSomeoneClose' => l10n.audienceSomeoneClose,
+      'audienceSomeoneFamiliar' => l10n.audienceSomeoneFamiliar,
+      'audienceAGroup' => l10n.audienceAGroup,
+      'audienceWorkContact' => l10n.audienceWorkContact,
+      'audienceSomeoneInCharge' => l10n.audienceSomeoneInCharge,
+      _ => option.labelKey,
     };
   }
 
-  void _onMissionSelected(ShopMission mission) {
+  String _deliveryLabel(ShopDeliveryOption option) {
+    return switch (option.labelKey) {
+      'deliveryLowKeyText' => l10n.deliveryLowKeyText,
+      'deliveryNiceText' => l10n.deliveryNiceText,
+      'deliveryFunnyText' => l10n.deliveryFunnyText,
+      'deliveryDramaticVoiceNote' => l10n.deliveryDramaticVoiceNote,
+      'deliveryUnhingedCall' => l10n.deliveryUnhingedCall,
+      _ => option.labelKey,
+    };
+  }
+
+  String _toneLabel(ExcuseTone tone) {
+    return switch (tone) {
+      ExcuseTone.lowKey => l10n.toneLowKey,
+      ExcuseTone.nice => l10n.toneNice,
+      ExcuseTone.funny => l10n.toneFunny,
+      ExcuseTone.dramatic => l10n.toneDramatic,
+      ExcuseTone.unhinged => l10n.toneUnhinged,
+    };
+  }
+
+  void _onDamageSelected(ShopDamageOption damage) {
     setState(() {
-      _mission = mission;
-      _step = _Step.situation;
+      _damage = damage;
+      _step = _Step.timing;
     });
   }
 
-  void _onSituationSelected(ShopSituation situation) {
+  void _onTimingSelected(ShopTimingOption timing) {
     setState(() {
-      _situation = situation;
-      _step = _Step.tone;
+      _timing = timing;
+      _step = _Step.audience;
     });
   }
 
-  void _onToneSelected(ShopTone tone) {
-    _tone = tone;
+  void _onAudienceSelected(ShopAudienceOption audience) {
+    setState(() {
+      _audience = audience;
+      _step = _Step.delivery;
+    });
+  }
+
+  void _onDeliverySelected(ShopDeliveryOption delivery) {
+    final request = requestForShopSelections(
+      damage: _damage!,
+      timing: _timing!,
+      audience: _audience!,
+      delivery: delivery,
+    );
+    setState(() {
+      _delivery = delivery;
+      _request = request;
+      _offerRepair = shouldOfferRepair(request);
+    });
     _brew();
   }
 
@@ -219,11 +220,15 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
 
   void _startNew() {
     setState(() {
-      _step = _Step.mission;
-      _mission = null;
-      _situation = null;
-      _tone = null;
+      _step = _Step.damage;
+      _damage = null;
+      _timing = null;
+      _audience = null;
+      _delivery = null;
+      _request = null;
       _idea = null;
+      _generatedIdea = null;
+      _offerRepair = false;
       _error = null;
     });
   }
@@ -234,11 +239,22 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       appBar: AppBar(title: Text(l10n.shopTitle)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
           children: [
-            _buildHeader(),
-            const SizedBox(height: 24),
-            _buildStepContent(),
+            if (_step != _Step.result) ...[
+              _buildHeader(),
+              const SizedBox(height: 24),
+            ],
+            AnimatedSwitcher(
+              duration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 180),
+              switchInCurve: Curves.easeOut,
+              child: KeyedSubtree(
+                key: ValueKey<_Step>(_step),
+                child: _buildStepContent(),
+              ),
+            ),
           ],
         ),
       ),
@@ -246,26 +262,46 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
   }
 
   Widget _buildHeader() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Semantics(
           label: l10n.shopkeeperAvatarLabel,
           image: true,
-          child: SizedBox(
+          child: KeyedSubtree(
             key: const Key('shopkeeper-avatar'),
-            width: 72,
-            height: 72,
-            child: CustomPaint(painter: _ShopkeeperPainter()),
+            child: Container(
+              key: const Key('shopkeeper-stage'),
+              width: double.infinity,
+              height: 124,
+              decoration: BoxDecoration(
+                color: ShopTheme.paperPanel,
+                border: Border.all(color: ShopTheme.uiHairline),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Center(
+                child: Image.asset(
+                  'assets/design/shop-owner-sprite.png',
+                  key: const Key('shopkeeper-sprite'),
+                  width: 168,
+                  height: 118,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.none,
+                  errorBuilder: (context, error, stackTrace) => SizedBox(
+                    width: 96,
+                    height: 96,
+                    child: CustomPaint(painter: _ShopkeeperPainter()),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Text(
-            l10n.shopHeaderDescription,
-            style: Theme.of(context).textTheme.bodyMedium
-                ?.copyWith(color: ShopTheme.subtle),
-          ),
+        const SizedBox(height: 16),
+        Text(
+          l10n.shopHeaderDescription,
+          style: Theme.of(context).textTheme.bodyMedium
+              ?.copyWith(color: ShopTheme.uiTextSecondary),
         ),
       ],
     );
@@ -273,20 +309,21 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
 
   Widget _buildStepContent() {
     return switch (_step) {
-      _Step.mission => _buildMissionStep(),
-      _Step.situation => _buildSituationStep(),
-      _Step.tone => _buildToneStep(),
+      _Step.damage => _buildDamageStep(),
+      _Step.timing => _buildTimingStep(),
+      _Step.audience => _buildAudienceStep(),
+      _Step.delivery => _buildDeliveryStep(),
       _Step.brewing => _buildBrewingStep(),
       _Step.result => _buildResultStep(),
       _Step.error => _buildErrorStep(),
     };
   }
 
-  Widget _buildStepIndicator(int current, int total) {
+  Widget _buildStepIndicator(int current) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Text(
-        l10n.stepIndicator(current, total),
+        l10n.stepIndicator(current, 4),
         style: Theme.of(context).textTheme.labelMedium,
       ),
     );
@@ -296,14 +333,15 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
     return Semantics(
       label: '${l10n.shopkeeperSays} $text',
       child: Container(
+        key: const Key('shopkeeper-dialogue'),
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
         decoration: BoxDecoration(
-          color: ShopTheme.cardBackground,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: ShopTheme.subtle.withAlpha(80)),
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: ShopTheme.uiHairline),
         ),
-        child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+        child: Text(text, style: Theme.of(context).textTheme.bodyLarge),
       ),
     );
   }
@@ -312,21 +350,26 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
     required String label,
     required String semanticsLabel,
     required VoidCallback onTap,
+    Key? key,
   }) {
     return Semantics(
       label: semanticsLabel,
       button: true,
       child: Card(
+        key: key,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: SizedBox(
-              width: double.infinity,
-              child: Text(
-                label,
-                style: Theme.of(context).textTheme.titleMedium,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+              child: SizedBox(
+                width: double.infinity,
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
             ),
           ),
@@ -335,74 +378,80 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
     );
   }
 
-  Widget _buildMissionStep() {
+  Widget _buildDialogueStep<T>({
+    required int step,
+    required String question,
+    required List<T> options,
+    required String Function(T) label,
+    required String Function(T) semanticsLabel,
+    required String Function(T) id,
+    required void Function(T) onTap,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildStepIndicator(1, 3),
-        _buildShopkeeperBubble(l10n.shopkeeperWelcome),
+        _buildStepIndicator(step),
+        _buildShopkeeperBubble(question),
         const SizedBox(height: 20),
-        for (final mission in shopMissions)
+        for (final option in options)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: _buildChoiceCard(
-              label: _missionLabel(mission),
-              semanticsLabel: l10n.chooseMission(_missionLabel(mission)),
-              onTap: () => _onMissionSelected(mission),
+              label: label(option),
+              semanticsLabel: semanticsLabel(option),
+              onTap: () => onTap(option),
+              key: Key('reaction-chip-${id(option)}'),
             ),
           ),
       ],
     );
   }
 
-  Widget _buildSituationStep() {
-    final situations = _mission!.situations;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStepIndicator(2, 3),
-        _buildShopkeeperBubble(l10n.shopkeeperSituation),
-        const SizedBox(height: 20),
-        Text(
-          l10n.situationSectionTitle,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 12),
-        for (final situation in situations)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: _buildChoiceCard(
-              label: _situationLabel(situation),
-              semanticsLabel: l10n.chooseSituation(_situationLabel(situation)),
-              onTap: () => _onSituationSelected(situation),
-            ),
-          ),
-      ],
+  Widget _buildDamageStep() {
+    return _buildDialogueStep<ShopDamageOption>(
+      step: 1,
+      question: l10n.dialogueDamage,
+      options: shopDamageOptions,
+      label: _damageLabel,
+      semanticsLabel: (option) => l10n.chooseDamage(_damageLabel(option)),
+      id: (option) => option.id,
+      onTap: _onDamageSelected,
     );
   }
 
-  Widget _buildToneStep() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStepIndicator(3, 3),
-        _buildShopkeeperBubble(l10n.shopkeeperTone),
-        const SizedBox(height: 20),
-        Text(
-          l10n.toneSectionTitle,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 12),
-        for (final tone in shopTones)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: _buildChoiceCard(
-              label: _toneLabel(tone),
-              semanticsLabel: l10n.chooseTone(_toneLabel(tone)),
-              onTap: () => _onToneSelected(tone),
-            ),
-          ),
-      ],
+  Widget _buildTimingStep() {
+    return _buildDialogueStep<ShopTimingOption>(
+      step: 2,
+      question: l10n.dialogueTiming,
+      options: shopTimingOptions,
+      label: _timingLabel,
+      semanticsLabel: (option) => l10n.chooseTiming(_timingLabel(option)),
+      id: (option) => option.id,
+      onTap: _onTimingSelected,
+    );
+  }
+
+  Widget _buildAudienceStep() {
+    return _buildDialogueStep<ShopAudienceOption>(
+      step: 3,
+      question: l10n.dialogueAudience,
+      options: shopAudienceOptions,
+      label: _audienceLabel,
+      semanticsLabel: (option) => l10n.chooseAudience(_audienceLabel(option)),
+      id: (option) => option.id,
+      onTap: _onAudienceSelected,
+    );
+  }
+
+  Widget _buildDeliveryStep() {
+    return _buildDialogueStep<ShopDeliveryOption>(
+      step: 4,
+      question: l10n.dialogueDelivery,
+      options: shopDeliveryOptions,
+      label: _deliveryLabel,
+      semanticsLabel: (option) => l10n.chooseDelivery(_deliveryLabel(option)),
+      id: (option) => option.id,
+      onTap: _onDeliverySelected,
     );
   }
 
@@ -422,90 +471,307 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
   }
 
   Widget _buildResultStep() {
+    final generated = _generatedIdea;
+    final compact = MediaQuery.sizeOf(context).height < 700;
+    final familyLabel = _familyLabel(generated?.family);
+    final toneLabel = _delivery == null ? '' : _toneLabel(_delivery!.tone);
+    final cardName = generated?.playfulName ?? 'Fresh idea';
+    final cardNumber = generated?.kernelId ?? 'pending';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(l10n.resultTitle, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
-        Card(
+        SizedBox(height: compact ? 8 : 12),
+        if (compact) ...[
+          _buildResultActions(),
+          const SizedBox(height: 12),
+          _buildNewExcuseButton(),
+          const SizedBox(height: 12),
+        ],
+        KeyedSubtree(
           key: const Key('collectible-result-card'),
-          color: ShopTheme.cardBackground,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-            side: const BorderSide(color: ShopTheme.accent, width: 2),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.auto_awesome, size: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      l10n.collectibleIdeaBadge,
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: ShopTheme.accent,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ],
+          child: TweenAnimationBuilder<double>(
+            key: const Key('card-reveal'),
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 400),
+            curve: const _SteppedRevealCurve(),
+            tween: Tween<double>(begin: 0, end: 1),
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, (1 - value) * 8),
+                  child: child,
                 ),
-                const SizedBox(height: 14),
-                Text(_idea!),
-              ],
+              );
+            },
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 300),
+                child: Container(
+                  key: const Key('pixel-idea-card'),
+                  decoration: BoxDecoration(
+                    color: ShopTheme.pixelOutline,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  padding: const EdgeInsets.all(6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        color: ShopTheme.pixelViolet,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: compact ? 6 : 9,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                cardName,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontFamily: 'monospace',
+                                  fontSize: 11,
+                                  height: 1.5,
+                                  fontWeight: FontWeight.w400,
+                                  color: ShopTheme.pixelOutline,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              color: ShopTheme.pixelOutline,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 7,
+                                vertical: compact ? 4 : 5,
+                              ),
+                              child: const Text(
+                                'common',
+                                style: TextStyle(
+                                  fontFamily: 'monospace',
+                                  fontSize: 9,
+                                  height: 1.4,
+                                  fontWeight: FontWeight.w400,
+                                  color: ShopTheme.pixelGlow,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        key: const Key('pixel-card-art'),
+                        height: compact ? 100 : 150,
+                        color: ShopTheme.paperPanel,
+                        child: Center(
+                          child: SizedBox(
+                            width: compact ? 96 : 120,
+                            height: compact ? 96 : 120,
+                            child: const CustomPaint(
+                              painter: _IdeaCardPainter(),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        color: ShopTheme.paperBody,
+                        padding: compact
+                            ? const EdgeInsets.fromLTRB(11, 12, 11, 10)
+                            : const EdgeInsets.fromLTRB(13, 15, 13, 13),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'the claim',
+                              style: TextStyle(
+                                fontFamily: 'monospace',
+                                fontSize: 8,
+                                height: 1.4,
+                                fontWeight: FontWeight.w400,
+                                color: ShopTheme.paperMeta,
+                              ),
+                            ),
+                            SizedBox(height: compact ? 5 : 9),
+                            SelectableText(
+                              _idea!,
+                              style: TextStyle(
+                                fontSize: compact ? 16 : 17,
+                                height: 1.45,
+                                fontWeight: FontWeight.w400,
+                                color: ShopTheme.pixelOutline,
+                              ),
+                            ),
+                            SizedBox(height: compact ? 8 : 15),
+                            Container(height: 3, color: ShopTheme.paperDivider),
+                            SizedBox(height: compact ? 7 : 11),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Wrap(
+                                    spacing: 5,
+                                    runSpacing: 5,
+                                    children: [
+                                      _buildPixelTag(familyLabel),
+                                      _buildPixelTag(toneLabel, tone: true),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    'no. $cardNumber',
+                                    textAlign: TextAlign.right,
+                                    style: const TextStyle(
+                                      fontFamily: 'monospace',
+                                      fontSize: 8,
+                                      height: 1.4,
+                                      fontWeight: FontWeight.w400,
+                                      color: ShopTheme.paperMeta,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (_offerRepair) ...[
+                              SizedBox(height: compact ? 10 : 14),
+                              Container(
+                                key: const Key('repair-direction'),
+                                width: double.infinity,
+                                padding: const EdgeInsets.only(top: 10),
+                                decoration: const BoxDecoration(
+                                  border: Border(
+                                    top: BorderSide(
+                                      color: ShopTheme.paperDivider,
+                                      width: 3,
+                                    ),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.repairDirectionLabel,
+                                      style: const TextStyle(
+                                        fontFamily: 'monospace',
+                                        fontSize: 8,
+                                        height: 1.4,
+                                        fontWeight: FontWeight.w400,
+                                        color: ShopTheme.paperMeta,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      l10n.repairDirectionPending,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        height: 1.4,
+                                        fontWeight: FontWeight.w400,
+                                        color: ShopTheme.pixelOutline,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ),
-        const SizedBox(height: 20),
-        Wrap(
-          spacing: 8,
-          children: [
-            Semantics(
-              label: l10n.regenerateSemantics,
-              button: true,
-              child: OutlinedButton(
-                onPressed: _regenerate,
-                child: Text(l10n.regenerateButton),
-              ),
-            ),
-            Semantics(
-              label: l10n.copySemantics,
-              button: true,
-              child: OutlinedButton(
-                onPressed: _copy,
-                child: Text(l10n.copyButton),
-              ),
-            ),
-            Semantics(
-              label: l10n.shareSemantics,
-              button: true,
-              child: OutlinedButton(
-                onPressed: () {
-                  Share.share(_idea!);
-                  _recordSafely(AnalyticsEvent.share);
-                },
-                child: Text(l10n.shareButton),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
+        if (!compact) ...[const SizedBox(height: 20), _buildResultActions()],
+        if (!compact) _buildNewExcuseButton(),
+      ],
+    );
+  }
+
+  Widget _buildResultActions() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
         Semantics(
-          label: l10n.newExcuseSemantics,
+          label: l10n.regenerateSemantics,
           button: true,
-          child: SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: _startNew,
-              child: Text(l10n.newExcuseButton),
-            ),
+          child: FilledButton(
+            onPressed: _regenerate,
+            child: Text(l10n.regenerateButton),
+          ),
+        ),
+        Semantics(
+          label: l10n.copySemantics,
+          button: true,
+          child: OutlinedButton(onPressed: _copy, child: Text(l10n.copyButton)),
+        ),
+        Semantics(
+          label: l10n.shareSemantics,
+          button: true,
+          child: OutlinedButton(
+            onPressed: () {
+              Share.share(_idea!);
+              _recordSafely(AnalyticsEvent.share);
+            },
+            child: Text(l10n.shareButton),
           ),
         ),
       ],
     );
+  }
+
+  Widget _buildNewExcuseButton() {
+    return Semantics(
+      label: l10n.newExcuseSemantics,
+      button: true,
+      child: SizedBox(
+        width: double.infinity,
+        child: OutlinedButton(
+          onPressed: _startNew,
+          child: Text(l10n.newExcuseButton),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPixelTag(String label, {bool tone = false}) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 132),
+      color: tone ? ShopTheme.pixelGlow : ShopTheme.pixelTeal,
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+      child: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 8,
+          height: 1.4,
+          fontWeight: FontWeight.w400,
+          color: ShopTheme.pixelOutline,
+        ),
+      ),
+    );
+  }
+
+  String _familyLabel(ExcuseFamily? family) {
+    return switch (family) {
+      ExcuseFamily.capacityWellbeing => 'capacity',
+      ExcuseFamily.careFamily => 'care',
+      ExcuseFamily.workStudy => 'work',
+      ExcuseFamily.moneyLogistics => 'logistics',
+      ExcuseFamily.planningFailure => 'planning',
+      ExcuseFamily.boundaryPreference => 'boundary',
+      ExcuseFamily.absurdDramatic => 'absurd',
+      null => 'family pending',
+    };
   }
 
   Widget _buildErrorStep() {
@@ -527,6 +793,16 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
         ),
       ],
     );
+  }
+}
+
+class _SteppedRevealCurve extends Curve {
+  const _SteppedRevealCurve();
+
+  @override
+  double transformInternal(double t) {
+    if (t >= 1) return 1;
+    return (t * 6).floor() / 6;
   }
 }
 
@@ -558,6 +834,33 @@ class _ShopkeeperPainter extends CustomPainter {
     block(5, 6, 2, 1, ShopTheme.ink);
     block(7, 7, 1, 2, ShopTheme.cardBackground);
     block(5, 8, 1, 2, ShopTheme.cardBackground);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _IdeaCardPainter extends CustomPainter {
+  const _IdeaCardPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final unit = size.width / 15;
+
+    void block(int x, int y, int width, int height, Color color) {
+      canvas.drawRect(
+        Rect.fromLTWH(x * unit, y * unit, width * unit, height * unit),
+        Paint()..color = color,
+      );
+    }
+
+    block(4, 1, 7, 13, ShopTheme.pixelOutline);
+    block(5, 2, 5, 10, const Color(0xFF3A3346));
+    block(6, 5, 3, 1, ShopTheme.pixelEmber);
+    block(6, 7, 3, 1, ShopTheme.pixelEmber);
+    block(6, 11, 3, 1, ShopTheme.pixelVioletDark);
+    block(1, 4, 1, 1, ShopTheme.pixelGlow);
+    block(12, 8, 1, 1, ShopTheme.pixelGlow);
   }
 
   @override

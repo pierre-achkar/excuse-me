@@ -30,7 +30,8 @@ void main() {
     expect(kernel.obligations, contains(request.obligation));
     expect(kernel.contexts, contains(request.context));
     expect(kernel.tones, contains(request.tone));
-    expect(result.idea, kernel.ideaDirection);
+    expect(result.isPlaceholder, kernel.isPlaceholder);
+    expect(result.idea, startsWith('Placeholder:'));
   });
 
   test('regeneration excludes the immediately previous kernel', () {
@@ -71,8 +72,8 @@ void main() {
     final result = engine.generate(request);
 
     expect(result.kernelId, 'en_honest_boundary_fallback');
-    expect(result.idea, startsWith('Idea:'));
-    expect(result.idea, contains('honest boundary'));
+    expect(result.idea, startsWith('Placeholder:'));
+    expect(result.idea, contains('Honest Exit'));
   });
 
   test('fallback regeneration avoids an immediate repeat', () {
