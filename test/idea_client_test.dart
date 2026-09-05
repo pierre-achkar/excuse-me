@@ -78,10 +78,10 @@ void main() {
       ),
     );
 
-    expect(result, contains('honest boundary'));
-    expect(alternateWording, contains('honest boundary'));
-    expect(fabricatedEmergency, contains('honest boundary'));
-    expect(fabricatedDeath, contains('honest boundary'));
+    expect(result, contains('Honest Exit'));
+    expect(alternateWording, contains('Honest Exit'));
+    expect(fabricatedEmergency, contains('Honest Exit'));
+    expect(fabricatedDeath, contains('Honest Exit'));
   });
 
   test('ambiguous situation text uses the honest fallback', () async {
@@ -95,7 +95,7 @@ void main() {
       ),
     );
 
-    expect(result, contains('honest boundary'));
+    expect(result, contains('Honest Exit'));
   });
 
   test('changing structured inputs resets regeneration history', () async {

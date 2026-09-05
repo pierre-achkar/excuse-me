@@ -9,7 +9,7 @@ export 'analytics/analytics_client.dart'
 export 'app.dart' show ExcuseMeApp;
 export 'domain/idea_request.dart' show IdeaRequest;
 export 'services/idea_client.dart'
-    show IdeaClient, LocalIdeaClient, LocalIdeaGenerator;
+    show GeneratedIdea, IdeaClient, LocalIdeaClient, LocalIdeaGenerator;
 export 'services/idea_guardrails.dart' show IdeaGuardrails;
 
 void main() {

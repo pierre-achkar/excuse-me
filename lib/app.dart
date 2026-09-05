@@ -12,16 +12,21 @@ class ExcuseMeApp extends StatelessWidget {
     super.key,
     required this.client,
     this.analytics = const NoOpAnalyticsClient(),
+    this.disableAnimations = false,
   });
 
   final IdeaClient client;
   final AnalyticsClient analytics;
+  final bool disableAnimations;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: ShopTheme.theme,
+      darkTheme: ShopTheme.darkTheme,
+      themeMode: ThemeMode.system,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -29,7 +34,11 @@ class ExcuseMeApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      home: ExcuseShopPage(client: client, analytics: analytics),
+      home: ExcuseShopPage(
+        client: client,
+        analytics: analytics,
+        disableAnimations: disableAnimations,
+      ),
     );
   }
 }

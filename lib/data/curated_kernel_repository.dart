@@ -1,11 +1,14 @@
 import '../domain/excuse_kernel.dart';
 
+const _placeholderIdea =
+    'Placeholder: Content pending for the local excuse database.';
+
 class CuratedKernelRepository {
   const CuratedKernelRepository({required this.version, required this.kernels});
 
   factory CuratedKernelRepository.englishAlpha() {
     return const CuratedKernelRepository(
-      version: '1.0.0',
+      version: '1.1.0',
       kernels: [
         ExcuseKernel(
           id: 'en_capacity_reset',
@@ -40,7 +43,20 @@ class CuratedKernelRepository {
             ExcuseContext.other,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.nice},
-          ideaDirection: 'Idea: Use a simple capacity limit, keep the explanation low-detail, and offer a respectful alternative.',
+          ideaDirection: 'Idea: You do not have the bandwidth for it today.',
+          toneDirections: {
+            ExcuseTone.lowKey:
+                'Idea: You do not have the bandwidth for it today.',
+            ExcuseTone.nice:
+                'Idea: You need to step back and take some time to recharge.',
+            ExcuseTone.funny:
+                'Idea: Your social battery is at 1%; you need the time back.',
+            ExcuseTone.dramatic:
+                'Idea: Your remaining energy has officially left the building.',
+            ExcuseTone.unhinged:
+                'Idea: Your social battery has entered witness protection.',
+          },
+          isPlaceholder: false,
         ),
         ExcuseKernel(
           id: 'en_existing_commitment',
@@ -57,7 +73,16 @@ class CuratedKernelRepository {
           timings: {ExcuseTiming.plannedAhead, ExcuseTiming.today},
           obligations: {ObligationLevel.expected, ObligationLevel.important},
           tones: {ExcuseTone.lowKey, ExcuseTone.nice},
-          ideaDirection: 'Idea: Refer to a prior commitment without inventing names, emergencies, or unnecessary detail.',
+          ideaDirection:
+              'Idea: You misjudged the timing and cannot make it work.',
+          toneDirections: {
+            ExcuseTone.lowKey:
+                'Idea: You misjudged the timing and cannot make it work.',
+            ExcuseTone.nice:
+                'Idea: You got the schedule wrong and need to own the mix-up.',
+            ExcuseTone.funny: 'Idea: Your calendar and reality were apparently not in contact.',
+          },
+          isPlaceholder: false,
         ),
         ExcuseKernel(
           id: 'en_schedule_collision',
@@ -81,7 +106,16 @@ class CuratedKernelRepository {
             ObligationLevel.paidOrReserved,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.nice, ExcuseTone.dramatic},
-          ideaDirection: 'Idea: Frame the change as a scheduling collision and offer a clearer time if appropriate.',
+          ideaDirection:
+              'Idea: You misjudged the timing and cannot make it work.',
+          toneDirections: {
+            ExcuseTone.lowKey:
+                'Idea: You misjudged the timing and cannot make it work.',
+            ExcuseTone.nice:
+                'Idea: You got the schedule wrong and need to own the mix-up.',
+            ExcuseTone.funny: 'Idea: Your calendar and reality were apparently not in contact.',
+          },
+          isPlaceholder: false,
         ),
         ExcuseKernel(
           id: 'en_logistics_delay',
@@ -105,7 +139,14 @@ class CuratedKernelRepository {
             ExcuseContext.other,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.funny},
-          ideaDirection: 'Idea: Use a minor logistics delay, acknowledge the timing, and avoid elaborate claims.',
+          ideaDirection: 'Idea: The logistics no longer work for you.',
+          toneDirections: {
+            ExcuseTone.lowKey: 'Idea: The logistics no longer work for you.',
+            ExcuseTone.nice: 'Idea: You cannot make the timing and logistics work comfortably.',
+            ExcuseTone.funny:
+                'Idea: The route from here to there has become a side quest.',
+          },
+          isPlaceholder: false,
         ),
         ExcuseKernel(
           id: 'en_budget_boundary',
@@ -130,7 +171,14 @@ class CuratedKernelRepository {
             ExcuseContext.friends,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.nice},
-          ideaDirection: 'Idea: Set a straightforward budget boundary without blaming the plan or the people involved.',
+          ideaDirection: 'Idea: The logistics no longer work for you.',
+          toneDirections: {
+            ExcuseTone.lowKey: 'Idea: The logistics no longer work for you.',
+            ExcuseTone.nice: 'Idea: You cannot make the timing and logistics work comfortably.',
+            ExcuseTone.funny:
+                'Idea: The route from here to there has become a side quest.',
+          },
+          isPlaceholder: false,
         ),
         ExcuseKernel(
           id: 'en_work_overrun',
@@ -166,7 +214,17 @@ class CuratedKernelRepository {
             ExcuseContext.other,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.nice, ExcuseTone.dramatic},
-          ideaDirection: 'Idea: Point to an overrun in an existing responsibility and keep the consequence proportionate.',
+          ideaDirection:
+              'Idea: Work has spilled into the time you thought you had.',
+          toneDirections: {
+            ExcuseTone.lowKey:
+                'Idea: Work has spilled into the time you thought you had.',
+            ExcuseTone.nice:
+                'Idea: You underestimated what you still need to finish.',
+            ExcuseTone.funny:
+                'Idea: Your to-do list has reproduced while unsupervised.',
+          },
+          isPlaceholder: false,
         ),
         ExcuseKernel(
           id: 'en_household_responsibility',
@@ -190,7 +248,14 @@ class CuratedKernelRepository {
             ExcuseContext.other,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.nice},
-          ideaDirection: 'Idea: Use a routine household responsibility and offer a proportionate alternative.',
+          ideaDirection: 'Idea: Something personal needs your attention.',
+          toneDirections: {
+            ExcuseTone.lowKey: 'Idea: Something personal needs your attention.',
+            ExcuseTone.nice:
+                'Idea: You need to make room for a personal responsibility.',
+            ExcuseTone.funny: 'Idea: Home life has unexpectedly promoted itself to top priority.',
+          },
+          isPlaceholder: false,
         ),
         ExcuseKernel(
           id: 'en_planning_mistake',
@@ -207,7 +272,19 @@ class CuratedKernelRepository {
             ExcuseTiming.alreadyMissed,
           },
           tones: {ExcuseTone.funny, ExcuseTone.dramatic, ExcuseTone.unhinged},
-          ideaDirection: 'Idea: Turn a harmless planning mix-up into a playful angle without inventing an emergency.',
+          ideaDirection: 'Idea: Your energy has mysteriously disappeared.',
+          toneDirections: {
+            ExcuseTone.lowKey:
+                'Idea: Your energy has mysteriously disappeared.',
+            ExcuseTone.nice: 'Idea: You need to retreat before the evening gets the better of you.',
+            ExcuseTone.funny:
+                'Idea: Your social battery has filed for bankruptcy.',
+            ExcuseTone.dramatic:
+                'Idea: The night has demanded a sacrifice. It will not be you.',
+            ExcuseTone.unhinged:
+                'Idea: Your aura has been recalled by the manufacturer.',
+          },
+          isPlaceholder: false,
         ),
         ExcuseKernel(
           id: 'en_early_start',
@@ -235,7 +312,16 @@ class CuratedKernelRepository {
             ExcuseContext.friends,
           },
           tones: {ExcuseTone.lowKey, ExcuseTone.nice, ExcuseTone.funny},
-          ideaDirection: 'Idea: Use the need to protect an early start and keep the boundary brief and considerate.',
+          ideaDirection: 'Idea: You do not have the bandwidth for it today.',
+          toneDirections: {
+            ExcuseTone.lowKey:
+                'Idea: You do not have the bandwidth for it today.',
+            ExcuseTone.nice:
+                'Idea: You need to step back and take some time to recharge.',
+            ExcuseTone.funny:
+                'Idea: Your social battery is at 1%; you need the time back.',
+          },
+          isPlaceholder: false,
         ),
         ExcuseKernel(
           id: 'en_honest_decline',
@@ -252,7 +338,19 @@ class CuratedKernelRepository {
           },
           obligations: {ObligationLevel.casual, ObligationLevel.expected},
           tones: {ExcuseTone.lowKey, ExcuseTone.nice},
-          ideaDirection: 'Idea: Decline with a direct capacity or preference boundary rather than constructing a story.',
+          ideaDirection: 'Idea: You need to pass this time.',
+          toneDirections: {
+            ExcuseTone.lowKey: 'Idea: You need to pass this time.',
+            ExcuseTone.nice:
+                'Idea: You need to bow out and keep the time for yourself.',
+            ExcuseTone.funny:
+                'Idea: Your internal RSVP has changed to a respectful nope.',
+            ExcuseTone.dramatic:
+                'Idea: The boundary has been drawn. The evening stays yours.',
+            ExcuseTone.unhinged:
+                'Idea: The council has voted unanimously: absolutely not.',
+          },
+          isPlaceholder: false,
         ),
         ExcuseKernel(
           id: 'en_alternative_timing',
@@ -279,7 +377,15 @@ class CuratedKernelRepository {
           },
           obligations: {ObligationLevel.casual, ObligationLevel.expected},
           tones: {ExcuseTone.lowKey, ExcuseTone.nice, ExcuseTone.funny},
-          ideaDirection: 'Idea: Ask for a specific timing change and pair it with a realistic alternative.',
+          ideaDirection: 'Idea: You need to pass this time.',
+          toneDirections: {
+            ExcuseTone.lowKey: 'Idea: You need to pass this time.',
+            ExcuseTone.nice:
+                'Idea: You need to bow out and keep the time for yourself.',
+            ExcuseTone.funny:
+                'Idea: Your internal RSVP has changed to a respectful nope.',
+          },
+          isPlaceholder: false,
         ),
         ExcuseKernel(
           id: 'en_honest_boundary_fallback',
@@ -302,6 +408,7 @@ class CuratedKernelRepository {
             ExcuseAction.avoidCommitting,
             ExcuseAction.explainLateness,
             ExcuseAction.explainAbsence,
+            ExcuseAction.acknowledgeMiss,
             ExcuseAction.suggestAlternative,
           },
           tones: {
@@ -311,7 +418,8 @@ class CuratedKernelRepository {
             ExcuseTone.dramatic,
             ExcuseTone.unhinged,
           },
-          ideaDirection: 'Idea: Use an honest boundary, acknowledge the impact, and offer a practical next step.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
           isFallback: true,
         ),
         ExcuseKernel(
@@ -335,6 +443,7 @@ class CuratedKernelRepository {
             ExcuseAction.avoidCommitting,
             ExcuseAction.explainLateness,
             ExcuseAction.explainAbsence,
+            ExcuseAction.acknowledgeMiss,
             ExcuseAction.suggestAlternative,
           },
           tones: {
@@ -344,7 +453,8 @@ class CuratedKernelRepository {
             ExcuseTone.dramatic,
             ExcuseTone.unhinged,
           },
-          ideaDirection: 'Idea: Acknowledge the constraint briefly and suggest one proportionate repair or alternative.',
+          ideaDirection: _placeholderIdea,
+          isPlaceholder: true,
           isFallback: true,
         ),
       ],

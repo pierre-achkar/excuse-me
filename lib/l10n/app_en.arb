@@ -28,8 +28,80 @@
   "shopkeeperSituation": "Great choice. Now pick a situation that fits.",
   "@shopkeeperSituation": { "description": "Shopkeeper speech bubble on the situation step." },
 
-  "shopkeeperTone": "Almost there. Pick your ingredient for the tone.",
-  "@shopkeeperTone": { "description": "Shopkeeper speech bubble on the tone step." },
+  "shopkeeperTone": "Almost there. Pick how loud you want this.",
+  "@shopkeeperTone": { "description": "Shopkeeper speech bubble on the delivery step." },
+
+  "dialogueDamage": "What's the damage?",
+  "@dialogueDamage": { "description": "Question for the first shop dialogue beat." },
+
+  "dialogueTiming": "When's the reckoning?",
+  "@dialogueTiming": { "description": "Question for the timing shop dialogue beat." },
+
+  "dialogueAudience": "Who's on the other end?",
+  "@dialogueAudience": { "description": "Question for the audience shop dialogue beat." },
+
+  "dialogueDelivery": "How loud do you want this?",
+  "@dialogueDelivery": { "description": "Question for the channel and tone shop dialogue beat." },
+
+  "damageDinner": "A dinner I can't face",
+  "@damageDinner": { "description": "Damage choice for a dinner commitment." },
+
+  "damageParty": "A party I said yes to",
+  "@damageParty": { "description": "Damage choice for a party commitment." },
+
+  "damageGroupWorkCall": "A group work call",
+  "@damageGroupWorkCall": { "description": "Damage choice for a group work call." },
+
+  "damageDate": "A date I'm dreading",
+  "@damageDate": { "description": "Damage choice for a date commitment." },
+
+  "damageMissed": "I missed something",
+  "@damageMissed": { "description": "Damage choice for a missed commitment." },
+
+  "timingPlannedAhead": "Planned ahead",
+  "@timingPlannedAhead": { "description": "Timing choice for a planned-ahead change." },
+
+  "timingToday": "Today",
+  "@timingToday": { "description": "Timing choice for a change happening today." },
+
+  "timingLastMinute": "Last minute",
+  "@timingLastMinute": { "description": "Timing choice for a last-minute change." },
+
+  "timingAlreadyLate": "Already late",
+  "@timingAlreadyLate": { "description": "Timing choice when the user is already late." },
+
+  "timingAlreadyMissed": "Already missed",
+  "@timingAlreadyMissed": { "description": "Timing choice when the commitment was missed." },
+
+  "audienceSomeoneClose": "Someone close",
+  "@audienceSomeoneClose": { "description": "Audience choice for a close relationship." },
+
+  "audienceSomeoneFamiliar": "Someone familiar",
+  "@audienceSomeoneFamiliar": { "description": "Audience choice for a familiar relationship." },
+
+  "audienceAGroup": "A group",
+  "@audienceAGroup": { "description": "Audience choice for a group." },
+
+  "audienceWorkContact": "A work contact",
+  "@audienceWorkContact": { "description": "Audience choice for a professional relationship." },
+
+  "audienceSomeoneInCharge": "Someone in charge",
+  "@audienceSomeoneInCharge": { "description": "Audience choice for an authority relationship." },
+
+  "deliveryLowKeyText": "Low-key text",
+  "@deliveryLowKeyText": { "description": "Delivery choice for low-key tone over text." },
+
+  "deliveryNiceText": "Nice text",
+  "@deliveryNiceText": { "description": "Delivery choice for nice tone over text." },
+
+  "deliveryFunnyText": "Funny text",
+  "@deliveryFunnyText": { "description": "Delivery choice for funny tone over text." },
+
+  "deliveryDramaticVoiceNote": "Dramatic voice note",
+  "@deliveryDramaticVoiceNote": { "description": "Delivery choice for dramatic tone in a voice note." },
+
+  "deliveryUnhingedCall": "Unhinged call",
+  "@deliveryUnhingedCall": { "description": "Delivery choice for unhinged tone over a call." },
 
   "shopkeeperSays": "Shopkeeper says:",
   "@shopkeeperSays": { "description": "Prefix for the shopkeeper speech bubble semantics label." },
@@ -85,6 +157,18 @@
   "toneFunny": "Funny",
   "@toneFunny": { "description": "Tone label for funny tone." },
 
+  "toneLowKey": "Low-key",
+  "@toneLowKey": { "description": "Design-system label for low-key tone." },
+
+  "toneNice": "Nice",
+  "@toneNice": { "description": "Design-system label for nice tone." },
+
+  "toneDramatic": "Dramatic",
+  "@toneDramatic": { "description": "Design-system label for dramatic tone." },
+
+  "toneUnhinged": "Unhinged",
+  "@toneUnhinged": { "description": "Design-system label for unhinged tone." },
+
   "chooseMission": "Choose mission: {mission}",
   "@chooseMission": {
     "description": "Semantics label for mission choice cards.",
@@ -103,6 +187,30 @@
     "placeholders": { "tone": { "type": "String" } }
   },
 
+  "chooseDamage": "Choose damage: {option}",
+  "@chooseDamage": {
+    "description": "Semantics label for the first dialogue beat.",
+    "placeholders": { "option": { "type": "String" } }
+  },
+
+  "chooseTiming": "Choose timing: {option}",
+  "@chooseTiming": {
+    "description": "Semantics label for the timing dialogue beat.",
+    "placeholders": { "option": { "type": "String" } }
+  },
+
+  "chooseAudience": "Choose audience: {option}",
+  "@chooseAudience": {
+    "description": "Semantics label for the audience dialogue beat.",
+    "placeholders": { "option": { "type": "String" } }
+  },
+
+  "chooseDelivery": "Choose delivery: {option}",
+  "@chooseDelivery": {
+    "description": "Semantics label for the delivery dialogue beat.",
+    "placeholders": { "option": { "type": "String" } }
+  },
+
   "brewingYourExcuse": "Brewing your excuse...",
   "@brewingYourExcuse": { "description": "Text shown while generating the excuse idea." },
 
@@ -111,6 +219,12 @@
 
   "resultTitle": "Your excuse",
   "@resultTitle": { "description": "Title above the result card." },
+
+  "repairDirectionLabel": "Repair direction",
+  "@repairDirectionLabel": { "description": "Small label for an optional repair direction on a card." },
+
+  "repairDirectionPending": "A small repair direction is available for you to phrase in your own words.",
+  "@repairDirectionPending": { "description": "Non-sendable placeholder copy for the optional repair direction." },
 
   "collectibleIdeaBadge": "COLLECTIBLE IDEA",
   "@collectibleIdeaBadge": { "description": "Badge label inside the result card." },
@@ -144,6 +258,198 @@
 
   "generationError": "Unable to generate an idea. Please try again.",
   "@generationError": { "description": "Inline error message when generation fails." },
+
+  "entryCta": "I NEED AN EXCUSE",
+  "@entryCta": { "description": "Direct primary action that enters the shop conversation." },
+
+  "dialogueIntent": "Now then... what's the situation?",
+  "@dialogueIntent": { "description": "Question for the intent beat." },
+
+  "dialogueActionOut": "Ah. An escape. What's the plan?",
+  "@dialogueActionOut": { "description": "Question for actions after needing out." },
+
+  "dialogueActionTime": "Patience is a resource. What do you need?",
+  "@dialogueActionTime": { "description": "Question for actions after needing more time." },
+
+  "dialogueActionRecover": "The ledger remembers. What needs explaining?",
+  "@dialogueActionRecover": { "description": "Question for actions after a missed situation." },
+
+  "dialogueContext": "Where is this trouble taking place?",
+  "@dialogueContext": { "description": "Question for the context beat." },
+
+  "dialogueTimingV6": "When does the clock start complaining?",
+  "@dialogueTimingV6": { "description": "Question for the v6 timing beat." },
+
+  "dialogueRelationshipV6": "Who is waiting for an answer?",
+  "@dialogueRelationshipV6": { "description": "Question for the relationship beat." },
+
+  "dialogueObligationV6": "How much does this one matter?",
+  "@dialogueObligationV6": { "description": "Question for the obligation beat." },
+
+  "searchDialogue": "Let me look through the shelves.",
+  "@searchDialogue": { "description": "Shopkeeper line during deterministic card search." },
+
+  "handoverDialogue": "There. This one should do.",
+  "@handoverDialogue": { "description": "Shopkeeper line when handing over a card." },
+
+  "intentNeedOut": "I NEED OUT",
+  "@intentNeedOut": { "description": "Intent choice: get out of plans." },
+
+  "intentNeedMoreTime": "I NEED MORE TIME",
+  "@intentNeedMoreTime": { "description": "Intent choice: buy time." },
+
+  "intentAlreadyMessedUp": "I ALREADY MESSED UP",
+  "@intentAlreadyMessedUp": { "description": "Intent choice: recover from a situation." },
+
+  "actionCancelSomething": "Cancel something",
+  "@actionCancelSomething": { "description": "Action choice for getting out of plans." },
+
+  "actionSayNo": "Say no",
+  "@actionSayNo": { "description": "Action choice for declining a plan." },
+
+  "actionLeaveEarly": "Leave early",
+  "@actionLeaveEarly": { "description": "Action choice for leaving a commitment early." },
+
+  "actionReschedule": "Reschedule",
+  "@actionReschedule": { "description": "Action choice for buying time." },
+
+  "actionDelay": "Delay the answer",
+  "@actionDelay": { "description": "Action choice for delaying a commitment." },
+
+  "actionAvoidCommitting": "Avoid committing",
+  "@actionAvoidCommitting": { "description": "Action choice for avoiding a commitment." },
+
+  "actionExplainWhatHappened": "Explain what happened",
+  "@actionExplainWhatHappened": { "description": "Action choice for explaining a late situation." },
+
+  "actionAskMoreTime": "Ask for more time",
+  "@actionAskMoreTime": { "description": "Action choice for asking for more time after a miss." },
+
+  "actionAcknowledgeMiss": "Acknowledge the miss",
+  "@actionAcknowledgeMiss": { "description": "Action choice for acknowledging a missed commitment." },
+
+  "contextSocial": "Social plans",
+  "@contextSocial": { "description": "Broad context choice for social situations." },
+
+  "contextPersonal": "Personal life",
+  "@contextPersonal": { "description": "Broad context choice for personal situations." },
+
+  "contextWorkStudy": "Work or study",
+  "@contextWorkStudy": { "description": "Broad context choice for work or study." },
+
+  "contextPractical": "A practical thing",
+  "@contextPractical": { "description": "Broad context choice for practical situations." },
+
+  "timingHappeningNow": "Happening now",
+  "@timingHappeningNow": { "description": "Timing choice for something happening now." },
+
+  "relationshipClose": "Someone close",
+  "@relationshipClose": { "description": "Relationship choice for someone close." },
+
+  "relationshipCasual": "Someone I know",
+  "@relationshipCasual": { "description": "Relationship choice for a casual connection." },
+
+  "relationshipFormal": "Someone formal",
+  "@relationshipFormal": { "description": "Relationship choice for a formal connection." },
+
+  "obligationLow": "Low stakes",
+  "@obligationLow": { "description": "Obligation choice for low stakes." },
+
+  "obligationMedium": "Somewhat important",
+  "@obligationMedium": { "description": "Obligation choice for medium stakes." },
+
+  "obligationHigh": "High stakes",
+  "@obligationHigh": { "description": "Obligation choice for high stakes." },
+
+  "chooseIntent": "Choose intent: {option}",
+  "@chooseIntent": {
+    "description": "Semantics label for an intent choice.",
+    "placeholders": { "option": { "type": "String" } }
+  },
+
+  "chooseAction": "Choose action: {option}",
+  "@chooseAction": {
+    "description": "Semantics label for an action choice.",
+    "placeholders": { "option": { "type": "String" } }
+  },
+
+  "chooseContext": "Choose context: {option}",
+  "@chooseContext": {
+    "description": "Semantics label for a context choice.",
+    "placeholders": { "option": { "type": "String" } }
+  },
+
+  "chooseRelationshipV6": "Choose relationship: {option}",
+  "@chooseRelationshipV6": {
+    "description": "Semantics label for a v6 relationship choice.",
+    "placeholders": { "option": { "type": "String" } }
+  },
+
+  "chooseObligation": "Choose obligation: {option}",
+  "@chooseObligation": {
+    "description": "Semantics label for an obligation choice.",
+    "placeholders": { "option": { "type": "String" } }
+  },
+
+  "tokenLabel": "Question {current} of {total}",
+  "@tokenLabel": {
+    "description": "Accessibility label for the six physical progress tokens.",
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "searchingLabel": "Excusee is searching the shop",
+  "@searchingLabel": { "description": "Accessibility label for the search choreography." },
+
+  "rarityCommon": "COMMON",
+  "@rarityCommon": { "description": "Rarity badge for the first curated card tier." },
+
+  "cardIdeaLabel": "THE IDEA",
+  "@cardIdeaLabel": { "description": "Label above the atomic idea on the card." },
+
+  "cardNumber": "No. {number}",
+  "@cardNumber": {
+    "description": "Collection number shown on the card.",
+    "placeholders": { "number": { "type": "String" } }
+  },
+
+  "tonePromptV6": "The card is yours. How should it sound?",
+  "@tonePromptV6": { "description": "Post-result tone selection prompt." },
+
+  "tonePlainV6": "Plain",
+  "@tonePlainV6": { "description": "Post-result plain tone choice." },
+
+  "toneWarmV6": "Warm",
+  "@toneWarmV6": { "description": "Post-result warm tone choice." },
+
+  "tonePlayfulV6": "Playful",
+  "@tonePlayfulV6": { "description": "Post-result playful tone choice." },
+
+  "keepCardButton": "KEEP CARD",
+  "@keepCardButton": { "description": "Temporary local keep action without persistence." },
+
+  "cardKept": "KEPT FOR THIS VISIT",
+  "@cardKept": { "description": "Temporary confirmation after keeping a card." },
+
+  "keepCardSemantics": "Keep this card for this visit",
+  "@keepCardSemantics": { "description": "Semantics label for the temporary keep action." },
+
+  "toneChangeSemantics": "Change the card tone",
+  "@toneChangeSemantics": { "description": "Semantics label for post-result tone choices." },
+
+  "outfitSemantics": "Excusee outfit: {palette}",
+  "@outfitSemantics": {
+    "description": "Semantics label describing the current local outfit palette.",
+    "placeholders": { "palette": { "type": "String" } }
+  },
+
+  "ambientEventSemantics": "Shop event: {event}",
+  "@ambientEventSemantics": {
+    "description": "Semantics label for the ambient shop event.",
+    "placeholders": { "event": { "type": "String" } }
+  },
 
   "oldFormTitle": "Excuse Me",
   "@oldFormTitle": { "description": "AppBar title for the legacy form page." },

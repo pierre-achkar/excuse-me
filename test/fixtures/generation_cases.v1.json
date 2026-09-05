@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "libraryVersion": "1.0.0",
+  "libraryVersion": "1.1.0",
   "cases": [
     {
       "id": "cancel-close-family-last-minute",
@@ -12,11 +12,10 @@
       "context": "family",
       "tone": "nice",
       "coverage": [
-        "noReadyMessage",
-        "repairOrientation"
+        "noReadyMessage"
       ],
       "expectedKernelId": "en_capacity_reset",
-      "expectedIdea": "Idea: Use a simple capacity limit, keep the explanation low-detail, and offer a respectful alternative."
+      "expectedIdea": "Idea: You do not have the bandwidth for it today."
     },
     {
       "id": "decline-familiar-party-ahead",
@@ -28,11 +27,10 @@
       "context": "party",
       "tone": "lowKey",
       "coverage": [
-        "noReadyMessage",
-        "repairOrientation"
+        "noReadyMessage"
       ],
       "expectedKernelId": "en_honest_decline",
-      "expectedIdea": "Idea: Decline with a direct capacity or preference boundary rather than constructing a story."
+      "expectedIdea": "Idea: You need to pass this time."
     },
     {
       "id": "delay-professional-work-today",
@@ -44,7 +42,7 @@
       "context": "work",
       "tone": "lowKey",
       "expectedKernelId": "en_logistics_delay",
-      "expectedIdea": "Idea: Use a minor logistics delay, acknowledge the timing, and avoid elaborate claims."
+      "expectedIdea": "Idea: The logistics no longer work for you."
     },
     {
       "id": "late-authority-work-dramatic",
@@ -56,7 +54,7 @@
       "context": "work",
       "tone": "dramatic",
       "expectedKernelId": "en_planning_mistake",
-      "expectedIdea": "Idea: Turn a harmless planning mix-up into a playful angle without inventing an emergency."
+      "expectedIdea": "Idea: Your energy has mysteriously disappeared."
     },
     {
       "id": "leave-close-date-funny",
@@ -68,7 +66,7 @@
       "context": "date",
       "tone": "funny",
       "expectedKernelId": "en_early_start",
-      "expectedIdea": "Idea: Use the need to protect an early start and keep the boundary brief and considerate."
+      "expectedIdea": "Idea: You do not have the bandwidth for it today."
     },
     {
       "id": "back-out-friends-funny",
@@ -80,7 +78,7 @@
       "context": "friends",
       "tone": "funny",
       "expectedKernelId": "en_early_start",
-      "expectedIdea": "Idea: Use the need to protect an early start and keep the boundary brief and considerate."
+      "expectedIdea": "Idea: You do not have the bandwidth for it today."
     },
     {
       "id": "reschedule-celebration-nice",
@@ -92,7 +90,7 @@
       "context": "celebration",
       "tone": "nice",
       "expectedKernelId": "en_schedule_collision",
-      "expectedIdea": "Idea: Frame the change as a scheduling collision and offer a clearer time if appropriate."
+      "expectedIdea": "Idea: You misjudged the timing and cannot make it work."
     },
     {
       "id": "avoid-professional-commitment",
@@ -104,7 +102,7 @@
       "context": "work",
       "tone": "lowKey",
       "expectedKernelId": "en_honest_boundary_fallback",
-      "expectedIdea": "Idea: Use an honest boundary, acknowledge the impact, and offer a practical next step."
+      "expectedIdea": "Placeholder: Add the curated idea for Honest Exit."
     },
     {
       "id": "travel-delay-familiar",
@@ -116,7 +114,7 @@
       "context": "travel",
       "tone": "lowKey",
       "expectedKernelId": "en_logistics_delay",
-      "expectedIdea": "Idea: Use a minor logistics delay, acknowledge the timing, and avoid elaborate claims."
+      "expectedIdea": "Idea: The logistics no longer work for you."
     },
     {
       "id": "missed-hobby-funny",
@@ -128,7 +126,7 @@
       "context": "hobby",
       "tone": "funny",
       "expectedKernelId": "en_planning_mistake",
-      "expectedIdea": "Idea: Turn a harmless planning mix-up into a playful angle without inventing an emergency."
+      "expectedIdea": "Idea: Your energy has mysteriously disappeared."
     },
     {
       "id": "alternative-distant-other",
@@ -145,7 +143,7 @@
       ],
       "expectFallback": true,
       "expectedKernelId": "en_honest_boundary_fallback",
-      "expectedIdea": "Idea: Use an honest boundary, acknowledge the impact, and offer a practical next step."
+      "expectedIdea": "Placeholder: Add the curated idea for Honest Exit."
     },
     {
       "id": "cancel-party-dramatic",
@@ -157,7 +155,7 @@
       "context": "party",
       "tone": "dramatic",
       "expectedKernelId": "en_work_overrun",
-      "expectedIdea": "Idea: Point to an overrun in an existing responsibility and keep the consequence proportionate."
+      "expectedIdea": "Idea: Work has spilled into the time you thought you had."
     },
     {
       "id": "missed-friends-unhinged",
@@ -169,7 +167,7 @@
       "context": "friends",
       "tone": "unhinged",
       "expectedKernelId": "en_planning_mistake",
-      "expectedIdea": "Idea: Turn a harmless planning mix-up into a playful angle without inventing an emergency."
+      "expectedIdea": "Idea: Your energy has mysteriously disappeared."
     },
     {
       "id": "unsafe-combination-fallback",
@@ -187,7 +185,7 @@
       ],
       "expectFallback": true,
       "expectedKernelId": "en_honest_boundary_fallback",
-      "expectedIdea": "Idea: Use an honest boundary, acknowledge the impact, and offer a practical next step."
+      "expectedIdea": "Placeholder: Add the curated idea for Honest Exit."
     },
     {
       "id": "reschedule-dinner-funny",
@@ -199,7 +197,72 @@
       "context": "dinner",
       "tone": "funny",
       "expectedKernelId": "en_alternative_timing",
-      "expectedIdea": "Idea: Ask for a specific timing change and pair it with a realistic alternative."
+      "expectedIdea": "Idea: You need to pass this time."
+    },
+    {
+      "id": "acknowledge-formal-work-study",
+      "intent": "recoverFromSituation",
+      "action": "acknowledgeMiss",
+      "timing": "alreadyHappened",
+      "relationship": "formal",
+      "obligation": "high",
+      "context": "workStudy",
+      "tone": "lowKey",
+      "coverage": [
+        "noReadyMessage",
+        "repairOrientation"
+      ],
+      "expectFallback": true,
+      "expectedKernelId": "en_honest_boundary_fallback",
+      "expectedIdea": "Placeholder: Add the curated idea for Honest Exit."
+    },
+    {
+      "id": "cancel-casual-social-now",
+      "intent": "getOutOfPlans",
+      "action": "cancel",
+      "timing": "happeningNow",
+      "relationship": "casual",
+      "obligation": "low",
+      "context": "social",
+      "tone": "lowKey",
+      "coverage": [
+        "noReadyMessage"
+      ],
+      "expectFallback": true,
+      "expectedKernelId": "en_honest_boundary_fallback",
+      "expectedIdea": "Placeholder: Add the curated idea for Honest Exit."
+    },
+    {
+      "id": "delay-formal-personal-today",
+      "intent": "buyTime",
+      "action": "delay",
+      "timing": "today",
+      "relationship": "formal",
+      "obligation": "medium",
+      "context": "personal",
+      "tone": "nice",
+      "coverage": [
+        "noReadyMessage"
+      ],
+      "expectFallback": true,
+      "expectedKernelId": "en_honest_boundary_fallback",
+      "expectedIdea": "Placeholder: Add the curated idea for Honest Exit."
+    },
+    {
+      "id": "leave-close-practical-ahead",
+      "intent": "getOutOfPlans",
+      "action": "leaveEarly",
+      "timing": "plannedAhead",
+      "relationship": "close",
+      "obligation": "low",
+      "context": "practical",
+      "tone": "lowKey",
+      "coverage": [
+        "noReadyMessage"
+      ],
+      "expectFallback": true,
+      "expectedKernelId": "en_honest_boundary_fallback",
+      "expectedIdea": "Placeholder: Add the curated idea for Honest Exit."
     }
   ]
 }

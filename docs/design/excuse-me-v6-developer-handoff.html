@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Excuse Me — Developer Handoff Prototype v6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+ --violet:#7F5BD6;--violet2:#6144B8;--teal:#3FB6A0;--glow:#FCDE5A;--ember:#E8593C;--ink:#1A1622;
+ --paper:#FAEEDA;--panel:#EDEAE2;--divider:#DCD2B8;--meta:#8A7B5E;--skin:#F0C08A;
+ --wall:#49375B;--wall2:#2B2038;--wood:#9A6852;--wood2:#68453D;--floor:#473852;
+ --pixel:'Press Start 2P',ui-monospace,monospace;--sans:'Inter Tight',system-ui,sans-serif;
+}
+*{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--ink);color:var(--paper);font-family:var(--sans)}
+button{font:inherit} body{overflow:hidden}
+.game{height:100dvh;min-height:640px;display:grid;grid-template-rows:1fr auto;background:var(--ink);position:relative;overflow:hidden}
+.scene{position:relative;overflow:hidden;background:var(--wall2);image-rendering:pixelated;min-height:0}
+/* back wall */
+.wall{position:absolute;inset:0 0 20%;background:
+ linear-gradient(90deg,transparent 0 48%,rgba(255,255,255,.025) 48% 50%,transparent 50% 100%) 0 0/64px 64px,
+ linear-gradient(0deg,transparent 0 48%,rgba(0,0,0,.12) 48% 50%,transparent 50% 100%) 0 0/64px 64px,
+ var(--wall);}
+.wall:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),transparent 35%,rgba(0,0,0,.24));pointer-events:none}
+/* ceiling beams */
+.beam{position:absolute;background:var(--ink);z-index:2}.beam.top{left:0;right:0;top:0;height:16px}.beam.b1{left:8%;top:0;width:14px;height:32%}.beam.b2{right:9%;top:0;width:14px;height:30%}
+/* lamps */
+.lamp{position:absolute;top:16px;width:74px;height:92px;z-index:3}.lamp.left{left:18%}.lamp.right{right:18%}.lamp .cord{position:absolute;left:34px;top:0;width:6px;height:45px;background:var(--ink)}.lamp .shade{position:absolute;left:8px;top:40px;width:58px;height:30px;background:var(--violet2);border:6px solid var(--ink);clip-path:polygon(20% 0,80% 0,100% 100%,0 100%)}.lamp .bulb{position:absolute;left:27px;top:68px;width:20px;height:18px;background:var(--glow);border:5px solid var(--ink);animation:flicker 6s steps(1) infinite}.lamp:after{content:"";position:absolute;left:-55px;top:64px;width:180px;height:140px;background:radial-gradient(ellipse at top,rgba(252,222,90,.12),transparent 68%);pointer-events:none}
+@keyframes flicker{0%,91%,94%,100%{opacity:1}92%,93%{opacity:.45}}
+/* sign */
+.sign{position:absolute;left:50%;top:34px;transform:translateX(-50%);z-index:6;background:var(--ink);border:6px solid var(--violet);padding:12px 16px 10px;color:var(--glow);font:11px/1.5 var(--pixel);letter-spacing:.04em;white-space:nowrap;box-shadow:10px 10px 0 rgba(0,0,0,.22)}
+.sign:before,.sign:after{content:"";position:absolute;top:-28px;width:5px;height:24px;background:var(--ink)}.sign:before{left:20px}.sign:after{right:20px}
+/* shelves */
+.shelf-unit{position:absolute;top:120px;width:29%;height:46%;z-index:3}.shelf-unit.left{left:3%}.shelf-unit.right{right:3%}.shelf{position:absolute;left:0;right:0;height:14px;background:var(--wood);border:5px solid var(--ink)}.s1{top:10%}.s2{top:48%}.s3{top:86%}
+.prop{position:absolute;border:5px solid var(--ink);bottom:0}.jar{width:30px;height:38px;background:var(--teal)}.jar:before{content:"";position:absolute;left:4px;right:4px;top:-10px;height:9px;background:var(--glow);border:4px solid var(--ink)}.book{width:18px;height:42px;background:var(--violet)}.book.b{background:var(--ember);height:34px}.box{width:42px;height:30px;background:var(--paper);}.cardstack{width:48px;height:22px;background:var(--paper);box-shadow:0 -8px 0 var(--divider),0 -16px 0 var(--paper)}
+.left .p1{left:12%;top:calc(10% - 38px)}.left .p2{left:34%;top:calc(10% - 42px)}.left .p3{left:48%;top:calc(10% - 34px)}.left .p4{right:12%;top:calc(48% - 30px)}.left .p5{left:14%;top:calc(48% - 22px)}.left .p6{left:48%;top:calc(86% - 42px)}
+.right .p1{left:8%;top:calc(10% - 42px)}.right .p2{left:27%;top:calc(10% - 30px)}.right .p3{right:14%;top:calc(10% - 38px)}.right .p4{left:15%;top:calc(48% - 34px)}.right .p5{right:18%;top:calc(48% - 22px)}.right .p6{left:45%;top:calc(86% - 38px)}
+/* small wall objects */
+.poster{position:absolute;left:35%;top:130px;width:68px;height:86px;background:var(--paper);border:6px solid var(--ink);z-index:2;transform:rotate(-2deg)}.poster:before{content:"?";display:grid;place-items:center;height:100%;font:28px var(--pixel);color:var(--ember)}
+.clock{position:absolute;right:35%;top:145px;width:64px;height:64px;background:var(--paper);border:7px solid var(--ink);z-index:2}.clock:before{content:"";position:absolute;left:27px;top:14px;width:5px;height:20px;background:var(--ink);transform-origin:bottom;transform:rotate(25deg)}.clock:after{content:"";position:absolute;left:27px;top:29px;width:18px;height:5px;background:var(--ink)}
+/* floor */
+.floor{position:absolute;left:0;right:0;bottom:0;height:26%;z-index:1;background:repeating-linear-gradient(90deg,#2E2636 0 62px,#241E2C 62px 66px),var(--floor);border-top:10px solid var(--ink)}
+.rug{position:absolute;left:50%;bottom:2%;transform:translateX(-50%);width:42%;height:11%;background:var(--violet2);border:7px solid var(--ink);z-index:2}.rug:after{content:"";position:absolute;inset:8px;border:4px dashed var(--teal)}
+/* counter */
+.counter{position:absolute;left:50%;bottom:12%;transform:translateX(-50%);width:min(620px,70vw);height:22%;min-height:116px;background:var(--wood);border:8px solid var(--ink);z-index:7}.counter:before{content:"";position:absolute;left:-14px;right:-14px;top:-18px;height:20px;background:var(--wood2);border:7px solid var(--ink)}.counter:after{content:"";position:absolute;inset:24px 34px;border:6px solid var(--wood2)}
+.owner-wrap{position:absolute;left:50%;bottom:19%;transform:translateX(-50%);width:min(300px,34vw);z-index:6;filter:drop-shadow(10px 12px 0 rgba(0,0,0,.18));transition:transform 140ms steps(2)}.owner-wrap.react{transform:translateX(-50%) translateY(-8px)}.owner{display:block;width:100%;image-rendering:pixelated}
+/* counter progress as physical tickets */
+.counter-progress{position:absolute;left:50%;bottom:calc(12% + 14px);transform:translateX(-50%);z-index:9;display:flex;gap:7px;align-items:end}.ticket{width:24px;height:14px;background:var(--wood2);border:4px solid var(--ink);transition:all 120ms steps(2)}.ticket.done:nth-child(3n+1){background:var(--violet)}.ticket.done:nth-child(3n+2){background:var(--teal)}.ticket.done:nth-child(3n+3){background:var(--glow)}
+/* card emerging */
+.emerge{position:absolute;left:50%;bottom:28%;width:230px;transform:translate(-50%,100px) scale(.74);opacity:0;z-index:10;transition:transform 420ms steps(6),opacity 80ms linear}.emerge.show{transform:translate(-50%,-8px) scale(.9);opacity:1}
+/* dialogue HUD */
+.hud{position:relative;z-index:20;background:var(--ink);border-top:8px solid #0F0C14;padding:14px 16px calc(18px + env(safe-area-inset-bottom));min-height:250px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start}
+.dialog-box{max-width:900px;width:100%;justify-self:center;background:var(--paper);border:7px solid var(--ink);box-shadow:0 0 0 4px var(--paper),0 0 0 8px var(--violet2);color:var(--ink);padding:16px 18px 18px;position:relative}.dialog-box:before{content:"";position:absolute;left:34px;top:-17px;width:18px;height:18px;background:var(--paper);border-left:7px solid var(--ink);border-top:7px solid var(--ink);transform:rotate(45deg)}
+.speaker{font:8px/1.5 var(--pixel);color:var(--violet2);margin:0 0 10px}.line{font:500 23px/1.25 var(--sans);margin:0 0 14px}.sub{font:15px/1.45 var(--sans);color:#5C5364;margin:-6px 0 14px}.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.choice,.primary,.secondary,.tone-btn{min-height:48px;border:5px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer;text-align:left;padding:10px 12px;font:14px/1.25 var(--sans);box-shadow:5px 5px 0 var(--violet2);transition:transform 80ms steps(1),box-shadow 80ms steps(1)}.choice:hover,.primary:hover,.secondary:hover,.tone-btn:hover{background:#FFF7D0}.choice:active,.primary:active,.secondary:active,.tone-btn:active{transform:translate(4px,4px);box-shadow:1px 1px 0 var(--violet2)}.choice .key{font:7px var(--pixel);color:var(--violet2);margin-right:8px}.context-grid .choice{min-height:64px}.primary{background:var(--violet);color:var(--ink);font-weight:500}.secondary{background:var(--teal)}
+.nav{display:flex;flex-direction:column;gap:8px}.nav button{width:92px;min-height:44px;border:4px solid var(--paper);background:transparent;color:var(--paper);font:8px/1.4 var(--pixel);cursor:pointer}.nav button:disabled{opacity:.25;cursor:default}
+.statusline{font:7px/1.5 var(--pixel);color:#B5A9C4;margin-top:12px}
+/* result card */
+.result{display:grid;grid-template-columns:minmax(260px,330px) 1fr;gap:18px;align-items:start}.card{background:var(--ink);border:7px solid var(--ink);width:100%;max-width:320px}.card-hd{background:var(--violet);padding:10px 11px;display:flex;justify-content:space-between;gap:10px}.card-name{font:9px/1.5 var(--pixel)}.rarity{font:7px/1.5 var(--pixel);background:var(--ink);color:var(--glow);padding:5px 6px}.card-art{height:116px;background:var(--panel);display:grid;place-items:center;position:relative;overflow:hidden}.art-symbol{font:42px/1 var(--pixel);color:var(--violet2);text-shadow:8px 8px 0 var(--divider)}.card-body{background:var(--paper);padding:14px 13px 12px}.card-label{font:7px/1.5 var(--pixel);color:var(--meta);margin:0 0 8px}.claim{font:17px/1.4 var(--sans);margin:0 0 14px}.card-ft{border-top:4px solid var(--divider);padding-top:10px;display:flex;justify-content:space-between;gap:8px}.tag{font:6px/1.5 var(--pixel);background:var(--teal);padding:5px 6px}.tag.tone{background:var(--glow)}.card-no{font:6px/1.5 var(--pixel);color:var(--meta)}.result-side{padding:4px 0}.result-side h2{font:500 22px/1.25 var(--sans);margin:0 0 8px}.result-side p{margin:0 0 12px;color:#5C5364}.tone-row{display:flex;flex-wrap:wrap;gap:7px}.tone-btn{min-height:38px;padding:7px 9px;font-size:13px;box-shadow:3px 3px 0 var(--violet2)}.tone-btn.active{background:var(--glow)}.repair{margin-top:12px;padding:10px 12px;border:4px solid var(--ember);background:#FFF1E8;font-size:14px}.actions{display:flex;gap:8px;margin-top:14px}.actions button{flex:1}.thinking{font:8px/1.8 var(--pixel);color:var(--violet2)}.thinking i{display:inline-block;width:8px;height:8px;background:var(--violet);margin-left:5px;animation:blink 900ms steps(1) infinite}.thinking i:nth-child(2){animation-delay:300ms}.thinking i:nth-child(3){animation-delay:600ms}@keyframes blink{0%,33%{opacity:1}34%,100%{opacity:.2}}
+@media(max-width:800px){
+ .scene{min-height:390px}.shelf-unit{width:35%;top:110px}.poster,.clock{display:none}.owner-wrap{width:min(230px,50vw);bottom:20%}.counter{width:76vw;height:20%}.hud{min-height:290px;grid-template-columns:1fr}.nav{position:absolute;right:14px;top:14px;flex-direction:row}.nav button{width:auto;padding:0 9px}.dialog-box{padding-top:18px}.choices{grid-template-columns:1fr}.result{grid-template-columns:1fr}.card{max-width:280px;margin:auto}.result-side{text-align:left}.sign{font-size:8px}.lamp.left{left:8%}.lamp.right{right:8%}
+}
+@media(max-height:760px) and (min-width:801px){.game{grid-template-rows:minmax(360px,1fr) auto}.hud{min-height:230px}.scene{min-height:360px}.owner-wrap{width:240px}.shelf-unit{top:105px}.sign{top:26px}}
+
+/* v4 — mysterious shop atmosphere */
+.scene{
+ --mood-wall:#241c31; --mood-wall2:#15111d; --mood-accent:#7F5BD6; --mood-glow:#FCDE5A;
+ --mood-teal:#3FB6A0; --mood-wash:rgba(127,91,214,.22);
+ isolation:isolate;
+ transition:background-color 360ms steps(4),filter 360ms steps(4);
+}
+.scene[data-mood="violet"]{--wall:#261a32;--wall2:#130f1b;--violet:#8C65E2;--violet2:#553684;--teal:#3D9D94;--glow:#F7D966;--mood-wash:rgba(141,92,225,.35)}
+.scene[data-mood="teal"]{--wall:#172b2e;--wall2:#0e171b;--violet:#5D53A8;--violet2:#38335f;--teal:#54CBB7;--glow:#D7F17B;--mood-wash:rgba(63,182,160,.32)}
+.scene[data-mood="ember"]{--wall:#321c25;--wall2:#1b1017;--violet:#7650A8;--violet2:#482d63;--teal:#50968B;--glow:#FFCF65;--ember:#F06A49;--mood-wash:rgba(232,89,60,.30)}
+.scene[data-mood="blue"]{--wall:#19253a;--wall2:#0e1420;--violet:#6575C7;--violet2:#3e4b82;--teal:#4EB7B4;--glow:#E6E778;--mood-wash:rgba(83,111,190,.30)}
+.scene[data-mood="void"]{--wall:#17121f;--wall2:#09070e;--violet:#65429f;--violet2:#2f2146;--teal:#2e766d;--glow:#FFE374;--mood-wash:rgba(21,12,31,.62);filter:saturate(.82) contrast(1.08)}
+.scene[data-mood="gold"]{--wall:#2d2630;--wall2:#171218;--violet:#7D58BC;--violet2:#4b356c;--teal:#489C8C;--glow:#FFE36A;--mood-wash:rgba(252,222,90,.26)}
+.wall,.floor,.shelf,.counter,.rug,.lamp .shade,.sign,.prop{transition:background-color 360ms steps(4),border-color 360ms steps(4),color 360ms steps(4)}
+.scene-vignette{position:absolute;inset:0;z-index:11;pointer-events:none;background:radial-gradient(ellipse at 50% 43%,transparent 0 25%,rgba(7,5,11,.18) 52%,rgba(5,3,8,.72) 100%)}
+.mood-wash{position:absolute;inset:0;z-index:12;pointer-events:none;background:var(--mood-wash);opacity:0;mix-blend-mode:screen}
+.mood-wash.pulse{animation:moodPulse 520ms steps(5)}
+@keyframes moodPulse{0%{opacity:0}18%{opacity:.82}45%{opacity:.30}100%{opacity:0}}
+/* deep back room gives the counter actual depth */
+.back-arch{position:absolute;left:50%;top:18%;transform:translateX(-50%);width:min(250px,29vw);height:46%;z-index:2;background:#0B0810;border:8px solid var(--ink);clip-path:polygon(14% 0,86% 0,100% 18%,100% 100%,0 100%,0 18%)}
+.back-arch:before{content:"";position:absolute;inset:15px 18px 0;border-left:6px solid var(--violet2);border-right:6px solid var(--violet2);background:linear-gradient(180deg,rgba(127,91,214,.10),transparent 50%)}
+.back-arch:after{content:"";position:absolute;left:50%;top:20%;width:8px;height:8px;background:var(--glow);box-shadow:-48px 62px 0 var(--teal),54px 36px 0 var(--violet),-12px 126px 0 var(--glow);animation:starBlink 5.4s steps(1) infinite}
+@keyframes starBlink{0%,74%,100%{opacity:.9}75%,79%{opacity:.18}80%,92%{opacity:.65}}
+/* hanging charms */
+.charms{position:absolute;left:50%;top:9%;transform:translateX(-50%);z-index:5;width:min(470px,58vw);height:96px;pointer-events:none}
+.charm{position:absolute;top:0;width:5px;background:var(--ink);transform-origin:top center;animation:charmSway 5.8s steps(4) infinite alternate}
+.charm:after{content:"";position:absolute;left:-8px;bottom:-16px;width:20px;height:20px;background:var(--violet2);border:4px solid var(--ink);transform:rotate(45deg)}
+.charm.c1{left:15%;height:62px}.charm.c2{left:50%;height:42px;animation-delay:-2.3s}.charm.c3{right:15%;height:68px;animation-delay:-4.1s}.charm.c2:after{background:var(--teal)}.charm.c3:after{background:var(--glow)}
+@keyframes charmSway{from{transform:rotate(-2deg)}to{transform:rotate(2deg)}}
+/* pixel fog and dust */
+.mist{position:absolute;left:-20%;width:140%;height:18px;z-index:4;opacity:.12;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 44px,var(--violet) 44px 82px,transparent 82px 148px);filter:none;animation:mistMove 18s steps(18) infinite}
+.mist.m1{top:31%}.mist.m2{top:56%;opacity:.08;animation-duration:24s;animation-direction:reverse}
+@keyframes mistMove{from{transform:translateX(-7%)}to{transform:translateX(7%)}}
+.dust{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
+.speck{position:absolute;width:4px;height:4px;background:var(--glow);opacity:.18;animation:dustFloat var(--dur) steps(18) infinite;animation-delay:var(--delay)}
+@keyframes dustFloat{0%{transform:translate(0,18px);opacity:0}15%{opacity:.18}75%{opacity:.12}100%{transform:translate(var(--drift),-110px);opacity:0}}
+/* props occasionally feel alive */
+.prop.jar{animation:jarPulse 7.2s steps(1) infinite}.right .prop.jar{animation-delay:-3.4s}
+@keyframes jarPulse{0%,84%,100%{filter:brightness(.72)}85%,88%{filter:brightness(1.35)}89%,94%{filter:brightness(.9)}}
+.sign{background:#100C16;border-color:var(--violet2);color:var(--glow);animation:signGlitch 11s steps(1) infinite}
+@keyframes signGlitch{0%,88%,100%{transform:translateX(-50%)}89%{transform:translateX(calc(-50% - 3px))}90%{transform:translateX(calc(-50% + 4px))}91%{transform:translateX(-50%)}}
+.lamp{transform-origin:37px 16px;animation:lampSway 7s steps(5) infinite alternate}.lamp.right{animation-delay:-3.2s}
+@keyframes lampSway{from{transform:rotate(-.7deg)}to{transform:rotate(.7deg)}}
+.lamp .bulb{box-shadow:none}.lamp:after{opacity:.7}
+/* mysterious owner: face disappears, only eyes and ember remain readable */
+.owner-wrap{filter:none;transform-origin:50% 100%;animation:ownerIdle 2.8s steps(2) infinite;will-change:transform}
+.owner-wrap.react{animation:none;transform:translateX(-50%) translateY(-9px) scale(1.015)}
+.owner{position:relative;z-index:1;filter:brightness(.82) saturate(.84) contrast(1.12)}
+.owner-shadow{position:absolute;z-index:2;left:39%;top:27%;width:27%;height:19%;background:#09070d;clip-path:polygon(13% 0,87% 0,100% 28%,89% 100%,11% 100%,0 28%);opacity:.88;pointer-events:none}
+.eye-glow{position:absolute;z-index:3;top:34.2%;width:10px;height:10px;background:var(--glow);outline:4px solid #09070d;animation:eyesIdle 5.1s steps(1) infinite;pointer-events:none}.eye-glow.e1{left:48%}.eye-glow.e2{left:59.5%}
+.ember-glow{position:absolute;z-index:4;left:69%;top:39.5%;width:7px;height:7px;background:var(--ember);outline:3px solid #09070d;animation:emberPulse 1.7s steps(2) infinite;pointer-events:none}
+@keyframes ownerIdle{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(3px)}}
+@keyframes eyesIdle{0%,78%,100%{opacity:1}79%,82%{opacity:.08}83%,91%{opacity:1}92%,93%{opacity:.12}}
+@keyframes emberPulse{0%,100%{background:var(--ember)}50%{background:var(--glow)}}
+/* a tiny counter relic */
+.counter-relic{position:absolute;left:calc(50% + min(240px,26vw));bottom:calc(12% + 72px);z-index:9;width:28px;height:38px;background:#0d0a12;border:5px solid var(--ink)}
+.counter-relic:before{content:"";position:absolute;left:5px;top:5px;width:8px;height:8px;background:var(--glow);animation:relicBlink 4.6s steps(1) infinite}
+@keyframes relicBlink{0%,66%,100%{opacity:.25}67%,72%{opacity:1}}
+/* interaction pulse: subtle camera bump in stepped frames */
+.scene.bump .wall,.scene.bump .shelf-unit,.scene.bump .back-arch{animation:sceneBump 240ms steps(3)}
+@keyframes sceneBump{0%{transform:translateY(0)}40%{transform:translateY(3px)}100%{transform:translateY(0)}}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.mood-wash{display:none}.owner-wrap{transform:translateX(-50%)!important}}
+
+
+/* v5 — brighter curiosity shop, wizard merchant, reactive oddities */
+.scene{filter:saturate(1.08) brightness(1.02);--event-color:rgba(252,222,90,.55)}
+.scene[data-mood="violet"]{--wall:#4B3262;--wall2:#2A183B;--violet:#A77AF0;--violet2:#714BB5;--teal:#55D7C0;--glow:#FFE46B;--mood-wash:rgba(183,112,255,.38)}
+.scene[data-mood="teal"]{--wall:#275255;--wall2:#17373B;--violet:#8972D7;--violet2:#594B99;--teal:#63E0C9;--glow:#E8F47E;--mood-wash:rgba(75,226,195,.36)}
+.scene[data-mood="ember"]{--wall:#613342;--wall2:#3B1C28;--violet:#A56BC4;--violet2:#70458C;--teal:#68C7AD;--glow:#FFD36D;--ember:#FF7655;--mood-wash:rgba(255,103,72,.35)}
+.scene[data-mood="blue"]{--wall:#304B72;--wall2:#1B2D4E;--violet:#8296ED;--violet2:#5368B6;--teal:#65DBD3;--glow:#F1E976;--mood-wash:rgba(90,132,232,.36)}
+.scene[data-mood="gold"]{--wall:#63523A;--wall2:#3A2D24;--violet:#A06FCD;--violet2:#714D98;--teal:#62C9A8;--glow:#FFE875;--mood-wash:rgba(255,221,91,.34)}
+.scene[data-mood="void"]{--wall:#2A2036;--wall2:#100C17;--violet:#8359C9;--violet2:#49316F;--teal:#418F82;--glow:#FFE778;--mood-wash:rgba(64,31,91,.58);filter:saturate(.95) contrast(1.05)}
+.wall:after{background:linear-gradient(180deg,rgba(0,0,0,.06),transparent 42%,rgba(0,0,0,.18))}
+.scene-vignette{background:radial-gradient(ellipse at 50% 43%,transparent 0 29%,rgba(9,5,14,.08) 58%,rgba(8,4,12,.46) 100%)}
+.lamp:after{opacity:1;background:radial-gradient(ellipse at top,rgba(255,228,107,.21),transparent 70%)}
+.sign{background:#20152A;border-color:var(--violet);box-shadow:9px 9px 0 rgba(26,22,34,.45)}
+.back-arch{background:#171020;border-color:#23182E}.back-arch:before{background:linear-gradient(180deg,rgba(167,122,240,.22),rgba(85,215,192,.05) 52%,transparent)}
+
+/* denser shelf construction */
+.shelf-unit{top:106px;width:31%;height:52%;z-index:4}.shelf-unit.left{left:2%}.shelf-unit.right{right:2%}
+.shelf{height:13px;background:#A56F52;border:4px solid var(--ink);box-shadow:0 7px 0 rgba(26,22,34,.25)}
+.shelf.s1{top:8%}.shelf.s2{top:37%}.shelf.s3{top:66%}.shelf.s4{top:95%}
+.weird-shelf .prop{bottom:auto;left:var(--x);top:var(--y);border:4px solid var(--ink);z-index:2;image-rendering:pixelated;transform-origin:50% 100%}
+.weird-shelf .tiny{border-width:3px}
+.bottle{width:20px;height:31px;background:var(--c,var(--teal));border-radius:0}.bottle:before{content:"";position:absolute;left:4px;top:-10px;width:8px;height:10px;background:var(--c,var(--teal));border:3px solid var(--ink)}.bottle:after{content:"";position:absolute;left:4px;bottom:5px;width:4px;height:4px;background:var(--glow);box-shadow:7px -8px 0 rgba(255,255,255,.55)}
+.eyejar{width:27px;height:32px;background:#8AD8C3}.eyejar:before{content:"";position:absolute;left:3px;right:3px;top:-8px;height:7px;background:#D8B469;border:3px solid var(--ink)}.eyejar .odd-eye{position:absolute;left:6px;top:9px;width:11px;height:8px;background:#FFF0B4;border:3px solid var(--ink)}.eyejar .odd-eye:after{content:"";position:absolute;width:3px;height:3px;left:4px;top:2px;background:#3A1B47}
+.skull{width:28px;height:25px;background:#F6E5B5}.skull:before,.skull:after{content:"";position:absolute;top:8px;width:5px;height:6px;background:var(--ink)}.skull:before{left:5px}.skull:after{right:5px}
+.key{width:9px;height:33px;background:#E7BF58;border-color:#4C3B29}.key:before{content:"";position:absolute;left:-6px;top:-11px;width:14px;height:14px;border:4px solid #E7BF58;background:transparent}.key:after{content:"";position:absolute;right:-9px;bottom:2px;width:10px;height:5px;background:#E7BF58}
+.crystal{width:24px;height:30px;background:var(--c,#79D8FF);clip-path:polygon(50% 0,100% 35%,78% 100%,22% 100%,0 35%);border:none!important;outline:4px solid var(--ink);outline-offset:-4px;filter:brightness(1.15)}
+.mask{width:31px;height:25px;background:var(--c,#D9C273);clip-path:polygon(10% 0,90% 0,100% 70%,70% 100%,50% 76%,30% 100%,0 70%)}.mask:before,.mask:after{content:"";position:absolute;top:8px;width:6px;height:4px;background:var(--ink)}.mask:before{left:6px}.mask:after{right:6px}
+.cage{width:30px;height:34px;background:repeating-linear-gradient(90deg,#655946 0 3px,transparent 3px 8px);border-color:#655946}.cage:before{content:"";position:absolute;left:8px;top:9px;width:8px;height:8px;background:var(--glow);border:3px solid var(--ink)}
+.plant{width:27px;height:18px;background:#B86C4E;margin-top:14px}.plant:before{content:"";position:absolute;left:8px;top:-19px;width:8px;height:20px;background:#59C882;box-shadow:-8px 6px 0 #76D590,8px 3px 0 #3FB6A0}
+.orb{width:27px;height:27px;background:var(--c,#A77AF0);border-radius:50%;box-shadow:inset 6px 6px 0 rgba(255,255,255,.22)}
+.mini-clock{width:28px;height:28px;background:#F4DFAD;border-radius:50%}.mini-clock:before{content:"";position:absolute;left:12px;top:5px;width:3px;height:10px;background:var(--ink);transform-origin:bottom}.mini-clock:after{content:"";position:absolute;left:12px;top:13px;width:8px;height:3px;background:var(--ink)}
+.mushroom{width:23px;height:17px;background:#F3D39A;margin-top:13px}.mushroom:before{content:"";position:absolute;left:-6px;top:-13px;width:27px;height:15px;background:var(--c,#E8593C);border:3px solid var(--ink)}
+.scroll{width:30px;height:22px;background:#F4D9A6}.scroll:before,.scroll:after{content:"";position:absolute;left:-4px;width:36px;height:6px;background:#D7B776;border:3px solid var(--ink)}.scroll:before{top:-5px}.scroll:after{bottom:-5px}
+.lev-book{width:27px;height:35px;background:var(--c,#8C65E2)}.lev-book:after{content:"";position:absolute;left:4px;top:5px;width:3px;height:24px;background:#F3D073}
+.tooth{width:16px;height:28px;background:#F9EAC8;clip-path:polygon(0 0,100% 0,82% 72%,63% 100%,50% 72%,36% 100%,16% 72%);border:none!important;outline:3px solid var(--ink);outline-offset:-3px}
+.odd-device{width:34px;height:27px;background:#6E6A82}.odd-device:before{content:"";position:absolute;left:5px;top:5px;width:8px;height:8px;background:var(--glow);box-shadow:13px 0 0 var(--ember)}.odd-device:after{content:"";position:absolute;left:7px;bottom:4px;width:16px;height:3px;background:var(--ink)}
+.feather{width:8px;height:34px;background:#E7C7FF;transform:rotate(15deg)}.feather:before{content:"";position:absolute;left:-6px;top:4px;width:17px;height:19px;background:#E7C7FF;clip-path:polygon(50% 0,100% 30%,65% 50%,100% 75%,50% 100%,0 75%,35% 50%,0 30%)}
+
+/* event layer */
+.event-layer{position:absolute;inset:0;z-index:10;pointer-events:none;overflow:hidden}.event-portal{position:absolute;left:50%;top:31%;width:88px;height:120px;transform:translate(-50%,-50%) scale(.45);opacity:0;border:8px solid var(--glow);box-shadow:0 0 0 8px var(--violet),inset 0 0 0 9px #1B0D26;background:#17091F}.event-shadow{position:absolute;left:-20%;top:23%;width:120px;height:210px;background:#0D0712;opacity:0;clip-path:polygon(50% 0,77% 20%,62% 45%,86% 100%,20% 100%,37% 45%,24% 20%)}.moth{position:absolute;width:9px;height:7px;background:var(--glow);opacity:0;clip-path:polygon(0 20%,45% 50%,0 80%,50% 60%,100% 80%,55% 50%,100% 20%,50% 40%)}
+.scene.event-portal .event-portal{animation:portalFlash 760ms steps(7)}
+.scene.event-shadow .event-shadow{animation:shadowCross 880ms steps(9)}
+.scene.event-moths .moth{animation:mothFly 820ms steps(8)}.moth.m1{left:10%;top:52%}.moth.m2{left:22%;top:44%;animation-delay:100ms!important}.moth.m3{left:78%;top:36%;animation-delay:180ms!important}.moth.m4{left:86%;top:51%;animation-delay:70ms!important}
+.scene.event-eye .odd-eye{animation:eyeWake 680ms steps(5)}
+.scene.event-book .lev-book{animation:bookLift 760ms steps(6)}
+.scene.event-clock .clock:before,.scene.event-clock .mini-clock:before{animation:clockSpin 720ms steps(12)}
+.scene.event-jars .bottle,.scene.event-jars .eyejar{animation:jarRattle 680ms steps(6);filter:brightness(1.35)}
+.scene.event-key .key{animation:keyDance 720ms steps(7)}
+.scene.event-cage .cage:before{animation:cageSpark 760ms steps(6)}
+.scene.event-sign .sign{animation:eventSign 650ms steps(6)}
+.scene.event-crystal .crystal,.scene.event-crystal .orb{animation:crystalBurst 760ms steps(6)}
+@keyframes portalFlash{0%{opacity:0;transform:translate(-50%,-50%) scale(.35)}18%{opacity:.9}60%{opacity:.8;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.18)}}
+@keyframes shadowCross{0%{opacity:0;transform:translateX(0)}12%{opacity:.34}85%{opacity:.27}100%{opacity:0;transform:translateX(105vw)}}
+@keyframes mothFly{0%{opacity:0;transform:translate(0,30px)}15%{opacity:.85}100%{opacity:0;transform:translate(190px,-110px)}}
+@keyframes eyeWake{0%,100%{transform:scaleY(1)}22%{transform:scaleY(.1)}45%{transform:scale(1.65)}70%{transform:scale(1.15)}}
+@keyframes bookLift{0%,100%{transform:translateY(0) rotate(0)}35%{transform:translateY(-25px) rotate(-5deg)}62%{transform:translateY(-20px) rotate(5deg)}}
+@keyframes clockSpin{to{transform:rotate(720deg)}}
+@keyframes jarRattle{0%,100%{transform:translate(0)}20%{transform:translate(-4px,-2px)}40%{transform:translate(4px,1px)}65%{transform:translate(-2px,-5px)}}
+@keyframes keyDance{0%,100%{transform:rotate(0)}30%{transform:rotate(-22deg) translateY(-7px)}60%{transform:rotate(19deg) translateY(-3px)}}
+@keyframes cageSpark{0%,100%{background:var(--glow)}25%{background:#fff;box-shadow:0 0 0 7px rgba(252,222,90,.35)}60%{background:var(--ember)}}
+@keyframes eventSign{0%,100%{transform:translateX(-50%)}16%{transform:translateX(calc(-50% - 9px)) skewX(5deg)}33%{transform:translateX(calc(-50% + 7px))}52%{filter:hue-rotate(80deg) brightness(1.5)}72%{transform:translateX(calc(-50% - 3px))}}
+@keyframes crystalBurst{0%,100%{filter:brightness(1.1)}30%{filter:brightness(2.3);transform:scale(1.4)}60%{filter:hue-rotate(80deg) brightness(1.7);transform:scale(1.12)}}
+
+/* wizard merchant inspired by an old travelling mage silhouette */
+.owner-wrap{width:min(270px,32vw);bottom:16%;--owner-hat:#43515B;--owner-hat2:#2F3B43;--owner-robe:#67879A;--owner-robe2:#4E6F82;--owner-trim:#C5B98E;--owner-accent:#3E8B55;--owner-patch:#54768A;--owner-staff:#6D6555;--owner-lantern:#FFBB22}
+.owner{filter:none;overflow:visible}.owner-wrap.react{transform:translateX(-50%) translateY(-10px) rotate(-1deg)}
+.wizard-glow{position:absolute;right:2%;top:11%;width:21px;height:28px;background:var(--owner-lantern);box-shadow:0 0 0 5px rgba(252,222,90,.18);animation:staffGlow 2.1s steps(3) infinite;z-index:3}.wizard-eye{position:absolute;left:49%;top:24.5%;width:6px;height:5px;background:var(--owner-accent);z-index:4;animation:wizardBlink 5.4s steps(1) infinite}.wizard-shadow{position:absolute;left:42%;top:20.7%;width:25%;height:8%;background:rgba(15,11,18,.55);z-index:3;clip-path:polygon(0 0,100% 0,83% 100%,9% 100%)}
+@keyframes staffGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.45)}}@keyframes wizardBlink{0%,83%,100%{opacity:1}84%,87%{opacity:.08}}
+
+/* each selection also throws a brighter transient wash */
+.mood-wash{mix-blend-mode:screen}.mood-wash.pulse{animation:moodPulseV5 600ms steps(6)}
+@keyframes moodPulseV5{0%{opacity:0}15%{opacity:.95}34%{opacity:.42}62%{opacity:.18}100%{opacity:0}}
+
+@media(max-width:800px){.shelf-unit{width:38%;height:49%;top:98px}.owner-wrap{width:min(220px,47vw);bottom:19%}.weird-shelf .prop{transform:scale(.85);transform-origin:top left}.event-portal{top:34%}}
+@media(prefers-reduced-motion:reduce){.event-layer{display:none}.wizard-glow,.wizard-eye{animation:none!important}}
+
+
+/* v6 — conversation choreography */
+.owner-wrap.search-back{animation:searchBack 900ms steps(6) both}
+.owner-wrap.search-away{animation:searchAway 1000ms steps(7) both}
+.owner-wrap.search-duck{animation:searchDuck 900ms steps(6) both}
+.owner-wrap.search-rummage{animation:searchRummage 950ms steps(8) both}
+@keyframes searchBack{
+  0%{transform:translateX(-50%) rotate(0)}
+  28%{transform:translateX(-50%) rotate(-7deg)}
+  58%{transform:translateX(-50%) rotate(-7deg) translateX(-12px)}
+  100%{transform:translateX(-50%) rotate(0)}
+}
+@keyframes searchAway{
+  0%{transform:translateX(-50%);opacity:1}
+  35%{transform:translateX(-50%) translateY(-18px) scale(.92);opacity:.75}
+  55%{transform:translateX(-50%) translateY(-28px) scale(.84);opacity:.06}
+  78%{opacity:.06}
+  100%{transform:translateX(-50%);opacity:1}
+}
+@keyframes searchDuck{
+  0%{transform:translateX(-50%) translateY(0)}
+  38%{transform:translateX(-50%) translateY(92px)}
+  70%{transform:translateX(-50%) translateY(92px)}
+  100%{transform:translateX(-50%) translateY(0)}
+}
+@keyframes searchRummage{
+  0%,100%{transform:translateX(-50%) rotate(0)}
+  22%{transform:translateX(-50%) rotate(-3deg) translateY(4px)}
+  42%{transform:translateX(-50%) rotate(3deg) translateY(1px)}
+  63%{transform:translateX(-50%) rotate(-4deg) translateY(5px)}
+  82%{transform:translateX(-50%) rotate(2deg)}
+}
+.emerge.handover-slide.show{animation:handoverSlide 480ms steps(6) both}
+.emerge.handover-float.show{animation:handoverFloat 560ms steps(7) both}
+.emerge.handover-offer.show{animation:handoverOffer 440ms steps(6) both}
+.emerge.handover-drop.show{animation:handoverDrop 500ms steps(6) both}
+@keyframes handoverSlide{
+  from{transform:translate(-50%,78px) scale(.76);opacity:0}
+  to{transform:translate(-50%,-8px) scale(.9);opacity:1}
+}
+@keyframes handoverFloat{
+  0%{transform:translate(-50%,50px) scale(.72);opacity:0}
+  45%{transform:translate(-50%,-28px) scale(.88);opacity:1}
+  100%{transform:translate(-50%,-8px) scale(.9);opacity:1}
+}
+@keyframes handoverOffer{
+  0%{transform:translate(-50%,34px) scale(.58);opacity:0}
+  55%{transform:translate(-50%,-16px) scale(.98);opacity:1}
+  100%{transform:translate(-50%,-8px) scale(.9);opacity:1}
+}
+@keyframes handoverDrop{
+  0%{transform:translate(-50%,-75px) scale(.82) rotate(-3deg);opacity:0}
+  70%{transform:translate(-50%,2px) scale(.9) rotate(1deg);opacity:1}
+  100%{transform:translate(-50%,-8px) scale(.9) rotate(0);opacity:1}
+}
+@media(prefers-reduced-motion:reduce){
+  .owner-wrap.search-back,.owner-wrap.search-away,.owner-wrap.search-duck,.owner-wrap.search-rummage,
+  .emerge.handover-slide.show,.emerge.handover-float.show,.emerge.handover-offer.show,.emerge.handover-drop.show{
+    animation:none!important;
+  }
+}
+
+</style>
+</head>
+<body>
+<main class="game">
+<section class="scene" id="scene" data-mood="violet" aria-label="Excuse shop">
+  <div class="wall"></div><div class="back-arch"></div><div class="charms"><span class="charm c1"></span><span class="charm c2"></span><span class="charm c3"></span></div><div class="mist m1"></div><div class="mist m2"></div><div class="dust" id="dust"></div><div class="beam top"></div><div class="beam b1"></div><div class="beam b2"></div>
+  <div class="lamp left"><span class="cord"></span><span class="shade"></span><span class="bulb"></span></div>
+  <div class="lamp right"><span class="cord"></span><span class="shade"></span><span class="bulb"></span></div>
+  <div class="sign">EXCUSE ME</div>
+  <div class="shelf-unit left weird-shelf" aria-label="Shelf of strange objects">
+  <div class="shelf s1"></div><div class="shelf s2"></div><div class="shelf s3"></div><div class="shelf s4"></div>
+  <span class="prop bottle" style="--x:4%;--y:0%;--c:#67DFC7"></span>
+  <span class="prop eyejar" style="--x:16%;--y:-1%"><i class="odd-eye"></i></span>
+  <span class="prop key tiny" style="--x:30%;--y:-4%"></span>
+  <span class="prop skull" style="--x:42%;--y:0%"></span>
+  <span class="prop lev-book" style="--x:56%;--y:-4%;--c:#AE77E6"></span>
+  <span class="prop crystal" style="--x:70%;--y:-1%;--c:#74D7FF"></span>
+  <span class="prop mushroom" style="--x:84%;--y:0%;--c:#FF7655"></span>
+  <span class="prop mask" style="--x:2%;--y:28%;--c:#F0C96D"></span>
+  <span class="prop bottle" style="--x:18%;--y:29%;--c:#E67BD5"></span>
+  <span class="prop cage" style="--x:31%;--y:26%"></span>
+  <span class="prop plant" style="--x:46%;--y:29%"></span>
+  <span class="prop orb" style="--x:60%;--y:28%;--c:#FF8DC5"></span>
+  <span class="prop scroll" style="--x:74%;--y:31%"></span>
+  <span class="prop odd-device" style="--x:86%;--y:29%"></span>
+  <span class="prop mini-clock" style="--x:4%;--y:58%"></span>
+  <span class="prop tooth" style="--x:18%;--y:57%"></span>
+  <span class="prop bottle" style="--x:29%;--y:58%;--c:#7A9EFF"></span>
+  <span class="prop feather" style="--x:43%;--y:55%"></span>
+  <span class="prop eyejar" style="--x:55%;--y:57%"><i class="odd-eye"></i></span>
+  <span class="prop skull" style="--x:70%;--y:58%"></span>
+  <span class="prop crystal" style="--x:84%;--y:57%;--c:#B6F36D"></span>
+  <span class="prop cage" style="--x:6%;--y:84%"></span>
+  <span class="prop mushroom" style="--x:23%;--y:87%;--c:#8F76E8"></span>
+  <span class="prop lev-book" style="--x:37%;--y:83%;--c:#E8593C"></span>
+  <span class="prop key tiny" style="--x:52%;--y:83%"></span>
+  <span class="prop orb" style="--x:64%;--y:85%;--c:#63E0C9"></span>
+  <span class="prop mask" style="--x:78%;--y:85%;--c:#A77AF0"></span>
+  <span class="prop bottle" style="--x:91%;--y:86%;--c:#FFD65F"></span>
+</div>
+  <div class="shelf-unit right weird-shelf" aria-label="Shelf of strange objects">
+  <div class="shelf s1"></div><div class="shelf s2"></div><div class="shelf s3"></div><div class="shelf s4"></div>
+  <span class="prop crystal" style="--x:2%;--y:-1%;--c:#FF89B9"></span>
+  <span class="prop bottle" style="--x:15%;--y:0%;--c:#FFD45E"></span>
+  <span class="prop mask" style="--x:28%;--y:-1%;--c:#71D5CE"></span>
+  <span class="prop orb" style="--x:42%;--y:0%;--c:#977CF0"></span>
+  <span class="prop tooth" style="--x:55%;--y:-2%"></span>
+  <span class="prop cage" style="--x:66%;--y:-3%"></span>
+  <span class="prop lev-book" style="--x:82%;--y:-4%;--c:#6DD29B"></span>
+  <span class="prop key tiny" style="--x:94%;--y:-4%"></span>
+  <span class="prop eyejar" style="--x:4%;--y:28%"><i class="odd-eye"></i></span>
+  <span class="prop odd-device" style="--x:18%;--y:29%"></span>
+  <span class="prop skull" style="--x:35%;--y:30%"></span>
+  <span class="prop mushroom" style="--x:48%;--y:30%;--c:#F26E57"></span>
+  <span class="prop feather" style="--x:61%;--y:26%"></span>
+  <span class="prop bottle" style="--x:72%;--y:29%;--c:#63E0C9"></span>
+  <span class="prop mini-clock" style="--x:85%;--y:29%"></span>
+  <span class="prop scroll" style="--x:2%;--y:60%"></span>
+  <span class="prop plant" style="--x:17%;--y:58%"></span>
+  <span class="prop crystal" style="--x:33%;--y:57%;--c:#7DD9FF"></span>
+  <span class="prop cage" style="--x:48%;--y:56%"></span>
+  <span class="prop key tiny" style="--x:62%;--y:56%"></span>
+  <span class="prop mask" style="--x:74%;--y:58%;--c:#EBCB68"></span>
+  <span class="prop eyejar" style="--x:89%;--y:57%"><i class="odd-eye"></i></span>
+  <span class="prop bottle" style="--x:5%;--y:86%;--c:#E879D2"></span>
+  <span class="prop skull" style="--x:20%;--y:87%"></span>
+  <span class="prop orb" style="--x:34%;--y:85%;--c:#FFE56C"></span>
+  <span class="prop odd-device" style="--x:49%;--y:86%"></span>
+  <span class="prop mushroom" style="--x:66%;--y:87%;--c:#55D7C0"></span>
+  <span class="prop lev-book" style="--x:79%;--y:83%;--c:#9A72E8"></span>
+  <span class="prop crystal" style="--x:93%;--y:86%;--c:#FF7D6B"></span>
+</div><div class="shelf s2"></div><div class="shelf s3"></div><span class="prop book p1"></span><span class="prop box p2"></span><span class="prop jar p3"></span><span class="prop book b p4"></span><span class="prop cardstack p5"></span><span class="prop jar p6"></span></div>
+  <div class="poster"></div><div class="clock"></div><div class="floor"></div><div class="rug"></div>
+  <div class="owner-wrap" id="ownerWrap" aria-label="Mysterious wizard shop owner">
+<svg class="owner" viewBox="0 0 260 330" role="img" aria-label="Pixel wizard merchant with crooked hat, beard and staff" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+  <!-- staff -->
+  <rect x="220" y="58" width="10" height="252" style="fill:var(--owner-staff)"/>
+  <rect x="216" y="52" width="18" height="14" style="fill:#4E463A"/>
+  <rect x="214" y="34" width="22" height="22" style="fill:#4E463A"/>
+  <rect x="219" y="39" width="12" height="13" style="fill:var(--owner-lantern)"/>
+  <!-- crooked hat -->
+  <polygon points="42,70 60,54 86,50 102,30 126,24 146,34 170,38 184,54 204,58 194,78 164,78 150,88 106,82 82,88 54,84" style="fill:var(--owner-hat)"/>
+  <rect x="72" y="49" width="18" height="14" style="fill:var(--owner-hat2)"/>
+  <rect x="102" y="36" width="16" height="15" style="fill:var(--owner-hat2)"/>
+  <rect x="145" y="47" width="18" height="15" style="fill:var(--owner-hat2)"/>
+  <rect x="32" y="78" width="170" height="16" style="fill:var(--owner-hat2)"/>
+  <!-- face under brim -->
+  <rect x="96" y="92" width="58" height="18" fill="#CFA66C"/>
+  <rect x="86" y="106" width="70" height="22" fill="#DBB274"/>
+  <rect x="76" y="116" width="20" height="15" fill="#DBB274"/>
+  <rect x="64" y="121" width="20" height="10" fill="#DBB274"/>
+  <rect x="130" y="107" width="14" height="9" style="fill:var(--owner-accent)"/>
+  <!-- beard -->
+  <rect x="92" y="126" width="72" height="25" fill="#E9E6DB"/>
+  <rect x="82" y="145" width="90" height="25" fill="#E9E6DB"/>
+  <rect x="86" y="166" width="88" height="26" fill="#D8D6CB"/>
+  <rect x="96" y="187" width="78" height="25" fill="#C9C8BE"/>
+  <rect x="108" y="208" width="63" height="22" fill="#BDBCB2"/>
+  <rect x="120" y="228" width="48" height="19" fill="#AAA99F"/>
+  <!-- robe shoulders/body -->
+  <rect x="52" y="156" width="38" height="42" style="fill:var(--owner-robe2)"/>
+  <rect x="36" y="190" width="58" height="84" style="fill:var(--owner-robe)"/>
+  <rect x="82" y="176" width="100" height="122" style="fill:var(--owner-robe)"/>
+  <rect x="170" y="190" width="42" height="84" style="fill:var(--owner-robe2)"/>
+  <rect x="92" y="270" width="98" height="44" style="fill:var(--owner-robe)"/>
+  <!-- trim and folds -->
+  <rect x="91" y="180" width="12" height="116" style="fill:var(--owner-trim)"/>
+  <rect x="150" y="207" width="11" height="89" style="fill:var(--owner-trim)"/>
+  <rect x="52" y="220" width="14" height="70" style="fill:var(--owner-patch)"/>
+  <rect x="117" y="268" width="12" height="39" style="fill:var(--owner-robe2)"/>
+  <rect x="173" y="239" width="12" height="58" style="fill:var(--owner-robe2)"/>
+  <!-- belt -->
+  <rect x="83" y="232" width="96" height="12" style="fill:var(--owner-trim)"/>
+  <rect x="122" y="229" width="18" height="18" fill="#5A503F"/>
+  <!-- hands -->
+  <rect x="47" y="259" width="27" height="19" fill="#DDB675"/>
+  <rect x="199" y="194" width="22" height="20" fill="#DDB675"/>
+  <!-- mysterious little card -->
+  <rect x="25" y="244" width="31" height="41" fill="#F5E3B5"/>
+  <rect x="31" y="251" width="19" height="7" style="fill:var(--owner-accent)"/>
+  <rect x="31" y="265" width="14" height="5" style="fill:var(--owner-hat)"/>
+  <!-- shoes -->
+  <rect x="75" y="305" width="44" height="13" fill="#4D463A"/>
+  <rect x="156" y="305" width="44" height="13" fill="#4D463A"/>
+</svg>
+<span class="wizard-shadow"></span><span class="wizard-eye"></span><span class="wizard-glow"></span></div>
+  <div class="counter"></div><div class="counter-progress" id="counterProgress"></div>
+  <div class="emerge" id="emerge"></div>
+  <div class="counter-relic" aria-hidden="true"></div>
+  <div class="event-layer" id="eventLayer" aria-hidden="true"><i class="event-portal"></i><i class="event-shadow"></i><i class="moth m1"></i><i class="moth m2"></i><i class="moth m3"></i><i class="moth m4"></i></div>
+  <div class="scene-vignette" aria-hidden="true"></div>
+  <div class="mood-wash" id="moodWash" aria-hidden="true"></div>
+</section>
+<section class="hud">
+ <div class="dialog-box" id="dialog"></div>
+ <div class="nav"><button id="backBtn">BACK</button><button id="restartBtn">RESTART</button></div>
+</section>
+</main>
+<script>
+(()=>{
+const dialog=document.getElementById('dialog'),
+      backBtn=document.getElementById('backBtn'),
+      restartBtn=document.getElementById('restartBtn'),
+      owner=document.getElementById('ownerWrap'),
+      counter=document.getElementById('counterProgress'),
+      emerge=document.getElementById('emerge'),
+      scene=document.getElementById('scene'),
+      moodWash=document.getElementById('moodWash'),
+      dust=document.getElementById('dust');
+
+const decision=['intent','action','context','timing','relationship','obligation'];
+
+const dustPts=[[8,75,12,-18,-2],[15,62,15,16,-8],[24,79,18,-24,-12],[31,57,16,20,-5],[40,72,14,-10,-10],[48,65,20,24,-16],[56,82,17,-18,-7],[64,61,13,14,-4],[72,75,19,-28,-14],[81,55,16,20,-9],[90,71,22,-15,-18],[95,48,14,-20,-6]];
+dust.innerHTML=dustPts.map(([x,y,d,dr,delay])=>`<i class="speck" style="left:${x}%;top:${y}%;--dur:${d}s;--drift:${dr}px;--delay:${delay}s"></i>`).join('');
+
+const openingPairs=[
+ ["Well, well. What happened?","Let's see what I've got for you."],
+ ["Back again? What happened?","I might have something for you."],
+ ["Oh. You've got that look. What happened?","Let's see what we can find."],
+ ["Hmm. Trouble?","I may have just the thing."],
+ ["Come in, come in. What happened?","Let's find you something."],
+ ["Well, this looks promising. What happened?","I'm sure I've got something around here."],
+ ["Alright. What happened this time?","Let's have a look at the shelves."],
+ ["You look like you need something.","Tell me just enough. I'll do the digging."]
+];
+
+const searchLines=[
+ "Don't touch anything.",
+ "Stay right there.",
+ "Hmm... I know I've got one somewhere.",
+ "Give me a second.",
+ "Ah. I think I know just the thing.",
+ "Wait here.",
+ "Let me check the back."
+];
+
+const handoverLines=[
+ "This should do.",
+ "Here. Try this one.",
+ "Ah. There we are.",
+ "Found you something.",
+ "This one should fit.",
+ "Handle with care.",
+ "Use it wisely.",
+ "I think this one's yours.",
+ "Here you go.",
+ "That'll do nicely."
+];
+
+const searchMoves=['search-back','search-away','search-duck','search-rummage'];
+const handoverMoves=['handover-slide','handover-float','handover-offer','handover-drop'];
+
+let sessionOpening=null, sessionSearch=null, sessionHandover=null, lastSearch=-1, lastHandover=-1;
+
+function pickDifferent(arr,lastIndex){
+  let idx=Math.floor(Math.random()*arr.length);
+  if(arr.length>1 && idx===lastIndex) idx=(idx+1+Math.floor(Math.random()*(arr.length-1)))%arr.length;
+  return [arr[idx],idx];
+}
+function resetSessionCopy(){
+  sessionOpening=openingPairs[Math.floor(Math.random()*openingPairs.length)];
+  [sessionSearch,lastSearch]=pickDifferent(searchLines,lastSearch);
+  [sessionHandover,lastHandover]=pickDifferent(handoverLines,lastHandover);
+}
+
+function moodFor(field,value){
+ if(field==='intent')return value==='Buy time'?'teal':value==='Recover from a situation'?'ember':'violet';
+ if(field==='action'){
+  const map={'Cancel':'violet','Decline':'teal','Leave early':'gold','Back out':'ember','Reschedule':'blue','Delay':'teal','Avoid committing':'gold','Explain lateness':'ember','Explain absence':'blue','Explain missed commitment':'void'};
+  return map[value]||'violet';
+ }
+ if(field==='relationship')return value==='Formal'?'blue':value==='Close'?'gold':'violet';
+ if(field==='obligation')return value==='High'?'ember':value==='Low'?'teal':'violet';
+ if(field==='context')return value==='Work or Study'?'teal':value==='Practical'?'blue':value==='Personal'?'gold':'violet';
+ if(field==='timing')return value==='Last minute'?'ember':value==='Already happened'?'blue':value==='Happening now'?'gold':'teal';
+ return 'violet';
+}
+function setMood(name,pulse=true){
+ scene.dataset.mood=name;
+ if(!pulse)return;
+ moodWash.classList.remove('pulse'); void moodWash.offsetWidth; moodWash.classList.add('pulse');
+ scene.classList.remove('bump'); void scene.offsetWidth; scene.classList.add('bump');
+ setTimeout(()=>scene.classList.remove('bump'),260);
+}
+function familyMood(family){
+ if(family==='Work and study')return'teal';
+ if(family==='Money and logistics')return'blue';
+ if(family==='Care and family')return'gold';
+ if(family==='Planning failure')return'ember';
+ if(family==='Absurd and dramatic')return'void';
+ return'violet';
+}
+
+const outfits=[
+ {name:'storm scholar',hat:'#43515B',hat2:'#303B43',robe:'#6D91A5',robe2:'#51758A',trim:'#C9BC8E',accent:'#3E8B55',patch:'#587C91',staff:'#6D6555',lantern:'#FFBB22'},
+ {name:'amethyst dealer',hat:'#49345F',hat2:'#30223F',robe:'#8666B8',robe2:'#674C92',trim:'#55D7C0',accent:'#FFE46B',patch:'#5A4C87',staff:'#756045',lantern:'#76F0C8'},
+ {name:'moss keeper',hat:'#31534D',hat2:'#203B37',robe:'#4E927E',robe2:'#39705F',trim:'#E6C66E',accent:'#A7F08A',patch:'#487B74',staff:'#695742',lantern:'#FFE46B'},
+ {name:'ember archivist',hat:'#5B3440',hat2:'#3F222D',robe:'#B45F55',robe2:'#8B463F',trim:'#F2C36B',accent:'#63E0C9',patch:'#78475E',staff:'#6E5546',lantern:'#FF8A4F'},
+ {name:'midnight broker',hat:'#30456B',hat2:'#203150',robe:'#557DB8',robe2:'#3E6094',trim:'#D9C46E',accent:'#72E3D0',patch:'#4A5F8F',staff:'#5E594D',lantern:'#FFE46B'}
+];
+let lastOutfit=-1;
+function dressOwner(){
+ let idx=Math.floor(Math.random()*outfits.length);
+ if(outfits.length>1&&idx===lastOutfit)idx=(idx+1)%outfits.length;
+ lastOutfit=idx;
+ const o=outfits[idx];
+ owner.style.setProperty('--owner-hat',o.hat);owner.style.setProperty('--owner-hat2',o.hat2);
+ owner.style.setProperty('--owner-robe',o.robe);owner.style.setProperty('--owner-robe2',o.robe2);
+ owner.style.setProperty('--owner-trim',o.trim);owner.style.setProperty('--owner-accent',o.accent);
+ owner.style.setProperty('--owner-patch',o.patch);owner.style.setProperty('--owner-staff',o.staff);
+ owner.style.setProperty('--owner-lantern',o.lantern);owner.dataset.outfit=o.name;
+}
+
+const weirdEvents=['event-eye','event-book','event-clock','event-jars','event-key','event-cage','event-portal','event-shadow','event-moths','event-sign','event-crystal'];
+let lastWeird='';
+function strangeEvent(){
+ let e=weirdEvents[Math.floor(Math.random()*weirdEvents.length)];
+ if(e===lastWeird)e=weirdEvents[(weirdEvents.indexOf(e)+1+Math.floor(Math.random()*(weirdEvents.length-1)))%weirdEvents.length];
+ lastWeird=e;
+ scene.classList.remove(...weirdEvents); void scene.offsetWidth; scene.classList.add(e);
+ setTimeout(()=>scene.classList.remove(e),920);
+}
+
+const state={step:'entry',intent:null,action:null,context:null,timing:null,relationship:null,obligation:null,result:null,tone:'Low-key',offset:0,history:[]};
+
+const intents=[
+ ['I NEED OUT','Get out of plans'],
+ ['I NEED MORE TIME','Buy time'],
+ ['I ALREADY MESSED UP','Recover from a situation']
+];
+const actions={
+ 'Get out of plans':[['Cancel something','Cancel'],['Say no','Decline'],['Leave early','Leave early'],['Back out','Back out']],
+ 'Buy time':[['Move it to another time','Reschedule'],['Delay it','Delay'],["Don't commit yet",'Avoid committing']],
+ 'Recover from a situation':[["I'm late",'Explain lateness'],["I didn't show",'Explain absence'],['I missed it completely','Explain missed commitment']]
+};
+const ctx=[['SOCIAL','Social'],['PERSONAL','Personal'],['WORK / STUDY','Work or Study'],['PRACTICAL','Practical']];
+const timing={
+ 'Cancel':['In advance','Today','Last minute'],'Decline':['In advance','Today','Last minute'],
+ 'Leave early':['In advance','Happening now'],'Back out':['In advance','Today','Last minute'],
+ 'Reschedule':['In advance','Today','Last minute'],'Delay':['In advance','Today','Last minute'],
+ 'Avoid committing':['In advance','Today','Last minute'],
+ 'Explain lateness':['Happening now','Already happened'],
+ 'Explain absence':['Happening now','Already happened'],
+ 'Explain missed commitment':['Already happened']
+};
+const rel=[['SOMEONE CLOSE','Close'],['SOMEONE I KNOW','Casual'],['SOMEONE FORMAL','Formal']];
+const obl=[['BARELY ANY','Low'],["THEY'LL NOTICE",'Medium'],['QUITE A LOT','High']];
+
+const families=['Capacity and wellbeing','Care and family','Work and study','Money and logistics','Planning failure','Boundary and preference','Absurd and dramatic'];
+const meta={'Capacity and wellbeing':['LOW BATTERY','%', 'common'],'Care and family':['HOME CALLING','♥','uncommon'],'Work and study':['OVERRUN','▣','common'],'Money and logistics':['BAD ROUTE','↗','uncommon'],'Planning failure':['TIME SLIP','!','common'],'Boundary and preference':['HARD PASS','×','rare'],'Absurd and dramatic':['SYSTEM ERROR','?','legendary']};
+const kernels={
+ 'Capacity and wellbeing':[{id:'CAP-001',v:{'Low-key':'You do not have the bandwidth for it today.','Nice':'You need to step back and take some time to recharge.','Funny':'Your social battery is at 1%; you need the time back.','Dramatic':'Your remaining energy has officially left the building.','Unhinged':'Your social battery has entered witness protection.'}}],
+ 'Care and family':[{id:'CARE-001',v:{'Low-key':'Something personal needs your attention.','Nice':'You need to make room for a personal responsibility.','Funny':'Home life has unexpectedly promoted itself to top priority.'}}],
+ 'Work and study':[{id:'WORK-001',v:{'Low-key':'Work has spilled into the time you thought you had.','Nice':'You underestimated what you still need to finish.','Funny':'Your to-do list has reproduced while unsupervised.'}}],
+ 'Money and logistics':[{id:'LOG-001',v:{'Low-key':'The logistics no longer work for you.','Nice':'You cannot make the timing and logistics work comfortably.','Funny':'The route from here to there has become a side quest.'}}],
+ 'Planning failure':[{id:'PLAN-001',v:{'Low-key':'You misjudged the timing and cannot make it work.','Nice':'You got the schedule wrong and need to own the mix-up.','Funny':'Your calendar and reality were apparently not in contact.'}}],
+ 'Boundary and preference':[{id:'BOUND-001',v:{'Low-key':'You need to pass this time.','Nice':'You need to bow out and keep the time for yourself.','Funny':'Your internal RSVP has changed to a respectful nope.','Dramatic':'The boundary has been drawn. The evening stays yours.','Unhinged':'The council has voted unanimously: absolutely not.'}}],
+ 'Absurd and dramatic':[{id:'ABS-001',v:{'Low-key':'Your energy has mysteriously disappeared.','Nice':'You need to retreat before the evening gets the better of you.','Funny':'Your social battery has filed for bankruptcy.','Dramatic':'The night has demanded a sacrifice. It will not be you.','Unhinged':'Your aura has been recalled by the manufacturer.'}}]
+};
+const nums={'CAP-001':'021','CARE-001':'031','WORK-001':'041','LOG-001':'051','PLAN-001':'014','BOUND-001':'061','ABS-001':'070'};
+
+function progress(){
+ const done=decision.filter(k=>state[k]).length;
+ counter.innerHTML=decision.map((_,i)=>`<span class="ticket ${i<done?'done':''}"></span>`).join('');
+ backBtn.disabled=state.step==='entry'||state.step==='search';
+}
+function react(){owner.classList.add('react');setTimeout(()=>owner.classList.remove('react'),210)}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}
+function choices(items,field,next,cls=''){
+ return `<div class="choices ${cls}">${items.map((o,i)=>`<button class="choice" data-field="${field}" data-value="${esc(o[1])}" data-next="${next}"><span class="key">${String(i+1).padStart(2,'0')}</span>${o[0]}</button>`).join('')}</div>`;
+}
+function setStep(step,push=true){if(push)state.history.push(state.step);state.step=step;render()}
+
+function nextAfter(field,value){
+ if(field==='intent')return'action';
+ if(field==='action')return'context';
+ if(field==='context')return timing[state.action].length===1?'relationship':'timing';
+ if(field==='timing')return'relationship';
+ if(field==='relationship')return'obligation';
+ if(field==='obligation')return'search';
+ return'entry';
+}
+function choose(field,value){
+ state[field]=value;
+ if(field==='context' && timing[state.action].length===1) state.timing=timing[state.action][0];
+ setMood(moodFor(field,value)); strangeEvent(); react();
+ setTimeout(()=>setStep(nextAfter(field,value)),110);
+}
+
+function actionQuestion(){
+ if(state.intent==='Get out of plans')return'Ah. An escape. What’s the plan?';
+ if(state.intent==='Buy time')return'Buying some time, are we? How?';
+ return'Ah. Damage already done. What happened?';
+}
+function timingQuestion(){
+ if(state.action==='Leave early')return'Planning your escape, or already there?';
+ if(['Explain lateness','Explain absence'].includes(state.action))return'And when did this go wrong?';
+ return'Alright. How close are we cutting it?';
+}
+function timingChoices(){
+ if(state.action==='Leave early')return[['PLANNING AHEAD','In advance'],["I'M THERE NOW",'Happening now']];
+ if(['Explain lateness','Explain absence'].includes(state.action))return[['RIGHT NOW','Happening now'],['ALREADY HAPPENED','Already happened']];
+ return[['PLENTY OF TIME','In advance'],["IT'S TODAY",'Today'],['LAST MINUTE','Last minute']];
+}
+
+function rank(){
+ const s={};families.forEach(f=>s[f]=0);const add=(f,n)=>s[f]+=n;
+ if(state.context==='Social'){add('Capacity and wellbeing',2);add('Boundary and preference',2);add('Planning failure',1);add('Absurd and dramatic',1)}
+ if(state.context==='Personal'){add('Care and family',3);add('Capacity and wellbeing',1);add('Boundary and preference',1)}
+ if(state.context==='Work or Study'){add('Work and study',3);add('Planning failure',1);add('Capacity and wellbeing',1)}
+ if(state.context==='Practical'){add('Money and logistics',3);add('Planning failure',1)}
+ if(['Decline','Avoid committing'].includes(state.action))add('Boundary and preference',3);
+ if(['Cancel','Back out'].includes(state.action)){add('Capacity and wellbeing',2);add('Boundary and preference',1)}
+ if(state.action==='Leave early')add('Capacity and wellbeing',3);
+ if(['Reschedule','Delay'].includes(state.action)){add('Work and study',1);add('Money and logistics',1);add('Capacity and wellbeing',1)}
+ if(['Explain lateness','Explain absence','Explain missed commitment'].includes(state.action)){add('Planning failure',3);add('Money and logistics',2)}
+ if(state.timing==='Already happened')add('Planning failure',2);
+ if(state.relationship==='Formal'){add('Work and study',1);add('Planning failure',1);s['Absurd and dramatic']-=5}
+ if(state.obligation==='High'){add('Planning failure',1);s['Absurd and dramatic']-=6;s['Boundary and preference']-=1}
+ if(state.context!=='Personal')s['Care and family']-=5;
+ if(!(state.context==='Social'&&state.obligation==='Low'&&state.relationship!=='Formal'))s['Absurd and dramatic']-=3;
+ return families.slice().sort((a,b)=>s[b]-s[a]);
+}
+function gen(){const r=rank(),family=r[Math.min(state.offset,2)],list=kernels[family],kernel=list[state.offset%list.length];return{family,kernel,ranked:r}}
+function tones(){
+ if(state.relationship==='Formal'||state.obligation==='High')return['Low-key','Nice'];
+ if(state.obligation==='Medium')return['Low-key','Nice','Funny'];
+ if(state.context==='Social'&&state.relationship!=='Formal')return['Low-key','Nice','Funny','Dramatic','Unhinged'];
+ return['Low-key','Nice','Funny'];
+}
+function repair(){
+ if(state.obligation==='High')return'Acknowledge the inconvenience and offer a concrete next step.';
+ if(state.intent==='Recover from a situation')return'Own the miss briefly, then offer the smallest useful repair.';
+ if(state.timing==='Last minute'&&state.obligation==='Medium')return'A short apology is enough; avoid adding more detail.';
+ return null;
+}
+function cardHTML(){
+ const r=state.result,m=meta[r.family],t=tones().includes(state.tone)?state.tone:'Low-key';
+ state.tone=t;const claim=r.kernel.v[t]||r.kernel.v['Low-key'];
+ return `<article class="card"><div class="card-hd"><span class="card-name">${m[0]}</span><span class="rarity">${m[2]}</span></div><div class="card-art"><div class="art-symbol">${m[1]}</div></div><div class="card-body"><p class="card-label">THE IDEA</p><p class="claim">${claim}</p><div class="card-ft"><span><span class="tag">${r.family.split(' ')[0].toLowerCase()}</span> <span class="tag tone">${t}</span></span><span class="card-no">no. ${nums[r.kernel.id]||'---'}</span></div></div></article>`;
+}
+function animateSearch(){
+ owner.classList.remove(...searchMoves);
+ const move=searchMoves[Math.floor(Math.random()*searchMoves.length)];
+ void owner.offsetWidth; owner.classList.add(move);
+ strangeEvent();
+ setTimeout(()=>owner.classList.remove(move),1050);
+}
+function prepareHandover(){
+ emerge.classList.remove('show',...handoverMoves);
+ const move=handoverMoves[Math.floor(Math.random()*handoverMoves.length)];
+ emerge.classList.add(move);
+ emerge.innerHTML=cardHTML();
+ requestAnimationFrame(()=>emerge.classList.add('show'));
+}
+function renderResult(){
+ emerge.classList.remove('show');
+ const ts=tones().map(t=>`<button class="tone-btn ${t===state.tone?'active':''}" data-tone="${t}">${t}</button>`).join('');
+ const rep=repair();
+ dialog.innerHTML=`<p class="speaker">EXCUSEE</p><div class="result">${cardHTML()}<div class="result-side"><h2>${sessionHandover}</h2><p>Same excuse kernel. Change only the flavour if you want.</p><div class="tone-row">${ts}</div>${rep?`<div class="repair"><strong>Worth repairing:</strong> ${rep}</div>`:''}<div class="actions"><button class="secondary" id="another">ANOTHER CARD</button><button class="primary" id="keep">KEEP CARD</button></div><div class="statusline">ONE IDEA · NOT A READY-TO-SEND MESSAGE</div></div></div>`;
+ dialog.querySelectorAll('[data-tone]').forEach(b=>b.onclick=()=>{state.tone=b.dataset.tone;renderResult()});
+ document.getElementById('another').onclick=()=>{
+   strangeEvent();setMood(familyMood(state.result.family),true);
+   state.offset=(state.offset+1)%3;state.result=gen();state.tone='Low-key';
+   [sessionHandover,lastHandover]=pickDifferent(handoverLines,lastHandover);
+   renderResult();
+ };
+ document.getElementById('keep').onclick=e=>{e.target.textContent='ADDED';e.target.disabled=true};
+}
+
+function render(){
+ progress(); emerge.classList.remove('show');
+
+ if(state.step==='entry'){
+   setMood('violet',false);
+   dialog.innerHTML=`<p class="speaker">EXCUSEE</p><h1 class="line">${sessionOpening[0]}</h1><p class="sub">${sessionOpening[1]}</p><button class="primary" id="start">I NEED AN EXCUSE</button>`;
+   document.getElementById('start').onclick=()=>{strangeEvent();setMood('gold',true);setTimeout(()=>setStep('intent'),90)};
+   return;
+ }
+ if(state.step==='intent')
+   dialog.innerHTML=`<p class="speaker">EXCUSEE</p><h1 class="line">Now then… what’s the situation?</h1>${choices(intents,'intent')}`;
+ if(state.step==='action')
+   dialog.innerHTML=`<p class="speaker">EXCUSEE</p><h1 class="line">${actionQuestion()}</h1>${choices(actions[state.intent],'action')}`;
+ if(state.step==='context')
+   dialog.innerHTML=`<p class="speaker">EXCUSEE</p><h1 class="line">What kind of thing is it?</h1>${choices(ctx,'context',null,'context-grid')}`;
+ if(state.step==='timing')
+   dialog.innerHTML=`<p class="speaker">EXCUSEE</p><h1 class="line">${timingQuestion()}</h1>${choices(timingChoices(),'timing')}`;
+ if(state.step==='relationship')
+   dialog.innerHTML=`<p class="speaker">EXCUSEE</p><h1 class="line">Alright. Who are we dealing with?</h1>${choices(rel,'relationship')}`;
+ if(state.step==='obligation')
+   dialog.innerHTML=`<p class="speaker">EXCUSEE</p><h1 class="line">How much trouble if you vanish?</h1>${choices(obl,'obligation')}`;
+
+ if(state.step==='search'){
+   setMood('void',true);
+   [sessionSearch,lastSearch]=pickDifferent(searchLines,lastSearch);
+   [sessionHandover,lastHandover]=pickDifferent(handoverLines,lastHandover);
+   dialog.innerHTML=`<p class="speaker">EXCUSEE</p><h1 class="line">${sessionSearch}</h1><div class="thinking">SEARCHING THE SHOP <i></i><i></i><i></i></div>`;
+   animateSearch();
+   setTimeout(()=>{
+     state.result=gen();state.tone='Low-key';setMood(familyMood(state.result.family),true);prepareHandover();
+     setTimeout(()=>{state.history.push('search');state.step='result';render()},760);
+   },760);
+   return;
+ }
+ if(state.step==='result'){renderResult();return}
+ dialog.querySelectorAll('[data-field]').forEach(b=>b.onclick=()=>choose(b.dataset.field,b.dataset.value));
+}
+
+backBtn.onclick=()=>{
+ if(state.step==='result'){
+   state.step='obligation';state.result=null;state.obligation=null;state.offset=0;render();return;
+ }
+ const p=state.history.pop();if(!p)return;
+ state.step=p;
+ const order=['intent','action','context','timing','relationship','obligation'];
+ const i=order.indexOf(p);
+ order.slice(i+1).forEach(k=>state[k]=null);
+ if(p==='context' && timing[state.action]?.length===1) state.timing=null;
+ render();
+};
+restartBtn.onclick=()=>{
+ dressOwner();resetSessionCopy();strangeEvent();setMood('violet',true);
+ Object.assign(state,{step:'entry',intent:null,action:null,context:null,timing:null,relationship:null,obligation:null,result:null,tone:'Low-key',offset:0,history:[]});
+ render();
+};
+
+dressOwner();resetSessionCopy();render();
+})();
+</script>
+</body></html>

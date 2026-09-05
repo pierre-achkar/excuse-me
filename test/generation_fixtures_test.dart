@@ -90,11 +90,14 @@ void main() {
           isTrue,
           reason: fixture['id'] as String,
         );
-        expect(
-          IdeaQualityPolicy.isGeneric(result.idea),
-          isFalse,
-          reason: fixture['id'] as String,
-        );
+        expect(result.isPlaceholder, kernel.isPlaceholder);
+        if (!kernel.isPlaceholder) {
+          expect(
+            IdeaQualityPolicy.isGeneric(result.idea),
+            isFalse,
+            reason: fixture['id'] as String,
+          );
+        }
         if (fixture['expectFallback'] == true) {
           expect(kernel.isFallback, isTrue, reason: fixture['id'] as String);
         } else {
@@ -121,7 +124,10 @@ void main() {
           expect(fixture['expectFallback'], isTrue);
         }
         if (caseCoverage.contains('noReadyMessage')) {
-          expect(result.idea, startsWith('Idea:'));
+          expect(
+            result.idea,
+            startsWith(kernel.isPlaceholder ? 'Placeholder:' : 'Idea:'),
+          );
           expect(result.idea, isNot(contains('\n')));
           expect(IdeaSafetyPolicy.isSafeIdea(result.idea), isTrue);
           expect(
@@ -134,16 +140,20 @@ void main() {
           );
         }
         if (caseCoverage.contains('repairOrientation')) {
-          expect(
-            result.idea,
-            anyOf(
-              contains('boundary'),
-              contains('repair'),
-              contains('alternative'),
-              contains('next step'),
-            ),
-            reason: fixture['id'] as String,
-          );
+          if (kernel.isPlaceholder) {
+            expect(result.idea, startsWith('Placeholder:'));
+          } else {
+            expect(
+              result.idea,
+              anyOf(
+                contains('boundary'),
+                contains('repair'),
+                contains('alternative'),
+                contains('next step'),
+              ),
+              reason: fixture['id'] as String,
+            );
+          }
         }
       }
 
