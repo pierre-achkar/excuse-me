@@ -556,6 +556,330 @@ abstract class AppLocalizations {
   /// **'Unable to generate an idea. Please try again.'**
   String get generationError;
 
+  /// Direct primary action that enters the shop conversation.
+  ///
+  /// In en, this message translates to:
+  /// **'I NEED AN EXCUSE'**
+  String get entryCta;
+
+  /// Question for the intent beat.
+  ///
+  /// In en, this message translates to:
+  /// **'Now then... what\'s the situation?'**
+  String get dialogueIntent;
+
+  /// Question for actions after needing out.
+  ///
+  /// In en, this message translates to:
+  /// **'Ah. An escape. What\'s the plan?'**
+  String get dialogueActionOut;
+
+  /// Question for actions after needing more time.
+  ///
+  /// In en, this message translates to:
+  /// **'Patience is a resource. What do you need?'**
+  String get dialogueActionTime;
+
+  /// Question for actions after a missed situation.
+  ///
+  /// In en, this message translates to:
+  /// **'The ledger remembers. What needs explaining?'**
+  String get dialogueActionRecover;
+
+  /// Question for the context beat.
+  ///
+  /// In en, this message translates to:
+  /// **'Where is this trouble taking place?'**
+  String get dialogueContext;
+
+  /// Question for the v6 timing beat.
+  ///
+  /// In en, this message translates to:
+  /// **'When does the clock start complaining?'**
+  String get dialogueTimingV6;
+
+  /// Question for the relationship beat.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is waiting for an answer?'**
+  String get dialogueRelationshipV6;
+
+  /// Question for the obligation beat.
+  ///
+  /// In en, this message translates to:
+  /// **'How much does this one matter?'**
+  String get dialogueObligationV6;
+
+  /// Shopkeeper line during deterministic card search.
+  ///
+  /// In en, this message translates to:
+  /// **'Let me look through the shelves.'**
+  String get searchDialogue;
+
+  /// Shopkeeper line when handing over a card.
+  ///
+  /// In en, this message translates to:
+  /// **'There. This one should do.'**
+  String get handoverDialogue;
+
+  /// Intent choice: get out of plans.
+  ///
+  /// In en, this message translates to:
+  /// **'I NEED OUT'**
+  String get intentNeedOut;
+
+  /// Intent choice: buy time.
+  ///
+  /// In en, this message translates to:
+  /// **'I NEED MORE TIME'**
+  String get intentNeedMoreTime;
+
+  /// Intent choice: recover from a situation.
+  ///
+  /// In en, this message translates to:
+  /// **'I ALREADY MESSED UP'**
+  String get intentAlreadyMessedUp;
+
+  /// Action choice for getting out of plans.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel something'**
+  String get actionCancelSomething;
+
+  /// Action choice for declining a plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Say no'**
+  String get actionSayNo;
+
+  /// Action choice for leaving a commitment early.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave early'**
+  String get actionLeaveEarly;
+
+  /// Action choice for buying time.
+  ///
+  /// In en, this message translates to:
+  /// **'Reschedule'**
+  String get actionReschedule;
+
+  /// Action choice for delaying a commitment.
+  ///
+  /// In en, this message translates to:
+  /// **'Delay the answer'**
+  String get actionDelay;
+
+  /// Action choice for avoiding a commitment.
+  ///
+  /// In en, this message translates to:
+  /// **'Avoid committing'**
+  String get actionAvoidCommitting;
+
+  /// Action choice for explaining a late situation.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain what happened'**
+  String get actionExplainWhatHappened;
+
+  /// Action choice for asking for more time after a miss.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for more time'**
+  String get actionAskMoreTime;
+
+  /// Action choice for acknowledging a missed commitment.
+  ///
+  /// In en, this message translates to:
+  /// **'Acknowledge the miss'**
+  String get actionAcknowledgeMiss;
+
+  /// Broad context choice for social situations.
+  ///
+  /// In en, this message translates to:
+  /// **'Social plans'**
+  String get contextSocial;
+
+  /// Broad context choice for personal situations.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal life'**
+  String get contextPersonal;
+
+  /// Broad context choice for work or study.
+  ///
+  /// In en, this message translates to:
+  /// **'Work or study'**
+  String get contextWorkStudy;
+
+  /// Broad context choice for practical situations.
+  ///
+  /// In en, this message translates to:
+  /// **'A practical thing'**
+  String get contextPractical;
+
+  /// Timing choice for something happening now.
+  ///
+  /// In en, this message translates to:
+  /// **'Happening now'**
+  String get timingHappeningNow;
+
+  /// Relationship choice for someone close.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone close'**
+  String get relationshipClose;
+
+  /// Relationship choice for a casual connection.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone I know'**
+  String get relationshipCasual;
+
+  /// Relationship choice for a formal connection.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone formal'**
+  String get relationshipFormal;
+
+  /// Obligation choice for low stakes.
+  ///
+  /// In en, this message translates to:
+  /// **'Low stakes'**
+  String get obligationLow;
+
+  /// Obligation choice for medium stakes.
+  ///
+  /// In en, this message translates to:
+  /// **'Somewhat important'**
+  String get obligationMedium;
+
+  /// Obligation choice for high stakes.
+  ///
+  /// In en, this message translates to:
+  /// **'High stakes'**
+  String get obligationHigh;
+
+  /// Semantics label for an intent choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose intent: {option}'**
+  String chooseIntent(String option);
+
+  /// Semantics label for an action choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose action: {option}'**
+  String chooseAction(String option);
+
+  /// Semantics label for a context choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose context: {option}'**
+  String chooseContext(String option);
+
+  /// Semantics label for a v6 relationship choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose relationship: {option}'**
+  String chooseRelationshipV6(String option);
+
+  /// Semantics label for an obligation choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose obligation: {option}'**
+  String chooseObligation(String option);
+
+  /// Accessibility label for the six physical progress tokens.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {current} of {total}'**
+  String tokenLabel(int current, int total);
+
+  /// Accessibility label for the search choreography.
+  ///
+  /// In en, this message translates to:
+  /// **'Excusee is searching the shop'**
+  String get searchingLabel;
+
+  /// Rarity badge for the first curated card tier.
+  ///
+  /// In en, this message translates to:
+  /// **'COMMON'**
+  String get rarityCommon;
+
+  /// Label above the atomic idea on the card.
+  ///
+  /// In en, this message translates to:
+  /// **'THE IDEA'**
+  String get cardIdeaLabel;
+
+  /// Collection number shown on the card.
+  ///
+  /// In en, this message translates to:
+  /// **'No. {number}'**
+  String cardNumber(String number);
+
+  /// Post-result tone selection prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'The card is yours. How should it sound?'**
+  String get tonePromptV6;
+
+  /// Post-result plain tone choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain'**
+  String get tonePlainV6;
+
+  /// Post-result warm tone choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm'**
+  String get toneWarmV6;
+
+  /// Post-result playful tone choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Playful'**
+  String get tonePlayfulV6;
+
+  /// Temporary local keep action without persistence.
+  ///
+  /// In en, this message translates to:
+  /// **'KEEP CARD'**
+  String get keepCardButton;
+
+  /// Temporary confirmation after keeping a card.
+  ///
+  /// In en, this message translates to:
+  /// **'KEPT FOR THIS VISIT'**
+  String get cardKept;
+
+  /// Semantics label for the temporary keep action.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep this card for this visit'**
+  String get keepCardSemantics;
+
+  /// Semantics label for post-result tone choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the card tone'**
+  String get toneChangeSemantics;
+
+  /// Semantics label describing the current local outfit palette.
+  ///
+  /// In en, this message translates to:
+  /// **'Excusee outfit: {palette}'**
+  String outfitSemantics(String palette);
+
+  /// Semantics label for the ambient shop event.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop event: {event}'**
+  String ambientEventSemantics(String event);
+
   /// AppBar title for the legacy form page.
   ///
   /// In en, this message translates to:

@@ -7,27 +7,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class FakeShopIdeaClient implements IdeaClient {
-  FakeShopIdeaClient(this.idea);
-
-  final String idea;
-
   @override
-  Future<String> generate(IdeaRequest request) async => idea;
-}
-
-Future<void> _completeShopFlow(WidgetTester tester) async {
-  for (final label in [
-    "A dinner I can't face",
-    'Today',
-    'Someone close',
-    'Nice text',
-  ]) {
-    final option = find.text(label);
-    await tester.ensureVisible(option);
-    await tester.pumpAndSettle();
-    await tester.tap(option);
-    await tester.pumpAndSettle();
-  }
+  Future<String> generate(IdeaRequest request) async =>
+      'Idea: keep the explanation low-detail.';
 }
 
 class SpyAnalyticsClient implements AnalyticsClient {
@@ -41,169 +23,127 @@ class SpyAnalyticsClient implements AnalyticsClient {
   int count(AnalyticsEvent event) => events.where((e) => e == event).length;
 }
 
+Future<void> _completeV6(WidgetTester tester) async {
+  for (final key in [
+    'v6-entry-cta',
+    'v6-intent-getOutOfPlans',
+    'v6-action-cancel',
+    'v6-context-social',
+    'v6-timing-today',
+    'v6-relationship-casual',
+    'v6-obligation-low',
+  ]) {
+    final finder = find.byKey(ValueKey(key));
+    await tester.ensureVisible(finder);
+    await tester.tap(finder);
+    await tester.pump();
+  }
+  await tester.pumpAndSettle();
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel('dev.fluttercommunity.plus/share'),
-          (call) async => null,
-        );
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(SystemChannels.platform, (call) async {
-          switch (call.method) {
-            case 'Clipboard.setData':
-              return null;
-            case 'HapticFeedback.vibrate':
-              return null;
-            default:
-              return null;
-          }
+          return null;
         });
   });
 
   group('Analytics injection and event timing', () {
-    testWidgets('app_open recorded once during initial page load', (
+    testWidgets('app_open is recorded once during initial page load', (
       tester,
     ) async {
       final analytics = SpyAnalyticsClient();
       await tester.pumpWidget(
         ExcuseMeApp(
-          client: FakeShopIdeaClient('Idea: test'),
+          client: FakeShopIdeaClient(),
           analytics: analytics,
+          disableAnimations: true,
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       expect(analytics.count(AnalyticsEvent.appOpen), 1);
     });
 
-    testWidgets('generation_completed recorded after successful generation', (
+    testWidgets(
+      'generation_completed is recorded after successful generation',
+      (tester) async {
+        final analytics = SpyAnalyticsClient();
+        await tester.pumpWidget(
+          ExcuseMeApp(
+            client: FakeShopIdeaClient(),
+            analytics: analytics,
+            disableAnimations: true,
+          ),
+        );
+        await _completeV6(tester);
+
+        expect(analytics.count(AnalyticsEvent.generationCompleted), 1);
+      },
+    );
+
+    testWidgets('copy is recorded after local clipboard success', (
       tester,
     ) async {
       final analytics = SpyAnalyticsClient();
       await tester.pumpWidget(
         ExcuseMeApp(
-          client: FakeShopIdeaClient('Idea: test'),
+          client: FakeShopIdeaClient(),
           analytics: analytics,
+          disableAnimations: true,
         ),
       );
-      await tester.pumpAndSettle();
+      await _completeV6(tester);
 
-      await _completeShopFlow(tester);
-
-      expect(analytics.count(AnalyticsEvent.generationCompleted), 1);
-    });
-
-    testWidgets('regenerate recorded when regeneration requested', (
-      tester,
-    ) async {
-      final analytics = SpyAnalyticsClient();
-      await tester.pumpWidget(
-        ExcuseMeApp(
-          client: FakeShopIdeaClient('Idea: test'),
-          analytics: analytics,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await _completeShopFlow(tester);
-
-      await tester.tap(find.text('Regenerate'));
-      await tester.pump();
-
-      expect(analytics.count(AnalyticsEvent.regenerate), 1);
-
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle();
-
-      expect(analytics.count(AnalyticsEvent.regenerate), 1);
-    });
-
-    testWidgets('copy recorded after clipboard success', (tester) async {
-      final analytics = SpyAnalyticsClient();
-      await tester.pumpWidget(
-        ExcuseMeApp(
-          client: FakeShopIdeaClient('Idea: test'),
-          analytics: analytics,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await _completeShopFlow(tester);
-
-      await tester.tap(find.text('Copy'));
+      await tester.ensureVisible(find.byKey(const ValueKey('v6-copy-card')));
+      await tester.tap(find.byKey(const ValueKey('v6-copy-card')));
       await tester.pumpAndSettle();
 
       expect(analytics.count(AnalyticsEvent.copy), 1);
     });
 
-    testWidgets('share recorded when share requested', (tester) async {
-      final analytics = SpyAnalyticsClient();
-      await tester.pumpWidget(
-        ExcuseMeApp(
-          client: FakeShopIdeaClient('Idea: test'),
-          analytics: analytics,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await _completeShopFlow(tester);
-
-      await tester.tap(find.text('Share'));
-      await tester.pumpAndSettle();
-
-      expect(analytics.count(AnalyticsEvent.share), 1);
-    });
-
-    testWidgets('return_use recorded when app resumes from non-active', (
+    testWidgets('return_use is recorded when app resumes from inactive', (
       tester,
     ) async {
       final analytics = SpyAnalyticsClient();
       await tester.pumpWidget(
         ExcuseMeApp(
-          client: FakeShopIdeaClient('Idea: test'),
+          client: FakeShopIdeaClient(),
           analytics: analytics,
+          disableAnimations: true,
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       expect(analytics.count(AnalyticsEvent.returnUse), 0);
-
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
-      await tester.pumpAndSettle();
+      await tester.pump();
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       expect(analytics.count(AnalyticsEvent.returnUse), 1);
     });
 
-    testWidgets('only allowlisted events are emitted during a full flow', (
+    testWidgets('only allowlisted analytics events are emitted during a flow', (
       tester,
     ) async {
       final analytics = SpyAnalyticsClient();
       await tester.pumpWidget(
         ExcuseMeApp(
-          client: FakeShopIdeaClient('Idea: test'),
+          client: FakeShopIdeaClient(),
           analytics: analytics,
+          disableAnimations: true,
         ),
       );
+      await _completeV6(tester);
+      await tester.ensureVisible(find.byKey(const ValueKey('v6-copy-card')));
+      await tester.tap(find.byKey(const ValueKey('v6-copy-card')));
       await tester.pumpAndSettle();
 
-      await _completeShopFlow(tester);
-      await tester.tap(find.text('Copy'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Regenerate'));
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Share'));
-      await tester.pumpAndSettle();
-
-      expect(analytics.events.toSet(), isA<Set<AnalyticsEvent>>());
-      for (final event in analytics.events) {
-        expect(AnalyticsEvent.values, contains(event));
-      }
+      expect(analytics.events, everyElement(isIn(AnalyticsEvent.values)));
     });
   });
 }

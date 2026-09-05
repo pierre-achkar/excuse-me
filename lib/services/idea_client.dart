@@ -11,6 +11,8 @@ class GeneratedIdea {
     this.playfulName,
     this.family,
     this.isPlaceholder = false,
+    this.toneDirections = const {},
+    this.selectedTone = ExcuseTone.lowKey,
   });
 
   final String idea;
@@ -18,6 +20,24 @@ class GeneratedIdea {
   final String? playfulName;
   final ExcuseFamily? family;
   final bool isPlaceholder;
+  final Map<ExcuseTone, String> toneDirections;
+  final ExcuseTone selectedTone;
+
+  String ideaForTone(ExcuseTone tone) {
+    return toneDirections[tone] ?? idea;
+  }
+
+  GeneratedIdea withTone(ExcuseTone tone) {
+    return GeneratedIdea(
+      idea: ideaForTone(tone),
+      kernelId: kernelId,
+      playfulName: playfulName,
+      family: family,
+      isPlaceholder: isPlaceholder,
+      toneDirections: toneDirections,
+      selectedTone: tone,
+    );
+  }
 }
 
 abstract class IdeaClient {
@@ -61,20 +81,32 @@ class LocalIdeaClient implements IdeaClient, DetailedIdeaClient {
           urgency: request.urgency,
           tone: request.tone,
         );
-    final result = _engine.generate(
-      structuredRequest,
-      previousKernelId: structuredRequest.selectionKey == _previousSelectionKey
-          ? _previousKernelId
-          : null,
-    );
+    final selectionKey = request.semanticFlow
+        ? structuredRequest.semanticSelectionKey
+        : structuredRequest.selectionKey;
+    final result = request.semanticFlow
+        ? _engine.generateSemantic(
+            structuredRequest,
+            previousKernelId: selectionKey == _previousSelectionKey
+                ? _previousKernelId
+                : null,
+          )
+        : _engine.generate(
+            structuredRequest,
+            previousKernelId: selectionKey == _previousSelectionKey
+                ? _previousKernelId
+                : null,
+          );
     _previousKernelId = result.kernelId;
-    _previousSelectionKey = structuredRequest.selectionKey;
+    _previousSelectionKey = selectionKey;
     return GeneratedIdea(
       idea: result.idea,
       kernelId: result.kernelId,
       playfulName: result.playfulName,
       family: result.family,
       isPlaceholder: result.isPlaceholder,
+      toneDirections: result.toneDirections,
+      selectedTone: result.selectedTone,
     );
   }
 }

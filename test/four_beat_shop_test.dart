@@ -1,7 +1,7 @@
 import 'package:excuse_me/app.dart';
+import 'package:flutter/material.dart';
 import 'package:excuse_me/domain/idea_request.dart';
 import 'package:excuse_me/services/idea_client.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _ConversationClient implements IdeaClient {
@@ -10,45 +10,62 @@ class _ConversationClient implements IdeaClient {
   @override
   Future<String> generate(IdeaRequest request) async {
     lastRequest = request;
-    return 'Placeholder: a concise low-detail direction.';
+    return 'Idea: keep the explanation low-detail.';
   }
 }
 
+Future<void> _choose(WidgetTester tester, String key) async {
+  final finder = find.byKey(ValueKey(key));
+  await tester.ensureVisible(finder);
+  await tester.tap(finder);
+  await tester.pump();
+}
+
 void main() {
-  testWidgets('shop conversation moves through four beats into a card', (
+  testWidgets('shop conversation follows v6 order into a collectible card', (
     tester,
   ) async {
     final client = _ConversationClient();
-    await tester.pumpWidget(ExcuseMeApp(client: client));
+    await tester.pumpWidget(
+      ExcuseMeApp(client: client, disableAnimations: true),
+    );
+
+    await _choose(tester, 'v6-entry-cta');
+    expect(find.byKey(const ValueKey('v6-step-intent')), findsOneWidget);
+    await _choose(tester, 'v6-intent-buyTime');
+    expect(find.byKey(const ValueKey('v6-step-action')), findsOneWidget);
+    await _choose(tester, 'v6-action-delay');
+    expect(find.byKey(const ValueKey('v6-step-context')), findsOneWidget);
+    await _choose(tester, 'v6-context-practical');
+    expect(find.byKey(const ValueKey('v6-step-timing')), findsOneWidget);
+    await _choose(tester, 'v6-timing-happeningNow');
+    expect(find.byKey(const ValueKey('v6-step-relationship')), findsOneWidget);
+    await _choose(tester, 'v6-relationship-close');
+    expect(find.byKey(const ValueKey('v6-step-obligation')), findsOneWidget);
+    await _choose(tester, 'v6-obligation-medium');
     await tester.pumpAndSettle();
 
-    Future<void> choose(String label) async {
-      final option = find.text(label);
-      await tester.ensureVisible(option);
-      await tester.pumpAndSettle();
-      await tester.tap(option);
-      await tester.pumpAndSettle();
-    }
+    expect(
+      find.byKey(const ValueKey('collectible-result-card')),
+      findsOneWidget,
+    );
+    expect(client.lastRequest?.semanticFlow, isTrue);
+    expect(client.lastRequest?.structuredRequest?.context.name, 'practical');
+  });
 
-    expect(find.text("What's the damage?"), findsOneWidget);
-    await choose("A dinner I can't face");
+  testWidgets('recovery action proceeds from context to relationship', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ExcuseMeApp(client: _ConversationClient(), disableAnimations: true),
+    );
 
-    expect(find.text("When's the reckoning?"), findsOneWidget);
-    await choose('Today');
+    await _choose(tester, 'v6-entry-cta');
+    await _choose(tester, 'v6-intent-recoverFromSituation');
+    await _choose(tester, 'v6-action-explainLateness');
+    await _choose(tester, 'v6-context-personal');
 
-    expect(find.text("Who's on the other end?"), findsOneWidget);
-    await choose('Someone close');
-
-    expect(find.text('How loud do you want this?'), findsOneWidget);
-    await choose('Nice text');
-    await tester.pump(const Duration(milliseconds: 450));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key('pixel-idea-card')), findsOneWidget);
-    expect(client.lastRequest, isNotNull);
-    expect(client.lastRequest!.structuredRequest!.context.name, 'dinner');
-    expect(client.lastRequest!.structuredRequest!.timing.name, 'today');
-    expect(client.lastRequest!.structuredRequest!.relationship.name, 'close');
-    expect(client.lastRequest!.structuredRequest!.tone.name, 'nice');
+    expect(find.byKey(const ValueKey('v6-step-timing')), findsNothing);
+    expect(find.byKey(const ValueKey('v6-step-relationship')), findsOneWidget);
   });
 }

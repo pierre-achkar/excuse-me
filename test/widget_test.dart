@@ -1,54 +1,54 @@
 import 'package:excuse_me/app.dart';
+import 'package:flutter/material.dart';
 import 'package:excuse_me/domain/idea_request.dart';
 import 'package:excuse_me/services/idea_client.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class FakeShopIdeaClient implements IdeaClient {
-  FakeShopIdeaClient(this.idea);
-
-  final String idea;
   bool called = false;
 
   @override
   Future<String> generate(IdeaRequest request) async {
     called = true;
-    return idea;
+    return 'Idea: keep the explanation low-detail.';
   }
 }
 
+Future<void> _choose(WidgetTester tester, String key) async {
+  final finder = find.byKey(ValueKey(key));
+  await tester.ensureVisible(finder);
+  await tester.tap(finder);
+  await tester.pump();
+}
+
 void main() {
-  testWidgets('excuse shop shows the conversation and result card', (
+  testWidgets('v6 app shows the shop conversation and result card', (
     tester,
   ) async {
-    final client = FakeShopIdeaClient(
-      'Idea: Use a simple capacity limit, keep the explanation low-detail, and offer a respectful alternative.',
+    final client = FakeShopIdeaClient();
+    await tester.pumpWidget(
+      ExcuseMeApp(client: client, disableAnimations: true),
     );
 
-    await tester.pumpWidget(ExcuseMeApp(client: client));
+    expect(find.text('I NEED AN EXCUSE'), findsOneWidget);
+    for (final key in [
+      'v6-entry-cta',
+      'v6-intent-getOutOfPlans',
+      'v6-action-cancel',
+      'v6-context-social',
+      'v6-timing-today',
+      'v6-relationship-casual',
+      'v6-obligation-low',
+    ]) {
+      await _choose(tester, key);
+    }
     await tester.pumpAndSettle();
 
-    expect(find.text('The Excuse Shop'), findsOneWidget);
-    expect(find.text("What's the damage?"), findsOneWidget);
-
-    for (final label in [
-      "A dinner I can't face",
-      'Today',
-      'Someone close',
-      'Nice text',
-    ]) {
-      final option = find.text(label);
-      await tester.ensureVisible(option);
-      await tester.pumpAndSettle();
-      await tester.tap(option);
-      await tester.pumpAndSettle();
-    }
-
     expect(client.called, isTrue);
-    expect(find.text('Your excuse'), findsOneWidget);
-    expect(find.byKey(const Key('pixel-idea-card')), findsOneWidget);
-    expect(find.text('Regenerate'), findsOneWidget);
-    expect(find.text('Copy'), findsOneWidget);
-    expect(find.text('Share'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('collectible-result-card')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('v6-copy-card')), findsOneWidget);
   });
 }

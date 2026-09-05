@@ -124,7 +124,10 @@ void main() {
           expect(fixture['expectFallback'], isTrue);
         }
         if (caseCoverage.contains('noReadyMessage')) {
-          expect(result.idea, startsWith('Placeholder:'));
+          expect(
+            result.idea,
+            startsWith(kernel.isPlaceholder ? 'Placeholder:' : 'Idea:'),
+          );
           expect(result.idea, isNot(contains('\n')));
           expect(IdeaSafetyPolicy.isSafeIdea(result.idea), isTrue);
           expect(

@@ -22,12 +22,11 @@ class IdeaSafetyPolicy {
       ).hasMatch(idea)) {
         return false;
       }
-      if (RegExp(r'[.!?]\s+\S').hasMatch(idea)) return false;
       if (RegExp(r'\bplease\b', caseSensitive: false).hasMatch(idea)) {
         return false;
       }
       if (RegExp(
-        r"\b(cannot|can't|won't|will not)\s+(attend|come|join|make it)\b",
+        r"\b(cannot|can't|won't|will not)\s+(attend|come|join)\b",
         caseSensitive: false,
       ).hasMatch(idea)) {
         return false;

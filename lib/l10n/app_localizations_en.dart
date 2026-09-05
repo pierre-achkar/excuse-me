@@ -261,6 +261,187 @@ class AppLocalizationsEn extends AppLocalizations {
   String get generationError => 'Unable to generate an idea. Please try again.';
 
   @override
+  String get entryCta => 'I NEED AN EXCUSE';
+
+  @override
+  String get dialogueIntent => 'Now then... what\'s the situation?';
+
+  @override
+  String get dialogueActionOut => 'Ah. An escape. What\'s the plan?';
+
+  @override
+  String get dialogueActionTime => 'Patience is a resource. What do you need?';
+
+  @override
+  String get dialogueActionRecover =>
+      'The ledger remembers. What needs explaining?';
+
+  @override
+  String get dialogueContext => 'Where is this trouble taking place?';
+
+  @override
+  String get dialogueTimingV6 => 'When does the clock start complaining?';
+
+  @override
+  String get dialogueRelationshipV6 => 'Who is waiting for an answer?';
+
+  @override
+  String get dialogueObligationV6 => 'How much does this one matter?';
+
+  @override
+  String get searchDialogue => 'Let me look through the shelves.';
+
+  @override
+  String get handoverDialogue => 'There. This one should do.';
+
+  @override
+  String get intentNeedOut => 'I NEED OUT';
+
+  @override
+  String get intentNeedMoreTime => 'I NEED MORE TIME';
+
+  @override
+  String get intentAlreadyMessedUp => 'I ALREADY MESSED UP';
+
+  @override
+  String get actionCancelSomething => 'Cancel something';
+
+  @override
+  String get actionSayNo => 'Say no';
+
+  @override
+  String get actionLeaveEarly => 'Leave early';
+
+  @override
+  String get actionReschedule => 'Reschedule';
+
+  @override
+  String get actionDelay => 'Delay the answer';
+
+  @override
+  String get actionAvoidCommitting => 'Avoid committing';
+
+  @override
+  String get actionExplainWhatHappened => 'Explain what happened';
+
+  @override
+  String get actionAskMoreTime => 'Ask for more time';
+
+  @override
+  String get actionAcknowledgeMiss => 'Acknowledge the miss';
+
+  @override
+  String get contextSocial => 'Social plans';
+
+  @override
+  String get contextPersonal => 'Personal life';
+
+  @override
+  String get contextWorkStudy => 'Work or study';
+
+  @override
+  String get contextPractical => 'A practical thing';
+
+  @override
+  String get timingHappeningNow => 'Happening now';
+
+  @override
+  String get relationshipClose => 'Someone close';
+
+  @override
+  String get relationshipCasual => 'Someone I know';
+
+  @override
+  String get relationshipFormal => 'Someone formal';
+
+  @override
+  String get obligationLow => 'Low stakes';
+
+  @override
+  String get obligationMedium => 'Somewhat important';
+
+  @override
+  String get obligationHigh => 'High stakes';
+
+  @override
+  String chooseIntent(String option) {
+    return 'Choose intent: $option';
+  }
+
+  @override
+  String chooseAction(String option) {
+    return 'Choose action: $option';
+  }
+
+  @override
+  String chooseContext(String option) {
+    return 'Choose context: $option';
+  }
+
+  @override
+  String chooseRelationshipV6(String option) {
+    return 'Choose relationship: $option';
+  }
+
+  @override
+  String chooseObligation(String option) {
+    return 'Choose obligation: $option';
+  }
+
+  @override
+  String tokenLabel(int current, int total) {
+    return 'Question $current of $total';
+  }
+
+  @override
+  String get searchingLabel => 'Excusee is searching the shop';
+
+  @override
+  String get rarityCommon => 'COMMON';
+
+  @override
+  String get cardIdeaLabel => 'THE IDEA';
+
+  @override
+  String cardNumber(String number) {
+    return 'No. $number';
+  }
+
+  @override
+  String get tonePromptV6 => 'The card is yours. How should it sound?';
+
+  @override
+  String get tonePlainV6 => 'Plain';
+
+  @override
+  String get toneWarmV6 => 'Warm';
+
+  @override
+  String get tonePlayfulV6 => 'Playful';
+
+  @override
+  String get keepCardButton => 'KEEP CARD';
+
+  @override
+  String get cardKept => 'KEPT FOR THIS VISIT';
+
+  @override
+  String get keepCardSemantics => 'Keep this card for this visit';
+
+  @override
+  String get toneChangeSemantics => 'Change the card tone';
+
+  @override
+  String outfitSemantics(String palette) {
+    return 'Excusee outfit: $palette';
+  }
+
+  @override
+  String ambientEventSemantics(String event) {
+    return 'Shop event: $event';
+  }
+
+  @override
   String get oldFormTitle => 'Excuse Me';
 
   @override

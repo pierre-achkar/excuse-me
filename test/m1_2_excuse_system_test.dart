@@ -1,4 +1,5 @@
 import 'package:excuse_me/app.dart';
+import 'package:flutter/material.dart';
 import 'package:excuse_me/data/curated_kernel_repository.dart';
 import 'package:excuse_me/domain/excuse_kernel.dart';
 import 'package:excuse_me/domain/idea_request.dart';
@@ -119,24 +120,31 @@ void main() {
     expect(result.kernelId, 'matching-metadata');
   });
 
-  test(
-    'curated kernels expose placeholders until the content database exists',
-    () {
-      final kernels = CuratedKernelRepository.englishAlpha().kernels;
-      final specificKernels = kernels.where((kernel) => !kernel.isFallback);
+  test('curated kernels expose approved directions and explicit fallback placeholders', () {
+    final kernels = CuratedKernelRepository.englishAlpha().kernels;
+    final specificKernels = kernels.where((kernel) => !kernel.isFallback);
+    final fallbackKernels = kernels.where((kernel) => kernel.isFallback);
 
-      expect(specificKernels, isNotEmpty);
-      expect(
-        specificKernels,
-        everyElement(
-          predicate<ExcuseKernel>((kernel) {
-            return kernel.isPlaceholder &&
-                kernel.ideaDirection.startsWith('Placeholder:');
-          }),
-        ),
-      );
-    },
-  );
+    expect(specificKernels, isNotEmpty);
+    expect(
+      specificKernels,
+      everyElement(
+        predicate<ExcuseKernel>((kernel) {
+          return !kernel.isPlaceholder &&
+              !kernel.ideaDirection.startsWith('Placeholder:');
+        }),
+      ),
+    );
+    expect(
+      fallbackKernels,
+      everyElement(
+        predicate<ExcuseKernel>((kernel) {
+          return kernel.isPlaceholder &&
+              kernel.ideaDirection.startsWith('Placeholder:');
+        }),
+      ),
+    );
+  });
 
   test('engine returns a family-aware placeholder result', () {
     const request = ExcuseRequest(
@@ -154,8 +162,8 @@ void main() {
         .generate(request);
 
     expect(result.family, ExcuseFamily.capacityWellbeing);
-    expect(result.isPlaceholder, isTrue);
-    expect(result.idea, startsWith('Placeholder:'));
+    expect(result.isPlaceholder, isFalse);
+    expect(result.idea, startsWith('Idea:'));
   });
 
   test('placeholder format does not bypass prohibited-claim checks', () {
@@ -167,33 +175,43 @@ void main() {
     );
   });
 
-  testWidgets('shop sends the typed M1.2 request to the idea client', (
+  testWidgets('shop sends the typed v6 request to the idea client', (
     tester,
   ) async {
     final client = _CapturingIdeaClient();
-    await tester.pumpWidget(ExcuseMeApp(client: client));
-    await tester.pumpAndSettle();
+    await tester.pumpWidget(
+      ExcuseMeApp(client: client, disableAnimations: true),
+    );
 
-    Future<void> choose(String label) async {
-      final option = find.text(label);
+    Future<void> choose(String key) async {
+      final option = find.byKey(ValueKey(key));
       await tester.ensureVisible(option);
       await tester.tap(option);
-      await tester.pumpAndSettle();
+      await tester.pump();
     }
 
-    await choose("A dinner I can't face");
-    await choose('Today');
-    await choose('Someone close');
-    await choose('Nice text');
+    for (final key in [
+      'v6-entry-cta',
+      'v6-intent-getOutOfPlans',
+      'v6-action-cancel',
+      'v6-context-social',
+      'v6-timing-today',
+      'v6-relationship-casual',
+      'v6-obligation-medium',
+    ]) {
+      await choose(key);
+    }
+    await tester.pumpAndSettle();
 
     final request = client.request!.structuredRequest!;
     expect(request.intent, ExcuseIntent.getOutOfPlans);
     expect(request.action, ExcuseAction.cancel);
     expect(request.timing, ExcuseTiming.today);
-    expect(request.relationship, RelationshipKind.close);
-    expect(request.obligation, ObligationLevel.expected);
-    expect(request.context, ExcuseContext.dinner);
-    expect(request.tone, ExcuseTone.nice);
+    expect(request.relationship, RelationshipKind.casual);
+    expect(request.obligation, ObligationLevel.medium);
+    expect(request.context, ExcuseContext.social);
+    expect(request.tone, ExcuseTone.lowKey);
     expect(request.family, isNull);
+    expect(client.request!.semanticFlow, isTrue);
   });
 }

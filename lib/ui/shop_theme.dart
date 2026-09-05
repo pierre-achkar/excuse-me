@@ -81,6 +81,7 @@ class ShopTheme {
         elevation: 0,
         centerTitle: false,
         titleTextStyle: TextStyle(
+          fontFamily: 'InterTight',
           fontSize: 20,
           height: 1.3,
           fontWeight: FontWeight.w500,
@@ -95,6 +96,7 @@ class ShopTheme {
           color: primaryText,
         ),
         titleLarge: TextStyle(
+          fontFamily: 'InterTight',
           fontSize: 20,
           height: 1.3,
           fontWeight: FontWeight.w500,
@@ -129,7 +131,7 @@ class ShopTheme {
           fontWeight: FontWeight.w400,
           color: secondaryText,
         ),
-      ),
+      ).apply(fontFamily: 'InterTight'),
       cardTheme: CardThemeData(
         color: surface,
         elevation: 0,

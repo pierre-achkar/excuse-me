@@ -15,7 +15,7 @@ void main() {
       final idea = LocalIdeaGenerator().generate(request);
 
       expect(IdeaGuardrails.isSafeIdea(idea), isTrue);
-      expect(idea, startsWith('Placeholder:'));
+      expect(idea, startsWith('Idea:'));
       expect(
         idea,
         isNot(

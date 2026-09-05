@@ -5,75 +5,69 @@ import 'package:flutter_test/flutter_test.dart';
 
 class _DesignIdeaClient implements IdeaClient {
   @override
-  Future<String> generate(request) async => 'Placeholder: design test idea.';
+  Future<String> generate(request) async =>
+      'Idea: The claim stays brief and leaves room for a clear answer.';
+}
+
+Future<void> _completeV6Conversation(WidgetTester tester) async {
+  for (final key in [
+    'v6-entry-cta',
+    'v6-intent-getOutOfPlans',
+    'v6-action-cancel',
+    'v6-context-social',
+    'v6-timing-today',
+    'v6-relationship-casual',
+    'v6-obligation-low',
+  ]) {
+    final option = find.byKey(ValueKey(key));
+    await tester.ensureVisible(option);
+    await tester.tap(option);
+    await tester.pump();
+  }
+  await tester.pumpAndSettle();
 }
 
 void main() {
-  testWidgets('shop applies the supplied two-layer design system', (
+  testWidgets('shop applies the v6 shop scene and entry contract', (
     tester,
   ) async {
-    await tester.pumpWidget(ExcuseMeApp(client: _DesignIdeaClient()));
+    await tester.pumpWidget(
+      ExcuseMeApp(client: _DesignIdeaClient(), disableAnimations: true),
+    );
     await tester.pumpAndSettle();
 
     final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
     expect(materialApp.theme!.scaffoldBackgroundColor, const Color(0xFFFBFAF7));
     expect(find.byKey(const Key('shopkeeper-stage')), findsOneWidget);
-    expect(find.byKey(const Key('shopkeeper-sprite')), findsOneWidget);
-    expect(find.byKey(const Key('reaction-chip-dinner')), findsOneWidget);
+    expect(find.byKey(const Key('shopkeeper-avatar')), findsOneWidget);
+    expect(find.byKey(const Key('v6-entry-cta')), findsOneWidget);
   });
 
-  testWidgets('card reveal uses a stepped visible transition', (tester) async {
-    await tester.pumpWidget(ExcuseMeApp(client: _DesignIdeaClient()));
-    await tester.pumpAndSettle();
-
-    for (final label in [
-      "A dinner I can't face",
-      'Today',
-      'Someone close',
-      'Nice text',
-    ]) {
-      final option = find.text(label);
-      await tester.ensureVisible(option);
-      await tester.pumpAndSettle();
-      await tester.tap(option);
-      await tester.pump();
-    }
-
-    await tester.pump(const Duration(milliseconds: 350));
-    await tester.pump();
-
-    final opacity = find.ancestor(
-      of: find.byKey(const Key('pixel-idea-card')),
-      matching: find.byType(Opacity),
-    );
-    expect(opacity, findsOneWidget);
-    expect(tester.widget<Opacity>(opacity).opacity, lessThan(1));
-
-    await tester.pump(const Duration(milliseconds: 450));
-    expect(tester.widget<Opacity>(opacity).opacity, 1);
-  });
-
-  testWidgets('result uses the pixel collectible card structure', (
+  testWidgets('v6 search hands over to the collectible result card', (
     tester,
   ) async {
-    await tester.pumpWidget(ExcuseMeApp(client: _DesignIdeaClient()));
-    await tester.pumpAndSettle();
+    await tester.pumpWidget(
+      ExcuseMeApp(client: _DesignIdeaClient(), disableAnimations: true),
+    );
 
-    for (final label in [
-      "A dinner I can't face",
-      'Today',
-      'Someone close',
-      'Nice text',
-    ]) {
-      final option = find.text(label);
-      await tester.ensureVisible(option);
-      await tester.pumpAndSettle();
-      await tester.tap(option);
-      await tester.pumpAndSettle();
-    }
+    await _completeV6Conversation(tester);
 
-    expect(find.byKey(const Key('pixel-idea-card')), findsOneWidget);
-    expect(find.text('the claim'), findsOneWidget);
+    expect(find.byKey(const Key('v6-result')), findsOneWidget);
+    expect(find.byKey(const Key('collectible-result-card')), findsOneWidget);
+    expect(find.text('THE IDEA'), findsOneWidget);
+  });
+
+  testWidgets('v6 result uses the pixel collectible card structure', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ExcuseMeApp(client: _DesignIdeaClient(), disableAnimations: true),
+    );
+
+    await _completeV6Conversation(tester);
+
+    expect(find.byKey(const Key('collectible-result-card')), findsOneWidget);
+    expect(find.byKey(const Key('card-idea-body')), findsOneWidget);
     expect(find.byKey(const Key('pixel-card-art')), findsOneWidget);
   });
 }

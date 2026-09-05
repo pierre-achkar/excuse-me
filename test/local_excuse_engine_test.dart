@@ -30,8 +30,8 @@ void main() {
     expect(kernel.obligations, contains(request.obligation));
     expect(kernel.contexts, contains(request.context));
     expect(kernel.tones, contains(request.tone));
-    expect(result.isPlaceholder, kernel.isPlaceholder);
-    expect(result.idea, startsWith('Placeholder:'));
+    expect(result.isPlaceholder, isFalse);
+    expect(result.idea, startsWith('Idea:'));
   });
 
   test('regeneration excludes the immediately previous kernel', () {

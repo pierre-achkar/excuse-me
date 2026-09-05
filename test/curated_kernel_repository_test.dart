@@ -33,10 +33,21 @@ void main() {
       kernels.expand((kernel) => kernel.tones).toSet(),
       containsAll(ExcuseTone.values),
     );
-    expect(kernels.every((kernel) => kernel.isPlaceholder), isTrue);
+    final specific = kernels.where((kernel) => !kernel.isFallback);
+    final fallbacks = kernels.where((kernel) => kernel.isFallback);
     expect(
-      kernels.every(
-        (kernel) => kernel.ideaDirection.startsWith('Placeholder:'),
+      specific.every(
+        (kernel) =>
+            !kernel.isPlaceholder &&
+            !kernel.ideaDirection.startsWith('Placeholder:'),
+      ),
+      isTrue,
+    );
+    expect(
+      fallbacks.every(
+        (kernel) =>
+            kernel.isPlaceholder &&
+            kernel.ideaDirection.startsWith('Placeholder:'),
       ),
       isTrue,
     );

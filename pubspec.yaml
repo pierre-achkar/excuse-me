@@ -60,6 +60,14 @@ flutter:
   assets:
     - assets/design/shop-owner-sprite.png
 
+  fonts:
+    - family: PressStart2P
+      fonts:
+        - asset: assets/fonts/PressStart2P-Regular.ttf
+    - family: InterTight
+      fonts:
+        - asset: assets/fonts/InterTight[wght].ttf
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
