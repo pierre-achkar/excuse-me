@@ -12,6 +12,7 @@ void main() {
       ShopFlowStage.timing,
       ShopFlowStage.relationship,
       ShopFlowStage.obligation,
+      ShopFlowStage.visitContext,
       ShopFlowStage.search,
       ShopFlowStage.result,
       ShopFlowStage.error,

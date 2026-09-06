@@ -60,6 +60,11 @@ Future<void> completeV6Conversation(
   await _tapKey(tester, 'v6-obligation-low');
   if (settleFinal) {
     await tester.pumpAndSettle();
+    final reveal = find.byKey(const ValueKey('card-viewer-continue'));
+    if (reveal.evaluate().isNotEmpty) {
+      await tester.tap(reveal);
+      await tester.pumpAndSettle();
+    }
   }
 }
 
@@ -150,6 +155,11 @@ void main() {
       await _tapKey(tester, 'v6-relationship-formal');
       await _tapKey(tester, 'v6-obligation-high');
       await tester.pumpAndSettle();
+      final reveal = find.byKey(const ValueKey('card-viewer-continue'));
+      if (reveal.evaluate().isNotEmpty) {
+        await tester.tap(reveal);
+        await tester.pumpAndSettle();
+      }
 
       final request = client.receivedRequests.single.structuredRequest!;
       expect(request.timing.name, 'alreadyHappened');
@@ -169,6 +179,11 @@ void main() {
 
       await tester.pump(const Duration(seconds: 2));
       await tester.pumpAndSettle();
+      final reveal = find.byKey(const ValueKey('card-viewer-continue'));
+      if (reveal.evaluate().isNotEmpty) {
+        await tester.tap(reveal);
+        await tester.pumpAndSettle();
+      }
       expect(
         find.byKey(const ValueKey('collectible-result-card')),
         findsOneWidget,

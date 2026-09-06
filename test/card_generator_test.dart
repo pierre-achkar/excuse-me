@@ -67,10 +67,14 @@ void main() {
       'v6-back',
       'v6-back',
     ]) {
-      await tester.tap(find.byKey(ValueKey(key)));
+      final finder = find.byKey(ValueKey(key));
+      await tester.ensureVisible(finder);
+      await tester.tap(finder);
       await tester.pumpAndSettle();
     }
-    await tester.tap(find.byKey(const ValueKey('v6-intent-buyTime')));
+    final newIntent = find.byKey(const ValueKey('v6-intent-buyTime'));
+    await tester.ensureVisible(newIntent);
+    await tester.tap(newIntent);
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('v6-action-cancel')), findsNothing);
     expect(find.byKey(const ValueKey('v6-action-delay')), findsOneWidget);

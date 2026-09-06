@@ -53,16 +53,25 @@ void main() {
     await tester.pump();
     expect(find.text('When does the clock start complaining?'), findsOneWidget);
 
-    await tester.tap(find.byKey(const ValueKey('v6-timing-today')));
+    final timing = find.byKey(const ValueKey('v6-timing-today'));
+    await tester.ensureVisible(timing);
+    await tester.tap(timing);
     await tester.pump();
     expect(find.text('Who is waiting for an answer?'), findsOneWidget);
 
-    await tester.tap(find.byKey(const ValueKey('v6-relationship-casual')));
+    final relationship = find.byKey(const ValueKey('v6-relationship-casual'));
+    await tester.ensureVisible(relationship);
+    await tester.tap(relationship);
     await tester.pump();
     expect(find.text('How much does this one matter?'), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('v6-obligation-low')));
     await tester.pumpAndSettle();
+    final reveal = find.byKey(const ValueKey('card-viewer-continue'));
+    if (reveal.evaluate().isNotEmpty) {
+      await tester.tap(reveal);
+      await tester.pumpAndSettle();
+    }
 
     expect(
       find.byKey(const ValueKey('collectible-result-card')),
