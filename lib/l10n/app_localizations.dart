@@ -493,7 +493,7 @@ abstract class AppLocalizations {
   /// Badge label inside the result card.
   ///
   /// In en, this message translates to:
-  /// **'COLLECTIBLE IDEA'**
+  /// **'Collectible idea'**
   String get collectibleIdeaBadge;
 
   /// Label for the regenerate button.
@@ -559,7 +559,7 @@ abstract class AppLocalizations {
   /// Direct primary action that enters the shop conversation.
   ///
   /// In en, this message translates to:
-  /// **'I NEED AN EXCUSE'**
+  /// **'I need an excuse'**
   String get entryCta;
 
   /// Question for the intent beat.
@@ -625,19 +625,19 @@ abstract class AppLocalizations {
   /// Intent choice: get out of plans.
   ///
   /// In en, this message translates to:
-  /// **'I NEED OUT'**
+  /// **'I need out'**
   String get intentNeedOut;
 
   /// Intent choice: buy time.
   ///
   /// In en, this message translates to:
-  /// **'I NEED MORE TIME'**
+  /// **'I need more time'**
   String get intentNeedMoreTime;
 
   /// Intent choice: recover from a situation.
   ///
   /// In en, this message translates to:
-  /// **'I ALREADY MESSED UP'**
+  /// **'I already messed up'**
   String get intentAlreadyMessedUp;
 
   /// Action choice for getting out of plans.
@@ -805,13 +805,13 @@ abstract class AppLocalizations {
   /// Rarity badge for the first curated card tier.
   ///
   /// In en, this message translates to:
-  /// **'COMMON'**
+  /// **'Common'**
   String get rarityCommon;
 
   /// Label above the atomic idea on the card.
   ///
   /// In en, this message translates to:
-  /// **'THE IDEA'**
+  /// **'The idea'**
   String get cardIdeaLabel;
 
   /// Collection number shown on the card.
@@ -847,13 +847,13 @@ abstract class AppLocalizations {
   /// Temporary local keep action without persistence.
   ///
   /// In en, this message translates to:
-  /// **'KEEP CARD'**
+  /// **'Keep card'**
   String get keepCardButton;
 
   /// Temporary confirmation after keeping a card.
   ///
   /// In en, this message translates to:
-  /// **'KEPT FOR THIS VISIT'**
+  /// **'Kept for this visit'**
   String get cardKept;
 
   /// Semantics label for the temporary keep action.

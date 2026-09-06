@@ -126,7 +126,7 @@ class CollectionPage extends StatelessWidget {
           FilledButton(
             key: const ValueKey('collection-retry'),
             onPressed: onRetry,
-            child: const Text('RETRY'),
+            child: const Text('Retry'),
           ),
         ],
       ),

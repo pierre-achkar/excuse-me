@@ -30,7 +30,7 @@ void main() {
       ExcuseMeApp(client: client, disableAnimations: true),
     );
 
-    expect(find.text('I NEED AN EXCUSE'), findsOneWidget);
+    expect(find.text('I need an excuse'), findsOneWidget);
     for (final key in [
       'v6-entry-cta',
       'v6-intent-getOutOfPlans',

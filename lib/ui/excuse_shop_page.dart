@@ -639,7 +639,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 const Text(
-                                  'EXCUSEE',
+                                  'Excusee',
                                   style: TextStyle(
                                     fontFamily: 'PressStart2P',
                                     fontSize: 8,
@@ -1061,10 +1061,10 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           onPressed: _kept || _saving ? null : _keepCard,
           child: Text(
             _saving
-                ? 'SAVING…'
+                ? 'Saving…'
                 : _kept
-                ? 'SAVED TO COLLECTION'
-                : 'KEEP CARD',
+                ? 'Saved to collection'
+                : 'Keep card',
           ),
         ),
         const SizedBox(height: 10),
@@ -1072,7 +1072,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           key: const ValueKey('v6-another-card'),
           onPressed: _saving ? null : _anotherCard,
           icon: const Icon(Icons.style_outlined, size: 18),
-          label: const Text('ANOTHER ONE'),
+          label: const Text('Another one'),
         ),
         KeyedSubtree(
           key: const ValueKey('v6-share-card'),
@@ -1085,7 +1085,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.ios_share, size: 18),
-            label: const Text('SHARE'),
+            label: const Text('Share'),
           ),
         ),
         const SizedBox(height: 8),
@@ -1106,7 +1106,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
         TextButton(
           key: const ValueKey('v6-new-excuse'),
           onPressed: _restart,
-          child: const Text('NEW EXCUSE'),
+          child: const Text('New excuse'),
         ),
       ],
     );
@@ -1164,10 +1164,10 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           onPressed: _kept || _saving ? null : _keepCard,
           child: Text(
             _saving
-                ? 'SAVING…'
+                ? 'Saving…'
                 : _kept
-                ? 'SAVED TO COLLECTION'
-                : 'KEEP CARD',
+                ? 'Saved to collection'
+                : 'Keep card',
           ),
         ),
         const SizedBox(height: 10),
@@ -1175,7 +1175,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           key: const ValueKey('v6-another-card'),
           onPressed: _saving ? null : _anotherCard,
           icon: const Icon(Icons.style_outlined, size: 18),
-          label: const Text('TRY ANOTHER ONE'),
+          label: const Text('Try another one'),
         ),
         KeyedSubtree(
           key: const ValueKey('v6-share-card'),
@@ -1188,13 +1188,13 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.ios_share, size: 18),
-            label: const Text('SHARE'),
+            label: const Text('Share'),
           ),
         ),
         TextButton(
           key: const ValueKey('v6-new-excuse'),
           onPressed: _restart,
-          child: const Text('NEW EXCUSE'),
+          child: const Text('New excuse'),
         ),
       ],
     );
@@ -1218,7 +1218,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(height: 14),
-        FilledButton(onPressed: _restart, child: const Text('START AGAIN')),
+        FilledButton(onPressed: _restart, child: const Text('Start again')),
       ],
     );
   }

@@ -59,7 +59,7 @@ void main() {
 
     expect(find.byKey(const Key('v6-result')), findsOneWidget);
     expect(find.byKey(const Key('collectible-result-card')), findsOneWidget);
-    expect(find.text('THE IDEA'), findsOneWidget);
+    expect(find.text('The idea'), findsOneWidget);
   });
 
   testWidgets('v6 result uses the pixel collectible card structure', (

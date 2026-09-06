@@ -36,7 +36,7 @@ void main() {
       ExcuseMeApp(client: _V6Client(), disableAnimations: true),
     );
 
-    expect(find.text('I NEED AN EXCUSE'), findsOneWidget);
+    expect(find.text('I need an excuse'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('v6-entry-cta')));
     await tester.pump();
     expect(find.text("Now then... what's the situation?"), findsOneWidget);
@@ -77,12 +77,12 @@ void main() {
       find.byKey(const ValueKey('collectible-result-card')),
       findsOneWidget,
     );
-    expect(find.text('THE IDEA'), findsOneWidget);
-    expect(find.text('KEEP CARD'), findsOneWidget);
+    expect(find.text('The idea'), findsOneWidget);
+    expect(find.text('Keep card'), findsOneWidget);
 
     await tester.ensureVisible(find.byKey(const ValueKey('v6-keep-card')));
     await tester.tap(find.byKey(const ValueKey('v6-keep-card')));
     await tester.pumpAndSettle();
-    expect(find.text('SAVED TO COLLECTION'), findsOneWidget);
+    expect(find.text('Saved to collection'), findsOneWidget);
   });
 }

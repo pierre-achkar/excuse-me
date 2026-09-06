@@ -226,7 +226,7 @@
   "repairDirectionPending": "A small repair direction is available for you to phrase in your own words.",
   "@repairDirectionPending": { "description": "Non-sendable placeholder copy for the optional repair direction." },
 
-  "collectibleIdeaBadge": "COLLECTIBLE IDEA",
+  "collectibleIdeaBadge": "Collectible idea",
   "@collectibleIdeaBadge": { "description": "Badge label inside the result card." },
 
   "regenerateButton": "Regenerate",
@@ -259,7 +259,7 @@
   "generationError": "Unable to generate an idea. Please try again.",
   "@generationError": { "description": "Inline error message when generation fails." },
 
-  "entryCta": "I NEED AN EXCUSE",
+  "entryCta": "I need an excuse",
   "@entryCta": { "description": "Direct primary action that enters the shop conversation." },
 
   "dialogueIntent": "Now then... what's the situation?",
@@ -292,13 +292,13 @@
   "handoverDialogue": "There. This one should do.",
   "@handoverDialogue": { "description": "Shopkeeper line when handing over a card." },
 
-  "intentNeedOut": "I NEED OUT",
+  "intentNeedOut": "I need out",
   "@intentNeedOut": { "description": "Intent choice: get out of plans." },
 
-  "intentNeedMoreTime": "I NEED MORE TIME",
+  "intentNeedMoreTime": "I need more time",
   "@intentNeedMoreTime": { "description": "Intent choice: buy time." },
 
-  "intentAlreadyMessedUp": "I ALREADY MESSED UP",
+  "intentAlreadyMessedUp": "I already messed up",
   "@intentAlreadyMessedUp": { "description": "Intent choice: recover from a situation." },
 
   "actionCancelSomething": "Cancel something",
@@ -403,10 +403,10 @@
   "searchingLabel": "Excusee is searching the shop",
   "@searchingLabel": { "description": "Accessibility label for the search choreography." },
 
-  "rarityCommon": "COMMON",
+  "rarityCommon": "Common",
   "@rarityCommon": { "description": "Rarity badge for the first curated card tier." },
 
-  "cardIdeaLabel": "THE IDEA",
+  "cardIdeaLabel": "The idea",
   "@cardIdeaLabel": { "description": "Label above the atomic idea on the card." },
 
   "cardNumber": "No. {number}",
@@ -427,10 +427,10 @@
   "tonePlayfulV6": "Playful",
   "@tonePlayfulV6": { "description": "Post-result playful tone choice." },
 
-  "keepCardButton": "KEEP CARD",
+  "keepCardButton": "Keep card",
   "@keepCardButton": { "description": "Temporary local keep action without persistence." },
 
-  "cardKept": "KEPT FOR THIS VISIT",
+  "cardKept": "Kept for this visit",
   "@cardKept": { "description": "Temporary confirmation after keeping a card." },
 
   "keepCardSemantics": "Keep this card for this visit",

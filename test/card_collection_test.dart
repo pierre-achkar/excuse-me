@@ -75,7 +75,7 @@ void main() {
       await tester.scrollUntilVisible(keep, 300, scrollable: keepScroll);
       await tester.tap(keep);
       await tester.pumpAndSettle();
-      expect(find.text('SAVED TO COLLECTION'), findsOneWidget);
+      expect(find.text('Saved to collection'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('open-collection')));
       await tester.pumpAndSettle();
       expect(find.text('Collection · 1'), findsOneWidget);
