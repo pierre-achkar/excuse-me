@@ -43,6 +43,11 @@ void main() {
       await _choose(tester, key);
     }
     await tester.pumpAndSettle();
+    final reveal = find.byKey(const ValueKey('card-viewer-continue'));
+    if (reveal.evaluate().isNotEmpty) {
+      await tester.tap(reveal);
+      await tester.pumpAndSettle();
+    }
 
     expect(client.called, isTrue);
     expect(

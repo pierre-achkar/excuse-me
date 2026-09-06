@@ -48,17 +48,32 @@ void main() {
       final store = CardCollection();
       await store.load();
       expect(store.cards, isEmpty);
-      await tester.ensureVisible(find.byKey(const ValueKey('v6-another-card')));
-      await tester.tap(find.byKey(const ValueKey('v6-another-card')));
+      final another = find.byKey(const ValueKey('v6-another-card'));
+      final shopScroll = find
+          .ancestor(of: another, matching: find.byType(Scrollable))
+          .first;
+      await tester.scrollUntilVisible(another, 300, scrollable: shopScroll);
+      await tester.tap(another);
       await tester.pumpAndSettle();
+      final alternativeReveal = find.byKey(
+        const ValueKey('card-viewer-continue'),
+      );
+      if (alternativeReveal.evaluate().isNotEmpty) {
+        await tester.tap(alternativeReveal);
+        await tester.pumpAndSettle();
+      }
       expect(client.requests.length, 2);
       expect(
         client.requests[0].structuredRequest!.semanticSelectionKey,
         client.requests[1].structuredRequest!.semanticSelectionKey,
       );
       expect(find.text('Card 2'), findsOneWidget);
-      await tester.ensureVisible(find.byKey(const ValueKey('v6-keep-card')));
-      await tester.tap(find.byKey(const ValueKey('v6-keep-card')));
+      final keep = find.byKey(const ValueKey('v6-keep-card'));
+      final keepScroll = find
+          .ancestor(of: keep, matching: find.byType(Scrollable))
+          .first;
+      await tester.scrollUntilVisible(keep, 300, scrollable: keepScroll);
+      await tester.tap(keep);
       await tester.pumpAndSettle();
       expect(find.text('SAVED TO COLLECTION'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('open-collection')));

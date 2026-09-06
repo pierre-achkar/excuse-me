@@ -1,4 +1,5 @@
 import '../domain/excuse_request.dart';
+import '../domain/user_profile.dart';
 
 class ShopMission {
   const ShopMission({
@@ -590,6 +591,8 @@ ExcuseRequest requestForV6Selections({
   ShopTimingOption? timing,
   required ShopRelationshipOption relationship,
   required ShopObligationOption obligation,
+  UserProfile profile = const UserProfile.empty(),
+  CurrentVisitContext currentVisitContext = const CurrentVisitContext.skip(),
 }) {
   final resolvedTiming = timing?.timing ?? ExcuseTiming.alreadyHappened;
   return ExcuseRequest(
@@ -609,6 +612,8 @@ ExcuseRequest requestForV6Selections({
         )
         ? RepairOption.briefApology
         : RepairOption.none,
+    profile: profile,
+    currentVisitContext: currentVisitContext,
   );
 }
 

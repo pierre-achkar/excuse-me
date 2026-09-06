@@ -7,10 +7,12 @@ import '../analytics/analytics_client.dart';
 import '../domain/excuse_request.dart';
 import '../domain/idea_request.dart';
 import '../domain/shop_selection.dart';
+import '../domain/user_profile.dart';
 import '../l10n/app_localizations.dart';
 import '../services/idea_client.dart';
 import '../services/shop_flow_controller.dart';
 import 'shop_theme.dart';
+import 'card_viewer.dart';
 import 'excuse_card.dart';
 import 'collection_page.dart';
 import '../services/card_collection.dart';
@@ -22,20 +24,36 @@ class ExcuseShopPage extends StatefulWidget {
     required this.client,
     this.analytics = const NoOpAnalyticsClient(),
     this.disableAnimations = false,
+    this.collection,
+    this.profile = const UserProfile.empty(),
+    this.onCollectionChanged,
+    this.onOpenCollection,
+    this.onShareCard,
+    this.navigationVersion = 0,
+    this.showInternalNavigation = true,
   });
 
   final IdeaClient client;
   final AnalyticsClient analytics;
   final bool disableAnimations;
+  final CardCollection? collection;
+  final UserProfile profile;
+  final VoidCallback? onCollectionChanged;
+  final VoidCallback? onOpenCollection;
+  final CardViewerShareCallback? onShareCard;
+  final int navigationVersion;
+  final bool showInternalNavigation;
 
   @override
-  State<ExcuseShopPage> createState() => _ExcuseShopPageState();
+  State<ExcuseShopPage> createState() => ExcuseShopPageState();
 }
 
-class _ExcuseShopPageState extends State<ExcuseShopPage>
+class ExcuseShopPageState extends State<ExcuseShopPage>
     with WidgetsBindingObserver {
-  final CardCollection _collection = CardCollection();
+  late final CardCollection _collection;
   bool _saving = false;
+  bool _sharing = false;
+  final GlobalKey _resultRepaintBoundaryKey = GlobalKey();
   final ScrollController _scroll = ScrollController();
   final ShopFlowController _controller = ShopFlowController();
 
@@ -50,15 +68,50 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
   ExcuseRequest? _request;
   GeneratedIdea? _idea;
   bool _kept = false;
+  bool _alternativeRequested = false;
+  bool _alternativeFailed = false;
   bool _wasInactive = false;
+  bool _shopActive = true;
   Object? _error;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _collection = widget.collection ?? CardCollection();
     _session = _controller.startSession();
     widget.analytics.record(AnalyticsEvent.appOpen);
+  }
+
+  void cancelPendingGeneration() {
+    if (mounted) _cancelGenerationOnLeave();
+  }
+
+  void _cancelGenerationOnLeave() {
+    _controller.cancelPending();
+    if (_stage == ShopFlowStage.search) {
+      setState(() {
+        _error = StateError('Generation cancelled when leaving Shop.');
+        _stage = ShopFlowStage.error;
+        _alternativeRequested = false;
+        _alternativeFailed = false;
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final active = TickerMode.valuesOf(context).enabled;
+    if (_shopActive && !active) _cancelGenerationOnLeave();
+    _shopActive = active;
+  }
+
+  @override
+  void didUpdateWidget(covariant ExcuseShopPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.navigationVersion == widget.navigationVersion) return;
+    _cancelGenerationOnLeave();
   }
 
   @override
@@ -96,6 +149,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
         ShopFlowStage.timing,
       ShopFlowStage.relationship,
       ShopFlowStage.obligation,
+      ShopFlowStage.visitContext,
     ];
     final index = path.indexOf(_stage);
     final target = index > 0 ? path[index - 1] : ShopFlowStage.obligation;
@@ -188,9 +242,64 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       timing: _timing,
       relationship: relationship,
       obligation: value,
+      profile: widget.profile,
+      currentVisitContext: const CurrentVisitContext.skip(),
     );
+    final askForVisitContext = _shouldAskForVisitContext;
     setState(() {
       _obligation = value;
+      _request = askForVisitContext ? null : request;
+      _stage = askForVisitContext
+          ? ShopFlowStage.visitContext
+          : ShopFlowStage.search;
+    });
+    if (!askForVisitContext) _brew(request);
+  }
+
+  bool get _shouldAskForVisitContext =>
+      widget.profile.hasChildren == ProfileYesNo.yes ||
+      widget.profile.caregiving == ProfileYesNo.yes;
+
+  List<CurrentVisitResponsibility> get _relevantVisitResponsibilities {
+    final values = <CurrentVisitResponsibility>[];
+    if (widget.profile.hasChildren == ProfileYesNo.yes) {
+      values.add(CurrentVisitResponsibility.childcare);
+    }
+    if (widget.profile.caregiving == ProfileYesNo.yes) {
+      values.add(CurrentVisitResponsibility.anotherCaregivingResponsibility);
+    }
+    if (widget.profile.workStudyStatusIsKnown) {
+      values.add(CurrentVisitResponsibility.existingCommitment);
+    }
+    values.add(CurrentVisitResponsibility.needingRest);
+    return values;
+  }
+
+  void _selectVisitContext(CurrentVisitContext value) {
+    _resetScroll();
+    final intent = _intent;
+    final action = _action;
+    final context = _context;
+    final relationship = _relationship;
+    final obligation = _obligation;
+    if (intent == null ||
+        action == null ||
+        context == null ||
+        relationship == null ||
+        obligation == null) {
+      return;
+    }
+    final request = requestForV6Selections(
+      intent: intent,
+      action: action,
+      context: context,
+      timing: _timing,
+      relationship: relationship,
+      obligation: obligation,
+      profile: widget.profile,
+      currentVisitContext: value,
+    );
+    setState(() {
       _request = request;
     });
     _brew(request);
@@ -198,6 +307,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
 
   Future<void> _brew(ExcuseRequest request) async {
     final ticket = _controller.beginOperation();
+    final isAlternative = _alternativeRequested;
     _resetScroll();
     setState(() {
       _stage = ShopFlowStage.search;
@@ -210,6 +320,8 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       await Future<void>.delayed(const Duration(milliseconds: 650));
     }
 
+    if (!mounted || !_controller.accepts(ticket)) return;
+
     try {
       final idea = await generateDetailedIdea(
         widget.client,
@@ -219,13 +331,31 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       setState(() {
         _idea = idea;
         _stage = ShopFlowStage.result;
+        _alternativeRequested = false;
+        _alternativeFailed = false;
         _resetScroll();
       });
       widget.analytics.record(AnalyticsEvent.generationCompleted);
+      if (!mounted || !_controller.accepts(ticket)) return;
+      await Navigator.of(context).push<void>(
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          builder: (_) => CardViewerPage(
+            idea: idea,
+            mode: CardViewerMode.reveal,
+            disableAnimations:
+                widget.disableAnimations ||
+                MediaQuery.of(context).disableAnimations,
+            onShare: widget.onShareCard,
+          ),
+        ),
+      );
     } catch (error) {
       if (!mounted || !_controller.accepts(ticket)) return;
       setState(() {
         _error = error;
+        _alternativeRequested = false;
+        _alternativeFailed = isAlternative;
         _stage = ShopFlowStage.error;
       });
     }
@@ -245,6 +375,8 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       _request = null;
       _idea = null;
       _kept = false;
+      _alternativeRequested = false;
+      _alternativeFailed = false;
       _error = null;
     });
   }
@@ -259,6 +391,7 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       setState(() {
         if (identical(_idea, idea)) _kept = true;
       });
+      widget.onCollectionChanged?.call();
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -273,6 +406,11 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
   }
 
   Future<void> _openCollection() async {
+    final onOpenCollection = widget.onOpenCollection;
+    if (onOpenCollection != null) {
+      onOpenCollection();
+      return;
+    }
     try {
       await _collection.load();
       if (!mounted) return;
@@ -293,7 +431,10 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
   }
 
   void _anotherCard() {
-    if (_request != null && !_saving && _stage == ShopFlowStage.result) {
+    if (_request != null &&
+        !_saving &&
+        (_stage == ShopFlowStage.result || _alternativeFailed)) {
+      _alternativeRequested = true;
       _brew(_request!);
     }
   }
@@ -303,6 +444,32 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
     if (idea == null) return;
     await Clipboard.setData(ClipboardData(text: idea.idea));
     widget.analytics.record(AnalyticsEvent.copy);
+  }
+
+  Future<void> _shareCurrentCard() async {
+    final idea = _idea;
+    final onShare = widget.onShareCard;
+    if (idea == null || _sharing) return;
+    if (onShare == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sharing is not available here.')),
+      );
+      return;
+    }
+    setState(() => _sharing = true);
+    try {
+      await onShare(context, idea, _resultRepaintBoundaryKey);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not share this card. Try again.'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _sharing = false);
+    }
   }
 
   void _setTone(ExcuseTone tone) {
@@ -341,48 +508,56 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       ),
       child: Scaffold(
         backgroundColor: ShopTheme.pixelOutline,
-        bottomNavigationBar: SafeArea(
-          top: false,
-          child: Container(
-            decoration: const BoxDecoration(
-              color: ShopTheme.pixelOutline,
-              border: Border(
-                top: BorderSide(color: ShopTheme.pixelVioletDark, width: 3),
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextButton.icon(
-                    key: const ValueKey('open-collection'),
-                    onPressed: _saving ? null : _openCollection,
-                    style: TextButton.styleFrom(
-                      foregroundColor: ShopTheme.paperBody,
-                      minimumSize: const Size(44, 44),
+        bottomNavigationBar: widget.showInternalNavigation
+            ? SafeArea(
+                top: false,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: ShopTheme.pixelOutline,
+                    border: Border(
+                      top: BorderSide(
+                        color: ShopTheme.pixelVioletDark,
+                        width: 3,
+                      ),
                     ),
-                    icon: const Icon(
-                      Icons.collections_bookmark_outlined,
-                      size: 18,
-                    ),
-                    label: const Text('Collection'),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextButton.icon(
+                          key: const ValueKey('open-collection'),
+                          onPressed: _saving ? null : _openCollection,
+                          style: TextButton.styleFrom(
+                            foregroundColor: ShopTheme.paperBody,
+                            minimumSize: const Size(44, 44),
+                          ),
+                          icon: const Icon(
+                            Icons.collections_bookmark_outlined,
+                            size: 18,
+                          ),
+                          label: const Text('Collection'),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      TextButton.icon(
+                        key: const ValueKey('restart-shop'),
+                        onPressed: _saving ? null : _restart,
+                        style: TextButton.styleFrom(
+                          foregroundColor: ShopTheme.paperBody,
+                          minimumSize: const Size(44, 44),
+                        ),
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: const Text('Restart'),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 16),
-                TextButton.icon(
-                  key: const ValueKey('restart-shop'),
-                  onPressed: _saving ? null : _restart,
-                  style: TextButton.styleFrom(
-                    foregroundColor: ShopTheme.paperBody,
-                    minimumSize: const Size(44, 44),
-                  ),
-                  icon: const Icon(Icons.refresh, size: 18),
-                  label: const Text('Restart'),
-                ),
-              ],
-            ),
-          ),
-        ),
+              )
+            : null,
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -652,6 +827,8 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
             );
           }).toList(),
         );
+      case ShopFlowStage.visitContext:
+        return _buildVisitContext();
       case ShopFlowStage.search:
         return _buildSearch(l10n);
       case ShopFlowStage.result:
@@ -725,6 +902,50 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
     );
   }
 
+  Widget _buildVisitContext() {
+    final options = _relevantVisitResponsibilities.map((responsibility) {
+      final label = _visitContextLabel(responsibility);
+      return _ChoiceData(
+        key: ValueKey('v6-visit-context-${responsibility.name}'),
+        label: label,
+        semantics: label,
+        onTap: () => _selectVisitContext(
+          CurrentVisitContext(responsibility: responsibility),
+        ),
+      );
+    }).toList();
+    options.add(
+      _ChoiceData(
+        key: const ValueKey('v6-visit-context-skip'),
+        label: 'None of these / Skip',
+        semantics: 'None of these or skip',
+        onTap: _skipVisitContext,
+      ),
+    );
+    return _buildOptionsStep(
+      key: const ValueKey('v6-step-visit-context'),
+      title: 'Anything real we can work with?',
+      options: options,
+    );
+  }
+
+  void _skipVisitContext() {
+    _selectVisitContext(const CurrentVisitContext.skip());
+  }
+
+  String _visitContextLabel(CurrentVisitResponsibility responsibility) {
+    switch (responsibility) {
+      case CurrentVisitResponsibility.childcare:
+        return 'Childcare';
+      case CurrentVisitResponsibility.anotherCaregivingResponsibility:
+        return 'Another caregiving responsibility';
+      case CurrentVisitResponsibility.existingCommitment:
+        return 'An existing commitment';
+      case CurrentVisitResponsibility.needingRest:
+        return 'Needing rest';
+    }
+  }
+
   Widget _buildSearch(AppLocalizations l10n) {
     return Semantics(
       key: const ValueKey('v6-search'),
@@ -764,9 +985,12 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Center(
-          child: ExcuseCard(
-            key: const ValueKey('collectible-result-card'),
-            idea: idea,
+          child: RepaintBoundary(
+            key: _resultRepaintBoundaryKey,
+            child: ExcuseCard(
+              key: const ValueKey('collectible-result-card'),
+              idea: idea,
+            ),
           ),
         ),
         if (_request != null && shouldOfferRepair(_request!)) ...[
@@ -832,6 +1056,17 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
           icon: const Icon(Icons.style_outlined, size: 18),
           label: const Text('ANOTHER ONE'),
         ),
+        OutlinedButton.icon(
+          key: const ValueKey('v6-share-card'),
+          onPressed: _sharing ? null : _shareCurrentCard,
+          icon: _sharing
+              ? const SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.ios_share, size: 18),
+          label: const Text('SHARE'),
+        ),
         const SizedBox(height: 8),
         Text(
           _kept
@@ -877,7 +1112,74 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
     );
   }
 
+  Widget _buildAlternativeError() {
+    final idea = _idea!;
+    return Column(
+      key: const ValueKey('v6-error'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'The alternative shelf is being difficult.',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Your current card is still available. Nothing was added to Collection.',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        const SizedBox(height: 14),
+        Center(
+          child: RepaintBoundary(
+            key: _resultRepaintBoundaryKey,
+            child: ExcuseCard(
+              key: const ValueKey('collectible-result-card'),
+              idea: idea,
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+        FilledButton(
+          key: const ValueKey('v6-keep-card'),
+          onPressed: _kept || _saving ? null : _keepCard,
+          child: Text(
+            _saving
+                ? 'SAVING…'
+                : _kept
+                ? 'SAVED TO COLLECTION'
+                : 'KEEP CARD',
+          ),
+        ),
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          key: const ValueKey('v6-another-card'),
+          onPressed: _saving ? null : _anotherCard,
+          icon: const Icon(Icons.style_outlined, size: 18),
+          label: const Text('TRY ANOTHER ONE'),
+        ),
+        OutlinedButton.icon(
+          key: const ValueKey('v6-share-card'),
+          onPressed: _sharing ? null : _shareCurrentCard,
+          icon: _sharing
+              ? const SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.ios_share, size: 18),
+          label: const Text('SHARE'),
+        ),
+        TextButton(
+          key: const ValueKey('v6-new-excuse'),
+          onPressed: _restart,
+          child: const Text('NEW EXCUSE'),
+        ),
+      ],
+    );
+  }
+
   Widget _buildError(AppLocalizations l10n) {
+    if (_alternativeFailed && _idea != null) {
+      return _buildAlternativeError();
+    }
     return Column(
       key: const ValueKey('v6-error'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -932,6 +1234,8 @@ class _ExcuseShopPageState extends State<ExcuseShopPage>
         return l10n.dialogueRelationshipV6;
       case ShopFlowStage.obligation:
         return l10n.dialogueObligationV6;
+      case ShopFlowStage.visitContext:
+        return 'Anything real we can work with?';
       case ShopFlowStage.search:
         return l10n.searchDialogue;
       case ShopFlowStage.result:

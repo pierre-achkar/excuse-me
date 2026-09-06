@@ -44,6 +44,11 @@ void main() {
     expect(find.byKey(const ValueKey('v6-step-obligation')), findsOneWidget);
     await _choose(tester, 'v6-obligation-medium');
     await tester.pumpAndSettle();
+    final reveal = find.byKey(const ValueKey('card-viewer-continue'));
+    if (reveal.evaluate().isNotEmpty) {
+      await tester.tap(reveal);
+      await tester.pumpAndSettle();
+    }
 
     expect(
       find.byKey(const ValueKey('collectible-result-card')),

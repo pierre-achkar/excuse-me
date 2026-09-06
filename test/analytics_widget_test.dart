@@ -39,6 +39,11 @@ Future<void> _completeV6(WidgetTester tester) async {
     await tester.pump();
   }
   await tester.pumpAndSettle();
+  final reveal = find.byKey(const ValueKey('card-viewer-continue'));
+  if (reveal.evaluate().isNotEmpty) {
+    await tester.tap(reveal);
+    await tester.pumpAndSettle();
+  }
 }
 
 void main() {

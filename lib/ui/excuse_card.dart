@@ -160,8 +160,9 @@ String cardFamilyLabel(ExcuseFamily? family) => switch (family) {
 };
 
 class ExcuseCard extends StatelessWidget {
-  const ExcuseCard({super.key, required this.idea});
+  const ExcuseCard({super.key, required this.idea, this.maxWidth = 320});
   final GeneratedIdea idea;
+  final double maxWidth;
   @override
   Widget build(BuildContext context) {
     final design = CardDesign.forIdea(idea);
@@ -175,7 +176,7 @@ class ExcuseCard extends StatelessWidget {
       container: true,
       label: '${idea.playfulName ?? "Your card"}. ${idea.idea}',
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 320),
+        constraints: BoxConstraints(maxWidth: maxWidth),
         decoration: BoxDecoration(
           color: ShopTheme.pixelOutline,
           border: Border.all(color: ShopTheme.pixelOutline, width: 6),

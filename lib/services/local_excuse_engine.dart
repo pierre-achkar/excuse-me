@@ -1,5 +1,6 @@
 import '../data/curated_kernel_repository.dart';
 import '../domain/excuse_kernel.dart';
+import '../domain/user_profile.dart';
 import 'idea_quality_policy.dart';
 import 'idea_safety_policy.dart';
 
@@ -50,7 +51,12 @@ class LocalExcuseEngine {
       return _fallbackResult(previousKernelId);
     }
     final compatible = repository.kernels
-        .where((kernel) => !kernel.isFallback && kernel.supports(request))
+        .where(
+          (kernel) =>
+              !kernel.isFallback &&
+              kernel.supports(request) &&
+              _allowedByCurrentVisit(kernel, request),
+        )
         .toList(growable: true);
     if (previousKernelId != null) {
       compatible.removeWhere((kernel) => kernel.id == previousKernelId);
@@ -59,8 +65,7 @@ class LocalExcuseEngine {
       return _fallbackResult(previousKernelId);
     }
 
-    final kernel =
-        compatible[_stableHash(request.selectionKey) % compatible.length];
+    final kernel = _selectKernel(compatible, request, request.selectionKey);
     return _resultFor(kernel);
   }
 
@@ -76,7 +81,10 @@ class LocalExcuseEngine {
     }
     final compatible = repository.kernels
         .where(
-          (kernel) => !kernel.isFallback && kernel.supportsSemantic(request),
+          (kernel) =>
+              !kernel.isFallback &&
+              kernel.supportsSemantic(request) &&
+              _allowedByCurrentVisit(kernel, request),
         )
         .toList(growable: true);
     if (previousKernelId != null) {
@@ -85,10 +93,84 @@ class LocalExcuseEngine {
     if (compatible.isEmpty) {
       return _fallbackResult(previousKernelId);
     }
-    final kernel =
-        compatible[_stableHash(request.semanticSelectionKey) %
-            compatible.length];
+    final kernel = _selectKernel(
+      compatible,
+      request,
+      request.semanticSelectionKey,
+    );
     return _resultFor(kernel);
+  }
+
+  ExcuseKernel _selectKernel(
+    List<ExcuseKernel> compatible,
+    ExcuseRequest request,
+    String selectionKey,
+  ) {
+    final hasRelevanceSignal =
+        request.profile.relevanceKey.isNotEmpty ||
+        request.currentVisitContext.isConfirmed;
+    if (!hasRelevanceSignal) {
+      return compatible[_stableHash(selectionKey) % compatible.length];
+    }
+
+    compatible.sort((left, right) {
+      final score =
+          _profileScore(right, request) - _profileScore(left, request);
+      return score == 0 ? left.id.compareTo(right.id) : score;
+    });
+    final topScore = _profileScore(compatible.first, request);
+    final best = compatible
+        .where((kernel) => _profileScore(kernel, request) == topScore)
+        .toList(growable: false);
+    return best[_stableHash(selectionKey) % best.length];
+  }
+
+  bool _allowedByCurrentVisit(ExcuseKernel kernel, ExcuseRequest request) {
+    if (kernel.causeType != CauseType.householdCare) return true;
+    return request.currentVisitContext.responsibility ==
+            CurrentVisitResponsibility.childcare ||
+        request.currentVisitContext.responsibility ==
+            CurrentVisitResponsibility.anotherCaregivingResponsibility;
+  }
+
+  int _profileScore(ExcuseKernel kernel, ExcuseRequest request) {
+    var score = 0;
+    final workStatus = request.profile.workStudyStatus;
+    if ((workStatus == ProfileWorkStudyStatus.working ||
+            workStatus == ProfileWorkStudyStatus.studying ||
+            workStatus == ProfileWorkStudyStatus.both) &&
+        kernel.causeType == CauseType.workStudy) {
+      score += 4;
+    }
+
+    switch (request.currentVisitContext.responsibility) {
+      case CurrentVisitResponsibility.childcare:
+      case CurrentVisitResponsibility.anotherCaregivingResponsibility:
+        if (kernel.causeType == CauseType.householdCare) score += 6;
+      case CurrentVisitResponsibility.existingCommitment:
+        if (kernel.causeType == CauseType.priorCommitment ||
+            kernel.causeType == CauseType.schedulingConflict) {
+          score += 4;
+        }
+      case CurrentVisitResponsibility.needingRest:
+        if (kernel.causeType == CauseType.capacity) score += 4;
+      case null:
+        break;
+    }
+
+    if (request.profile.hasChildren == ProfileYesNo.yes &&
+        request.currentVisitContext.responsibility ==
+            CurrentVisitResponsibility.childcare &&
+        kernel.causeType == CauseType.householdCare) {
+      score += 1;
+    }
+    if (request.profile.caregiving == ProfileYesNo.yes &&
+        request.currentVisitContext.responsibility ==
+            CurrentVisitResponsibility.anotherCaregivingResponsibility &&
+        kernel.causeType == CauseType.householdCare) {
+      score += 1;
+    }
+    return score;
   }
 
   ExcuseResult _fallbackResult(String? previousKernelId) {

@@ -1,3 +1,5 @@
+import 'user_profile.dart';
+
 enum ExcuseIntent { getOutOfPlans, buyTime, recoverFromSituation }
 
 enum ExcuseFamily {
@@ -106,6 +108,8 @@ class ExcuseRequest {
     this.repairPreference = RepairOption.none,
     this.risk = RequestRisk.none,
     this.clarity = RequestClarity.structured,
+    this.profile = const UserProfile.empty(),
+    this.currentVisitContext = const CurrentVisitContext.skip(),
   });
 
   final ExcuseIntent intent;
@@ -121,6 +125,8 @@ class ExcuseRequest {
   final RepairOption repairPreference;
   final RequestRisk risk;
   final RequestClarity clarity;
+  final UserProfile profile;
+  final CurrentVisitContext currentVisitContext;
 
   /// The v6 request key intentionally excludes tone because tone is selected
   /// after the kernel/card has been chosen.
@@ -137,6 +143,9 @@ class ExcuseRequest {
     if (repairPreference != RepairOption.none) repairPreference.name,
     risk.name,
     clarity.name,
+    if (profile.relevanceKey.isNotEmpty) profile.relevanceKey,
+    if (currentVisitContext.isConfirmed)
+      currentVisitContext.responsibility!.name,
   ].join('|');
 
   /// Legacy key retained for the original client and deterministic fixtures.

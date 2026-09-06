@@ -202,6 +202,11 @@ void main() {
       await choose(key);
     }
     await tester.pumpAndSettle();
+    final reveal = find.byKey(const ValueKey('card-viewer-continue'));
+    if (reveal.evaluate().isNotEmpty) {
+      await tester.tap(reveal);
+      await tester.pumpAndSettle();
+    }
 
     final request = client.request!.structuredRequest!;
     expect(request.intent, ExcuseIntent.getOutOfPlans);
