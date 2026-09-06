@@ -820,30 +820,6 @@ abstract class AppLocalizations {
   /// **'No. {number}'**
   String cardNumber(String number);
 
-  /// Post-result tone selection prompt.
-  ///
-  /// In en, this message translates to:
-  /// **'The card is yours. How should it sound?'**
-  String get tonePromptV6;
-
-  /// Post-result plain tone choice.
-  ///
-  /// In en, this message translates to:
-  /// **'Plain'**
-  String get tonePlainV6;
-
-  /// Post-result warm tone choice.
-  ///
-  /// In en, this message translates to:
-  /// **'Warm'**
-  String get toneWarmV6;
-
-  /// Post-result playful tone choice.
-  ///
-  /// In en, this message translates to:
-  /// **'Playful'**
-  String get tonePlayfulV6;
-
   /// Temporary local keep action without persistence.
   ///
   /// In en, this message translates to:
@@ -861,12 +837,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep this card for this visit'**
   String get keepCardSemantics;
-
-  /// Semantics label for post-result tone choices.
-  ///
-  /// In en, this message translates to:
-  /// **'Change the card tone'**
-  String get toneChangeSemantics;
 
   /// Semantics label describing the current local outfit palette.
   ///

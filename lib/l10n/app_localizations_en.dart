@@ -408,18 +408,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get tonePromptV6 => 'The card is yours. How should it sound?';
-
-  @override
-  String get tonePlainV6 => 'Plain';
-
-  @override
-  String get toneWarmV6 => 'Warm';
-
-  @override
-  String get tonePlayfulV6 => 'Playful';
-
-  @override
   String get keepCardButton => 'Keep card';
 
   @override
@@ -427,9 +415,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get keepCardSemantics => 'Keep this card for this visit';
-
-  @override
-  String get toneChangeSemantics => 'Change the card tone';
 
   @override
   String outfitSemantics(String palette) {

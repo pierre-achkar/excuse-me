@@ -490,15 +490,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     }
   }
 
-  void _setTone(ExcuseTone tone) {
-    final idea = _idea;
-    if (idea == null) return;
-    setState(() {
-      _idea = idea.withTone(tone);
-      _kept = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -1041,21 +1032,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           ),
         ],
         const SizedBox(height: 14),
-        Text(l10n.tonePromptV6, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _toneButton(l10n.tonePlainV6, ExcuseTone.lowKey, idea),
-            _toneButton(l10n.toneWarmV6, ExcuseTone.nice, idea),
-            if (_request?.relationship != RelationshipKind.formal &&
-                _request?.obligation != ObligationLevel.high &&
-                idea.toneDirections.containsKey(ExcuseTone.funny))
-              _toneButton(l10n.tonePlayfulV6, ExcuseTone.funny, idea),
-          ],
-        ),
-        const SizedBox(height: 14),
         FilledButton(
           key: const ValueKey('v6-keep-card'),
           onPressed: _kept || _saving ? null : _keepCard,
@@ -1109,27 +1085,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           child: const Text('New excuse'),
         ),
       ],
-    );
-  }
-
-  Widget _toneButton(String label, ExcuseTone tone, GeneratedIdea idea) {
-    final selected = idea.selectedTone == tone;
-    return Semantics(
-      button: true,
-      label: '${AppLocalizations.of(context)!.toneChangeSemantics}: $label',
-      child: ChoiceChip(
-        key: ValueKey('v6-tone-${tone.name}'),
-        label: Text(label),
-        selected: selected,
-        onSelected: idea.toneDirections.containsKey(tone)
-            ? (_) => _setTone(tone)
-            : null,
-        shape: const RoundedRectangleBorder(),
-        selectedColor: ShopTheme.pixelGlow,
-        side: BorderSide(
-          color: selected ? ShopTheme.pixelVioletDark : ShopTheme.paperDivider,
-        ),
-      ),
     );
   }
 

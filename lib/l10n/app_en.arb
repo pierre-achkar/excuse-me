@@ -415,18 +415,6 @@
     "placeholders": { "number": { "type": "String" } }
   },
 
-  "tonePromptV6": "The card is yours. How should it sound?",
-  "@tonePromptV6": { "description": "Post-result tone selection prompt." },
-
-  "tonePlainV6": "Plain",
-  "@tonePlainV6": { "description": "Post-result plain tone choice." },
-
-  "toneWarmV6": "Warm",
-  "@toneWarmV6": { "description": "Post-result warm tone choice." },
-
-  "tonePlayfulV6": "Playful",
-  "@tonePlayfulV6": { "description": "Post-result playful tone choice." },
-
   "keepCardButton": "Keep card",
   "@keepCardButton": { "description": "Temporary local keep action without persistence." },
 
@@ -435,9 +423,6 @@
 
   "keepCardSemantics": "Keep this card for this visit",
   "@keepCardSemantics": { "description": "Semantics label for the temporary keep action." },
-
-  "toneChangeSemantics": "Change the card tone",
-  "@toneChangeSemantics": { "description": "Semantics label for post-result tone choices." },
 
   "outfitSemantics": "Excusee outfit: {palette}",
   "@outfitSemantics": {

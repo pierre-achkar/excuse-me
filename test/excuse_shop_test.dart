@@ -190,9 +190,7 @@ void main() {
       );
     });
 
-    testWidgets('plain client hides unavailable funny tone and keeps card', (
-      tester,
-    ) async {
+    testWidgets('plain client reveals the card and keeps it', (tester) async {
       await tester.pumpWidget(
         ExcuseMeApp(
           client: FakeShopIdeaClient('Idea: keep the explanation low-detail.'),
@@ -206,7 +204,6 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('The idea'), findsOneWidget);
-      expect(find.byKey(const ValueKey('v6-tone-funny')), findsNothing);
       await tester.ensureVisible(find.byKey(const ValueKey('v6-keep-card')));
       await tester.tap(find.byKey(const ValueKey('v6-keep-card')));
       await tester.pumpAndSettle();
