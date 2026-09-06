@@ -38,8 +38,9 @@ class CardShareService {
 
   Future<void> shareCard(
     BuildContext context,
-    GlobalKey repaintBoundaryKey,
-  ) async {
+    GlobalKey repaintBoundaryKey, {
+    required Rect sharePositionOrigin,
+  }) async {
     final bytes = await capturePng(context, repaintBoundaryKey);
     if (bytes.isEmpty) {
       throw StateError('Could not encode the card image.');
@@ -47,6 +48,7 @@ class CardShareService {
     final result = await shareFiles(
       [XFile.fromData(bytes, mimeType: 'image/png', name: 'excusee-card.png')],
       subject: 'Excusee card',
+      sharePositionOrigin: sharePositionOrigin,
       fileNameOverrides: const ['excusee-card.png'],
     );
     if (result.status == ShareResultStatus.unavailable) {

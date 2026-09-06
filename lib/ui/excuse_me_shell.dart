@@ -109,8 +109,13 @@ class _ExcuseMeShellState extends State<ExcuseMeShell> {
     BuildContext context,
     GeneratedIdea idea,
     GlobalKey repaintBoundaryKey,
+    Rect sharePositionOrigin,
   ) async {
-    await _shareService.shareCard(context, repaintBoundaryKey);
+    await _shareService.shareCard(
+      context,
+      repaintBoundaryKey,
+      sharePositionOrigin: sharePositionOrigin,
+    );
     widget.analytics.record(AnalyticsEvent.share);
   }
 

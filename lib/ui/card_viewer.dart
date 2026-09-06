@@ -10,7 +10,25 @@ typedef CardViewerShareCallback = Future<void> Function(
   BuildContext context,
   GeneratedIdea idea,
   GlobalKey repaintBoundaryKey,
+  Rect sharePositionOrigin,
 );
+
+Rect sharePositionOriginFor(GlobalKey shareButtonKey) {
+  final renderObject = shareButtonKey.currentContext?.findRenderObject();
+  if (renderObject is! RenderBox || !renderObject.hasSize) {
+    throw StateError('The share control is not ready.');
+  }
+  final origin = renderObject.localToGlobal(Offset.zero);
+  final rect = origin & renderObject.size;
+  if (rect.isEmpty ||
+      !rect.left.isFinite ||
+      !rect.top.isFinite ||
+      !rect.right.isFinite ||
+      !rect.bottom.isFinite) {
+    throw StateError('The share control has no valid anchor.');
+  }
+  return rect;
+}
 
 class CardViewerPage extends StatefulWidget {
   const CardViewerPage({
@@ -34,6 +52,7 @@ class _CardViewerPageState extends State<CardViewerPage>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   final GlobalKey _repaintBoundaryKey = GlobalKey();
+  final GlobalKey _shareButtonKey = GlobalKey();
   bool _sharing = false;
 
   @override
@@ -73,7 +92,12 @@ class _CardViewerPageState extends State<CardViewerPage>
     }
     setState(() => _sharing = true);
     try {
-      await onShare(context, widget.idea, _repaintBoundaryKey);
+      await onShare(
+        context,
+        widget.idea,
+        _repaintBoundaryKey,
+        sharePositionOriginFor(_shareButtonKey),
+      );
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -110,16 +134,19 @@ class _CardViewerPageState extends State<CardViewerPage>
                 )
               : null,
           actions: [
-            IconButton(
+            KeyedSubtree(
               key: const ValueKey('card-viewer-share'),
-              tooltip: 'Share card',
-              onPressed: _sharing ? null : _share,
-              icon: _sharing
-                  ? const SizedBox.square(
-                      dimension: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.ios_share),
+              child: IconButton(
+                key: _shareButtonKey,
+                tooltip: 'Share card',
+                onPressed: _sharing ? null : _share,
+                icon: _sharing
+                    ? const SizedBox.square(
+                        dimension: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.ios_share),
+              ),
             ),
           ],
         ),

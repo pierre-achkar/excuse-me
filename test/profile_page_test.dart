@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:excuse_me/domain/user_profile.dart';
@@ -24,6 +26,20 @@ class MemoryProfileStorage implements ProfileStorage {
   @override
   Future<bool> remove() async {
     values.remove(UserProfileRepository.storageKey);
+    return true;
+  }
+}
+
+class DelayedProfileStorage extends MemoryProfileStorage {
+  final writeStarted = Completer<void>();
+  final releaseWrite = Completer<bool>();
+
+  @override
+  Future<bool> write(String value) async {
+    writeStarted.complete();
+    final success = await releaseWrite.future;
+    if (!success) return false;
+    values[UserProfileRepository.storageKey] = value;
     return true;
   }
 }
@@ -79,6 +95,55 @@ void main() {
 
     expect(await repository.load(), const UserProfile.empty());
     expect(storage.values['excuse_me.collection.v1'], 'kept-card');
+  });
+
+  testWidgets('profile keeps edits made during save marked unsaved', (
+    tester,
+  ) async {
+    final storage = DelayedProfileStorage();
+    final repository = UserProfileRepository(storage: storage);
+    UserProfile? activeProfile;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ProfilePage(
+          repository: repository,
+          onSaved: (profile) => activeProfile = profile,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('profile-age-age25To34')));
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('profile-save')),
+      500,
+    );
+    await tester.tap(find.byKey(const ValueKey('profile-save')));
+    await tester.pump();
+    await storage.writeStarted.future;
+
+    final profileScrollable = find
+        .ancestor(
+          of: find.byKey(const ValueKey('profile-save')),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    await tester.drag(profileScrollable, const Offset(0, 500));
+    await tester.pump();
+    final workField = find.byKey(const ValueKey('profile-work-study-working'));
+    await tester.ensureVisible(workField);
+    await tester.tap(workField);
+    await tester.pump();
+
+    storage.releaseWrite.complete(true);
+    await tester.pumpAndSettle();
+
+    final persisted = await UserProfileRepository(storage: storage).load();
+    expect(persisted.ageRange, ProfileAgeRange.age25To34);
+    expect(persisted.workStudyStatus, isNull);
+    expect(activeProfile, persisted);
+    expect(find.byKey(const ValueKey('profile-saved')), findsNothing);
   });
 
   testWidgets('failed save shows retry and does not report saved', (

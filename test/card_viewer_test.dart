@@ -79,6 +79,31 @@ void main() {
     expect(find.byKey(const ValueKey('card-viewer')), findsNothing);
   });
 
+  testWidgets('share receives the visible control anchor', (tester) async {
+    Rect? origin;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: CardViewerPage(
+          idea: testIdea,
+          mode: CardViewerMode.reveal,
+          disableAnimations: true,
+          onShare:
+              (context, idea, repaintBoundaryKey, sharePositionOrigin) async {
+                origin = sharePositionOrigin;
+              },
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byType(IconButton));
+    await tester.pumpAndSettle();
+
+    expect(origin, isNotNull);
+    expect(origin!.width, greaterThan(0));
+    expect(origin!.height, greaterThan(0));
+  });
+
   testWidgets('saved viewer offers Close and Share but not Another one', (
     tester,
   ) async {

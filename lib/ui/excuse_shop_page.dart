@@ -54,6 +54,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
   bool _saving = false;
   bool _sharing = false;
   final GlobalKey _resultRepaintBoundaryKey = GlobalKey();
+  final GlobalKey _resultShareButtonKey = GlobalKey();
   final ScrollController _scroll = ScrollController();
   final ShopFlowController _controller = ShopFlowController();
 
@@ -70,6 +71,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
   bool _kept = false;
   bool _alternativeRequested = false;
   bool _alternativeFailed = false;
+  bool? _alternativeOriginalKept;
   bool _wasInactive = false;
   bool _shopActive = true;
   Object? _error;
@@ -90,11 +92,16 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
   void _cancelGenerationOnLeave() {
     _controller.cancelPending();
     if (_stage == ShopFlowStage.search) {
+      final hasOriginalCard = _idea != null;
       setState(() {
-        _error = StateError('Generation cancelled when leaving Shop.');
-        _stage = ShopFlowStage.error;
+        _stage = hasOriginalCard ? ShopFlowStage.result : ShopFlowStage.error;
+        _error = hasOriginalCard
+            ? null
+            : StateError('Generation cancelled when leaving Shop.');
+        _kept = hasOriginalCard ? (_alternativeOriginalKept ?? _kept) : false;
         _alternativeRequested = false;
         _alternativeFailed = false;
+        _alternativeOriginalKept = null;
       });
     }
   }
@@ -168,6 +175,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       _idea = null;
       _error = null;
       _kept = false;
+      _alternativeOriginalKept = null;
     });
     _resetScroll();
   }
@@ -333,6 +341,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
         _stage = ShopFlowStage.result;
         _alternativeRequested = false;
         _alternativeFailed = false;
+        _alternativeOriginalKept = null;
         _resetScroll();
       });
       widget.analytics.record(AnalyticsEvent.generationCompleted);
@@ -354,8 +363,10 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       if (!mounted || !_controller.accepts(ticket)) return;
       setState(() {
         _error = error;
+        _kept = isAlternative ? (_alternativeOriginalKept ?? _kept) : _kept;
         _alternativeRequested = false;
         _alternativeFailed = isAlternative;
+        _alternativeOriginalKept = null;
         _stage = ShopFlowStage.error;
       });
     }
@@ -377,6 +388,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       _kept = false;
       _alternativeRequested = false;
       _alternativeFailed = false;
+      _alternativeOriginalKept = null;
       _error = null;
     });
   }
@@ -434,6 +446,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     if (_request != null &&
         !_saving &&
         (_stage == ShopFlowStage.result || _alternativeFailed)) {
+      _alternativeOriginalKept = _kept;
       _alternativeRequested = true;
       _brew(_request!);
     }
@@ -458,7 +471,12 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     }
     setState(() => _sharing = true);
     try {
-      await onShare(context, idea, _resultRepaintBoundaryKey);
+      await onShare(
+        context,
+        idea,
+        _resultRepaintBoundaryKey,
+        sharePositionOriginFor(_resultShareButtonKey),
+      );
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1056,16 +1074,19 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           icon: const Icon(Icons.style_outlined, size: 18),
           label: const Text('ANOTHER ONE'),
         ),
-        OutlinedButton.icon(
+        KeyedSubtree(
           key: const ValueKey('v6-share-card'),
-          onPressed: _sharing ? null : _shareCurrentCard,
-          icon: _sharing
-              ? const SizedBox.square(
-                  dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.ios_share, size: 18),
-          label: const Text('SHARE'),
+          child: OutlinedButton.icon(
+            key: _resultShareButtonKey,
+            onPressed: _sharing ? null : _shareCurrentCard,
+            icon: _sharing
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.ios_share, size: 18),
+            label: const Text('SHARE'),
+          ),
         ),
         const SizedBox(height: 8),
         Text(
@@ -1156,16 +1177,19 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           icon: const Icon(Icons.style_outlined, size: 18),
           label: const Text('TRY ANOTHER ONE'),
         ),
-        OutlinedButton.icon(
+        KeyedSubtree(
           key: const ValueKey('v6-share-card'),
-          onPressed: _sharing ? null : _shareCurrentCard,
-          icon: _sharing
-              ? const SizedBox.square(
-                  dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.ios_share, size: 18),
-          label: const Text('SHARE'),
+          child: OutlinedButton.icon(
+            key: _resultShareButtonKey,
+            onPressed: _sharing ? null : _shareCurrentCard,
+            icon: _sharing
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.ios_share, size: 18),
+            label: const Text('SHARE'),
+          ),
         ),
         TextButton(
           key: const ValueKey('v6-new-excuse'),

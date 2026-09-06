@@ -73,11 +73,12 @@ class _ProfilePageState extends State<ProfilePage> {
       _saved = false;
       _error = null;
     });
+    final submitted = _draft;
     try {
-      await widget.repository.save(_draft);
-      widget.onSaved?.call(_draft);
+      await widget.repository.save(submitted);
+      widget.onSaved?.call(submitted);
       if (!mounted) return;
-      setState(() => _saved = true);
+      setState(() => _saved = _draft == submitted);
     } catch (error) {
       if (!mounted) return;
       setState(() => _error = error);
@@ -93,14 +94,15 @@ class _ProfilePageState extends State<ProfilePage> {
       _saved = false;
       _error = null;
     });
+    final submitted = const UserProfile.empty();
+    final draftAtSubmit = _draft;
     try {
       await widget.repository.clear();
-      const empty = UserProfile.empty();
-      widget.onSaved?.call(empty);
+      widget.onSaved?.call(submitted);
       if (!mounted) return;
       setState(() {
-        _draft = empty;
-        _saved = true;
+        if (_draft == draftAtSubmit) _draft = submitted;
+        _saved = _draft == submitted;
       });
     } catch (error) {
       if (!mounted) return;

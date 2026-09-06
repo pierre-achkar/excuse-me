@@ -24,6 +24,9 @@ void main() {
             expect(subject, 'Excusee card');
             expect(text, isNull);
             expect(fileNameOverrides, ['excusee-card.png']);
+            expect(sharePositionOrigin, isNotNull);
+            expect(sharePositionOrigin!.width, greaterThan(0));
+            expect(sharePositionOrigin.height, greaterThan(0));
             return ShareResult.unavailable;
           },
       downloadPng: (bytes, filename) async {
@@ -33,7 +36,11 @@ void main() {
       },
     );
 
-    await service.shareCard(const _FakeBuildContext(), GlobalKey());
+    await service.shareCard(
+      const _FakeBuildContext(),
+      GlobalKey(),
+      sharePositionOrigin: const Rect.fromLTWH(10, 20, 30, 40),
+    );
 
     expect(files, hasLength(1));
     expect(files.single.mimeType, 'image/png');
