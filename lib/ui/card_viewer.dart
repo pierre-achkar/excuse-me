@@ -188,12 +188,12 @@ class _CardViewerPageState extends State<CardViewerPage>
                       ? OutlinedButton(
                           key: const ValueKey('card-viewer-close-action'),
                           onPressed: _close,
-                          child: const Text('CLOSE'),
+                          child: const Text('Close'),
                         )
                       : FilledButton(
                           key: const ValueKey('card-viewer-continue'),
                           onPressed: _close,
-                          child: const Text('CONTINUE'),
+                          child: const Text('Continue'),
                         ),
                 ),
               ),

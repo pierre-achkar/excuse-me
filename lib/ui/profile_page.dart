@@ -137,7 +137,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
                 children: [
                   const Text(
-                    'OPTIONAL PROFILE',
+                    'Optional profile',
                     style: TextStyle(
                       color: ShopTheme.pixelGlow,
                       fontFamily: 'PressStart2P',
@@ -221,7 +221,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         trailing: TextButton(
                           key: const ValueKey('profile-retry-save'),
                           onPressed: _saving ? null : _save,
-                          child: const Text('RETRY'),
+                          child: const Text('Retry'),
                         ),
                       ),
                     ),
@@ -229,7 +229,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     const Padding(
                       padding: EdgeInsets.only(bottom: 10),
                       child: Text(
-                        'PROFILE SAVED ON THIS DEVICE',
+                        'Profile saved on this device',
                         key: ValueKey('profile-saved'),
                         style: TextStyle(
                           color: ShopTheme.pixelGlow,
@@ -241,13 +241,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   FilledButton(
                     key: const ValueKey('profile-save'),
                     onPressed: _saving ? null : _save,
-                    child: Text(_saving ? 'SAVING…' : 'SAVE PROFILE'),
+                    child: Text(_saving ? 'Saving…' : 'Save profile'),
                   ),
                   const SizedBox(height: 10),
                   OutlinedButton(
                     key: const ValueKey('profile-clear'),
                     onPressed: _saving ? null : _clear,
-                    child: const Text('CLEAR PROFILE'),
+                    child: const Text('Clear profile'),
                   ),
                   const SizedBox(height: 28),
                   _buildCollectionPreview(context),
@@ -273,7 +273,7 @@ class _ProfilePageState extends State<ProfilePage> {
           FilledButton(
             key: const ValueKey('profile-retry-load-body'),
             onPressed: _load,
-            child: const Text('RETRY'),
+            child: const Text('Retry'),
           ),
         ],
       ),
@@ -289,7 +289,7 @@ class _ProfilePageState extends State<ProfilePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'YOUR COLLECTION',
+              'Your collection',
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 color: ShopTheme.pixelGlow,
                 fontFamily: 'PressStart2P',
@@ -299,7 +299,7 @@ class _ProfilePageState extends State<ProfilePage> {
             TextButton(
               key: const ValueKey('profile-view-collection'),
               onPressed: widget.onViewCollection,
-              child: const Text('VIEW COLLECTION'),
+              child: const Text('View collection'),
             ),
           ],
         ),

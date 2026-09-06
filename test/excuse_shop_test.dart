@@ -83,7 +83,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('Excuse Me'), findsOneWidget);
-      expect(find.text('I NEED AN EXCUSE'), findsOneWidget);
+      expect(find.text('I need an excuse'), findsOneWidget);
       expect(find.byKey(const ValueKey('shopkeeper-stage')), findsOneWidget);
       expect(find.byKey(const ValueKey('shopkeeper-avatar')), findsOneWidget);
       expect(
@@ -205,12 +205,12 @@ void main() {
         find.byKey(const ValueKey('collectible-result-card')),
         findsOneWidget,
       );
-      expect(find.text('THE IDEA'), findsOneWidget);
+      expect(find.text('The idea'), findsOneWidget);
       expect(find.byKey(const ValueKey('v6-tone-funny')), findsNothing);
       await tester.ensureVisible(find.byKey(const ValueKey('v6-keep-card')));
       await tester.tap(find.byKey(const ValueKey('v6-keep-card')));
       await tester.pumpAndSettle();
-      expect(find.text('SAVED TO COLLECTION'), findsOneWidget);
+      expect(find.text('Saved to collection'), findsOneWidget);
     });
 
     testWidgets(

@@ -149,14 +149,14 @@ class CardDesignGenerator {
 }
 
 String cardFamilyLabel(ExcuseFamily? family) => switch (family) {
-  ExcuseFamily.capacityWellbeing => 'capacity',
-  ExcuseFamily.careFamily => 'care & family',
-  ExcuseFamily.workStudy => 'work & study',
-  ExcuseFamily.moneyLogistics => 'daily logistics',
-  ExcuseFamily.planningFailure => 'planning failure',
-  ExcuseFamily.boundaryPreference => 'boundaries',
-  ExcuseFamily.absurdDramatic => 'a little absurd',
-  null => 'from the shop',
+  ExcuseFamily.capacityWellbeing => 'Capacity',
+  ExcuseFamily.careFamily => 'Care & family',
+  ExcuseFamily.workStudy => 'Work & study',
+  ExcuseFamily.moneyLogistics => 'Daily logistics',
+  ExcuseFamily.planningFailure => 'Planning failure',
+  ExcuseFamily.boundaryPreference => 'Boundaries',
+  ExcuseFamily.absurdDramatic => 'A little absurd',
+  null => 'From the shop',
 };
 
 class ExcuseCard extends StatelessWidget {
@@ -206,7 +206,7 @@ class ExcuseCard extends StatelessWidget {
                       vertical: 5,
                     ),
                     child: Text(
-                      design.rarity,
+                      '${design.rarity[0].toUpperCase()}${design.rarity.substring(1)}',
                       style: pixel.copyWith(
                         fontSize: 7,
                         color: ShopTheme.pixelGlow,
@@ -228,7 +228,7 @@ class ExcuseCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'THE IDEA',
+                    'The idea',
                     style: pixel.copyWith(color: ShopTheme.paperMeta),
                   ),
                   const SizedBox(height: 8),

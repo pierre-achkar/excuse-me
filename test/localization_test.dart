@@ -24,19 +24,19 @@ void main() {
     await tester.pump();
 
     expect(find.text('Excuse Me'), findsOneWidget);
-    expect(find.text('I NEED AN EXCUSE'), findsOneWidget);
+    expect(find.text('I need an excuse'), findsOneWidget);
     await _enter(tester);
     expect(find.text("Now then... what's the situation?"), findsOneWidget);
-    expect(find.bySemanticsLabel('Choose intent: I NEED OUT'), findsOneWidget);
+    expect(find.bySemanticsLabel('Choose intent: I need out'), findsOneWidget);
   });
 
   test('localization resource exposes v6 English values', () async {
     final l10n = await AppLocalizations.delegate.load(const Locale('en'));
 
-    expect(l10n.entryCta, 'I NEED AN EXCUSE');
-    expect(l10n.intentNeedOut, 'I NEED OUT');
+    expect(l10n.entryCta, 'I need an excuse');
+    expect(l10n.intentNeedOut, 'I need out');
     expect(l10n.dialogueObligationV6, 'How much does this one matter?');
-    expect(l10n.keepCardButton, 'KEEP CARD');
+    expect(l10n.keepCardButton, 'Keep card');
   });
 
   testWidgets('forced RTL direction renders the entry without overflow', (
@@ -51,7 +51,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('I NEED AN EXCUSE'), findsOneWidget);
+    expect(find.text('I need an excuse'), findsOneWidget);
   });
 
   for (final scale in [1.3, 2.0, 3.0]) {
@@ -65,7 +65,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
-      expect(find.text('I NEED AN EXCUSE'), findsOneWidget);
+      expect(find.text('I need an excuse'), findsOneWidget);
     });
   }
 }

@@ -228,7 +228,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'A small repair direction is available for you to phrase in your own words.';
 
   @override
-  String get collectibleIdeaBadge => 'COLLECTIBLE IDEA';
+  String get collectibleIdeaBadge => 'Collectible idea';
 
   @override
   String get regenerateButton => 'Regenerate';
@@ -261,7 +261,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get generationError => 'Unable to generate an idea. Please try again.';
 
   @override
-  String get entryCta => 'I NEED AN EXCUSE';
+  String get entryCta => 'I need an excuse';
 
   @override
   String get dialogueIntent => 'Now then... what\'s the situation?';
@@ -295,13 +295,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get handoverDialogue => 'There. This one should do.';
 
   @override
-  String get intentNeedOut => 'I NEED OUT';
+  String get intentNeedOut => 'I need out';
 
   @override
-  String get intentNeedMoreTime => 'I NEED MORE TIME';
+  String get intentNeedMoreTime => 'I need more time';
 
   @override
-  String get intentAlreadyMessedUp => 'I ALREADY MESSED UP';
+  String get intentAlreadyMessedUp => 'I already messed up';
 
   @override
   String get actionCancelSomething => 'Cancel something';
@@ -397,10 +397,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchingLabel => 'Excusee is searching the shop';
 
   @override
-  String get rarityCommon => 'COMMON';
+  String get rarityCommon => 'Common';
 
   @override
-  String get cardIdeaLabel => 'THE IDEA';
+  String get cardIdeaLabel => 'The idea';
 
   @override
   String cardNumber(String number) {
@@ -420,10 +420,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tonePlayfulV6 => 'Playful';
 
   @override
-  String get keepCardButton => 'KEEP CARD';
+  String get keepCardButton => 'Keep card';
 
   @override
-  String get cardKept => 'KEPT FOR THIS VISIT';
+  String get cardKept => 'Kept for this visit';
 
   @override
   String get keepCardSemantics => 'Keep this card for this visit';

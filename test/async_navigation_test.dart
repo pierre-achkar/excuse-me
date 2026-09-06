@@ -147,7 +147,7 @@ void main() {
 
     expect(find.byKey(const ValueKey('v6-result')), findsOneWidget);
     expect(find.text('Original card'), findsOneWidget);
-    expect(find.text('SAVED TO COLLECTION'), findsOneWidget);
+    expect(find.text('Saved to collection'), findsOneWidget);
 
     client.alternative.complete(
       const GeneratedIdea(
@@ -160,6 +160,6 @@ void main() {
 
     expect(find.text('Original card'), findsOneWidget);
     expect(find.text('Late alternative'), findsNothing);
-    expect(find.text('SAVED TO COLLECTION'), findsOneWidget);
+    expect(find.text('Saved to collection'), findsOneWidget);
   });
 }
