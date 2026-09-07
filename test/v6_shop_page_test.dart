@@ -65,7 +65,9 @@ void main() {
     await tester.pump();
     expect(find.text('How much does this one matter?'), findsOneWidget);
 
-    await tester.tap(find.byKey(const ValueKey('v6-obligation-low')));
+    final obligation = find.byKey(const ValueKey('v6-obligation-low'));
+    await tester.ensureVisible(obligation);
+    await tester.tap(obligation);
     await tester.pumpAndSettle();
     // The reveal is where the card is kept.
     expect(find.text('Keep card'), findsOneWidget);

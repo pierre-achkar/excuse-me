@@ -152,7 +152,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       ShopFlowStage.timing,
     ShopFlowStage.relationship,
     ShopFlowStage.obligation,
-    ShopFlowStage.visitContext,
+    if (_shouldAskForVisitContext) ShopFlowStage.visitContext,
   ];
 
   /// Back only means something while a question is on screen. Once a card
@@ -164,7 +164,12 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     final path = _questionPath;
     final index = path.indexOf(_stage);
     if (index <= 0) return;
-    final target = path[index - 1];
+    _rewindTo(path[index - 1]);
+  }
+
+  /// Returns to an earlier beat. The answer being revisited and every answer
+  /// after it are cleared, because each one narrows the ones that follow.
+  void _rewindTo(ShopFlowStage target) {
     _controller.cancelPending();
     setState(() {
       _stage = target;
@@ -604,6 +609,13 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                                       ),
                                     ],
                                   ),
+                                if (_canGoBack) _buildStepIndicator(l10n),
+                                // The trail sits above the question so its
+                                // chips are never mistaken for the answers.
+                                if (_canGoBack)
+                                  _buildAnswerTrail(l10n, interactive: true)
+                                else if (_stage == ShopFlowStage.result)
+                                  _buildAnswerTrail(l10n, interactive: false),
                                 if (_stage != ShopFlowStage.entry &&
                                     _stage != ShopFlowStage.search)
                                   Padding(
@@ -695,6 +707,95 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// The answers given so far, in the order they were asked, each paired with
+  /// the beat that produced it so the trail can send you back to it.
+  List<_AnswerData> _answers(AppLocalizations l10n) {
+    final intent = _intent;
+    final action = _action;
+    final answerContext = _context;
+    final timing = _timing;
+    final relationship = _relationship;
+    final obligation = _obligation;
+    return [
+      if (intent != null)
+        _AnswerData(ShopFlowStage.intent, _intentLabel(l10n, intent)),
+      if (action != null)
+        _AnswerData(ShopFlowStage.action, _actionLabel(l10n, action)),
+      if (answerContext != null)
+        _AnswerData(ShopFlowStage.context, _contextLabel(l10n, answerContext)),
+      if (timing != null)
+        _AnswerData(ShopFlowStage.timing, _timingLabel(l10n, timing)),
+      if (relationship != null)
+        _AnswerData(
+          ShopFlowStage.relationship,
+          _relationshipLabel(l10n, relationship),
+        ),
+      if (obligation != null)
+        _AnswerData(
+          ShopFlowStage.obligation,
+          _obligationLabel(l10n, obligation),
+        ),
+    ];
+  }
+
+  /// What you have told the shopkeeper so far. During the conversation each
+  /// answer is a way back to its question; once a card exists the trail is
+  /// only a record, because revisiting an answer would discard the card.
+  Widget _buildAnswerTrail(AppLocalizations l10n, {required bool interactive}) {
+    final answers = _answers(l10n);
+    if (answers.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      key: const ValueKey('v6-answer-trail'),
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: [
+          for (final answer in answers)
+            Semantics(
+              button: interactive,
+              label: interactive
+                  ? l10n.changeAnswerSemantics(answer.label)
+                  : answer.label,
+              child: ActionChip(
+                key: ValueKey('v6-answer-${answer.stage.name}'),
+                label: Text(answer.label),
+                labelStyle: const TextStyle(
+                  fontSize: 12,
+                  color: ShopTheme.pixelOutline,
+                ),
+                backgroundColor: ShopTheme.paperPanel,
+                visualDensity: VisualDensity.compact,
+                shape: const RoundedRectangleBorder(
+                  side: BorderSide(color: ShopTheme.paperDivider),
+                ),
+                onPressed: interactive ? () => _rewindTo(answer.stage) : null,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// "Step 3 of 6", so the conversation has a visible end.
+  Widget _buildStepIndicator(AppLocalizations l10n) {
+    final path = _questionPath;
+    final index = path.indexOf(_stage);
+    if (index <= 0) return const SizedBox.shrink();
+    return Padding(
+      key: const ValueKey('v6-step-indicator'),
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Text(
+        l10n.stepIndicator(index, path.length - 1),
+        style: const TextStyle(
+          fontFamily: 'PressStart2P',
+          fontSize: 9,
+          color: ShopTheme.paperMeta,
         ),
       ),
     );
@@ -1250,6 +1351,13 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     _relationship != null,
     _obligation != null,
   ];
+}
+
+class _AnswerData {
+  const _AnswerData(this.stage, this.label);
+
+  final ShopFlowStage stage;
+  final String label;
 }
 
 class _ChoiceData {

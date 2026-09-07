@@ -760,6 +760,12 @@ abstract class AppLocalizations {
   /// **'High stakes'**
   String get obligationHigh;
 
+  /// Semantics label for a tappable answer in the trail of given answers.
+  ///
+  /// In en, this message translates to:
+  /// **'Change this answer: {option}'**
+  String changeAnswerSemantics(String option);
+
   /// Semantics label for an intent choice.
   ///
   /// In en, this message translates to:

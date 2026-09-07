@@ -364,6 +364,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get obligationHigh => 'High stakes';
 
   @override
+  String changeAnswerSemantics(String option) {
+    return 'Change this answer: $option';
+  }
+
+  @override
   String chooseIntent(String option) {
     return 'Choose intent: $option';
   }
