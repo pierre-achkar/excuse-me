@@ -428,7 +428,8 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           mode: CardViewerMode.reveal,
           kept: _kept,
           disableAnimations:
-              widget.disableAnimations || MediaQuery.of(context).disableAnimations,
+              widget.disableAnimations ||
+              MediaQuery.of(context).disableAnimations,
           onShare: widget.onShareCard,
           onKeep: _keepCard,
           onAnother: _anotherCard,
@@ -517,130 +518,202 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final sceneHeight = _stage == ShopFlowStage.result
-                  ? 150.0
-                  : (constraints.maxHeight *
-                            (_stage == ShopFlowStage.entry ? .52 : .35))
-                        .clamp(180.0, 520.0);
-              return SingleChildScrollView(
-                controller: _scroll,
-                child: Column(
-                  children: [
-                    if (_stage == ShopFlowStage.result)
-                      SizedBox(
-                        height: sceneHeight,
-                        child: ClipRect(
-                          child: OverflowBox(
-                            minHeight: 320,
-                            maxHeight: 320,
-                            child: _buildShopScene(l10n, 320),
-                          ),
-                        ),
+              // The shop is the welcome; once questions start, the answers
+              // matter more than the scenery, so the scene gives up room.
+              final sceneHeight = switch (_stage) {
+                ShopFlowStage.result => 150.0,
+                // The shop is the welcome, so the entry gives it room -- but
+                // never at the cost of the way in, which has to stay on screen
+                // even on a small phone. 340 is what the greeting and its
+                // button need below the scene.
+                ShopFlowStage.entry =>
+                  math
+                      .min(
+                        constraints.maxHeight * .52,
+                        constraints.maxHeight - 340,
                       )
-                    else
-                      _buildShopScene(l10n, sceneHeight),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF241B30),
-                        border: Border(
-                          top: BorderSide(
-                            color: ShopTheme.pixelVioletDark,
-                            width: 6,
-                          ),
-                        ),
-                      ),
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 640),
-                          child: Container(
-                            padding: const EdgeInsets.all(18),
-                            decoration: BoxDecoration(
-                              color: ShopTheme.paperBody,
-                              border: Border.all(
-                                color: ShopTheme.pixelOutline,
-                                width: 7,
+                      .clamp(120.0, 520.0),
+                _ => (constraints.maxHeight * .32).clamp(140.0, 300.0),
+              };
+              return Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scroll,
+                      child: Column(
+                        children: [
+                          if (_stage == ShopFlowStage.result)
+                            SizedBox(
+                              height: sceneHeight,
+                              child: ClipRect(
+                                child: OverflowBox(
+                                  minHeight: 320,
+                                  maxHeight: 320,
+                                  child: _buildShopScene(l10n, 320),
+                                ),
                               ),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: ShopTheme.paperBody,
-                                  spreadRadius: 3,
-                                ),
-                                BoxShadow(
+                            )
+                          else
+                            _buildShopScene(l10n, sceneHeight),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF241B30),
+                              border: Border(
+                                top: BorderSide(
                                   color: ShopTheme.pixelVioletDark,
-                                  spreadRadius: 7,
+                                  width: 6,
                                 ),
-                              ],
+                              ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                const Text(
-                                  'Excusee',
-                                  style: TextStyle(
-                                    fontFamily: 'PressStart2P',
-                                    fontSize: 8,
-                                    color: ShopTheme.pixelVioletDark,
-                                  ),
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 640,
                                 ),
-                                const SizedBox(height: 12),
-                                if (_stage != ShopFlowStage.entry)
-                                  Wrap(
-                                    alignment: WrapAlignment.spaceBetween,
-                                    spacing: 8,
-                                    children: [
-                                      if (_canGoBack)
-                                        TextButton.icon(
-                                          key: const ValueKey('v6-back'),
-                                          onPressed: _back,
-                                          icon: const Icon(
-                                            Icons.arrow_back,
-                                            size: 16,
-                                          ),
-                                          label: const Text('Back'),
-                                        )
-                                      else
-                                        const SizedBox.shrink(),
-                                      TextButton(
-                                        key: const ValueKey('restart-shop'),
-                                        onPressed: _saving ? null : _restart,
-                                        child: const Text('Start over'),
+                                child: Container(
+                                  padding: const EdgeInsets.all(18),
+                                  decoration: BoxDecoration(
+                                    color: ShopTheme.paperBody,
+                                    border: Border.all(
+                                      color: ShopTheme.pixelOutline,
+                                      width: 7,
+                                    ),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: ShopTheme.paperBody,
+                                        spreadRadius: 3,
+                                      ),
+                                      BoxShadow(
+                                        color: ShopTheme.pixelVioletDark,
+                                        spreadRadius: 7,
                                       ),
                                     ],
                                   ),
-                                if (_canGoBack) _buildStepIndicator(l10n),
-                                // The trail sits above the question so its
-                                // chips are never mistaken for the answers.
-                                if (_canGoBack)
-                                  _buildAnswerTrail(l10n, interactive: true)
-                                else if (_stage == ShopFlowStage.result)
-                                  _buildAnswerTrail(l10n, interactive: false),
-                                if (_stage != ShopFlowStage.entry &&
-                                    _stage != ShopFlowStage.search)
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 16),
-                                    child: Text(
-                                      _dialogueMain(l10n),
-                                      style: const TextStyle(
-                                        fontSize: 23,
-                                        height: 1.25,
-                                        fontWeight: FontWeight.w500,
-                                        color: ShopTheme.pixelOutline,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      const Text(
+                                        'Excusee',
+                                        style: TextStyle(
+                                          fontFamily: 'PressStart2P',
+                                          fontSize: 8,
+                                          color: ShopTheme.pixelVioletDark,
+                                        ),
                                       ),
-                                    ),
+                                      const SizedBox(height: 12),
+                                      if (_stage != ShopFlowStage.entry)
+                                        Wrap(
+                                          alignment: WrapAlignment.spaceBetween,
+                                          spacing: 8,
+                                          children: [
+                                            if (_canGoBack)
+                                              TextButton.icon(
+                                                key: const ValueKey('v6-back'),
+                                                onPressed: _back,
+                                                icon: const Icon(
+                                                  Icons.arrow_back,
+                                                  size: 16,
+                                                ),
+                                                label: const Text('Back'),
+                                              )
+                                            else
+                                              const SizedBox.shrink(),
+                                            TextButton(
+                                              key: const ValueKey(
+                                                'restart-shop',
+                                              ),
+                                              onPressed: _saving
+                                                  ? null
+                                                  : _restart,
+                                              child: const Text('Start over'),
+                                            ),
+                                          ],
+                                        ),
+                                      if (_canGoBack) _buildStepIndicator(l10n),
+                                      // The trail sits above the question so its
+                                      // chips are never mistaken for the answers.
+                                      if (_canGoBack)
+                                        _buildAnswerTrail(
+                                          l10n,
+                                          interactive: true,
+                                        )
+                                      else if (_stage == ShopFlowStage.result)
+                                        _buildAnswerTrail(
+                                          l10n,
+                                          interactive: false,
+                                        ),
+                                      if (_stage != ShopFlowStage.entry &&
+                                          _stage != ShopFlowStage.search)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 16,
+                                          ),
+                                          child: Text(
+                                            _dialogueMain(l10n),
+                                            style: const TextStyle(
+                                              fontSize: 23,
+                                              height: 1.25,
+                                              fontWeight: FontWeight.w500,
+                                              color: ShopTheme.pixelOutline,
+                                            ),
+                                          ),
+                                        ),
+                                      _buildStageContent(l10n),
+                                    ],
                                   ),
-                                _buildStageContent(l10n),
-                              ],
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  if (_stage == ShopFlowStage.result) _buildResultActions(),
+                ],
               );
             },
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// The result's two ways forward, held out of the scroll view so a tall
+  /// card can never push them off screen.
+  Widget _buildResultActions() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+      decoration: const BoxDecoration(
+        color: Color(0xFF241B30),
+        border: Border(
+          top: BorderSide(color: ShopTheme.pixelVioletDark, width: 3),
+        ),
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: Row(
+            children: [
+              Expanded(
+                child: FilledButton(
+                  key: const ValueKey('v6-see-card'),
+                  onPressed: _saving ? null : _openCurrentCard,
+                  child: const Text('Open card'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton(
+                  key: const ValueKey('v6-another-card'),
+                  onPressed: _saving ? null : _anotherCard,
+                  child: const Text('Another one'),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1091,19 +1164,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
               : 'Not kept. Open it again if you change your mind.',
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 13, color: ShopTheme.paperMeta),
-        ),
-        const SizedBox(height: 12),
-        FilledButton(
-          key: const ValueKey('v6-see-card'),
-          onPressed: _saving ? null : _openCurrentCard,
-          child: const Text('Open card'),
-        ),
-        const SizedBox(height: 10),
-        OutlinedButton.icon(
-          key: const ValueKey('v6-another-card'),
-          onPressed: _saving ? null : _anotherCard,
-          icon: const Icon(Icons.style_outlined, size: 18),
-          label: const Text('Another one'),
         ),
       ],
     );

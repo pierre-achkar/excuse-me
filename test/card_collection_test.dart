@@ -48,11 +48,12 @@ void main() {
       final store = CardCollection();
       await store.load();
       expect(store.cards, isEmpty);
+      // The result's actions are pinned, so no scrolling is needed.
       final another = find.byKey(const ValueKey('v6-another-card'));
-      final shopScroll = find
-          .ancestor(of: another, matching: find.byType(Scrollable))
-          .first;
-      await tester.scrollUntilVisible(another, 300, scrollable: shopScroll);
+      expect(
+        find.ancestor(of: another, matching: find.byType(Scrollable)),
+        findsNothing,
+      );
       await tester.tap(another);
       await tester.pumpAndSettle();
       expect(client.requests.length, 2);
