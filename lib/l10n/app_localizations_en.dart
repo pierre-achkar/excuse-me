@@ -56,6 +56,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get generationRetry => 'Try again';
 
   @override
+  String answerEcho(String answer) {
+    return '$answer.';
+  }
+
+  @override
   String get entryCta => 'I need an excuse';
 
   @override
@@ -157,11 +162,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get obligationHigh => 'High stakes';
-
-  @override
-  String changeAnswerSemantics(String option) {
-    return 'Change this answer: $option';
-  }
 
   @override
   String chooseIntent(String option) {

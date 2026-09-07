@@ -186,12 +186,6 @@
   "obligationHigh": "High stakes",
   "@obligationHigh": { "description": "Obligation choice for high stakes." },
 
-  "changeAnswerSemantics": "Change this answer: {option}",
-  "@changeAnswerSemantics": {
-    "description": "Semantics label for a tappable answer in the trail of given answers.",
-    "placeholders": { "option": { "type": "String" } }
-  },
-
   "chooseIntent": "Choose intent: {option}",
   "@chooseIntent": {
     "description": "Semantics label for an intent choice.",
@@ -523,5 +517,8 @@
   "profileInRelationship": "In a relationship",
   "@profileInRelationship": {"description": "Relationship status answer."},
   "profileMarried": "Married",
-  "@profileMarried": {"description": "Relationship status answer."}
+  "@profileMarried": {"description": "Relationship status answer."},
+
+  "answerEcho": "{answer}.",
+  "@answerEcho": {"description": "Wick repeating the last answer back before asking the next question.", "placeholders": {"answer": {"type": "String"}}}
 }

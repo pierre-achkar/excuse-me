@@ -178,6 +178,12 @@ abstract class AppLocalizations {
   /// **'Try again'**
   String get generationRetry;
 
+  /// Wick repeating the last answer back before asking the next question.
+  ///
+  /// In en, this message translates to:
+  /// **'{answer}.'**
+  String answerEcho(String answer);
+
   /// Direct primary action that enters the shop conversation.
   ///
   /// In en, this message translates to:
@@ -381,12 +387,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'High stakes'**
   String get obligationHigh;
-
-  /// Semantics label for a tappable answer in the trail of given answers.
-  ///
-  /// In en, this message translates to:
-  /// **'Change this answer: {option}'**
-  String changeAnswerSemantics(String option);
 
   /// Semantics label for an intent choice.
   ///

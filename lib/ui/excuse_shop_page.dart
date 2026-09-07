@@ -676,18 +676,9 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                                           ],
                                         ),
                                       if (_canGoBack) _buildStepIndicator(l10n),
-                                      // The trail sits above the question so its
-                                      // chips are never mistaken for the answers.
-                                      if (_canGoBack)
-                                        _buildAnswerTrail(
-                                          l10n,
-                                          interactive: true,
-                                        )
-                                      else if (_stage == ShopFlowStage.result)
-                                        _buildAnswerTrail(
-                                          l10n,
-                                          interactive: false,
-                                        ),
+                                      // Wick repeats the last answer back
+                                      // before asking the next thing.
+                                      if (_canGoBack) _buildAnswerEcho(l10n),
                                       if (_stage != ShopFlowStage.entry &&
                                           _stage != ShopFlowStage.search)
                                         Padding(
@@ -836,72 +827,49 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     );
   }
 
-  /// The answers given so far, in the order they were asked, each paired with
-  /// the beat that produced it so the trail can send you back to it.
-  List<_AnswerData> _answers(AppLocalizations l10n) {
+  /// The answer Wick heard most recently. He says it back before asking the
+  /// next question, which is all the trail the conversation needs.
+  String? _lastAnswer(AppLocalizations l10n) {
     final intent = _intent;
     final action = _action;
     final answerContext = _context;
     final timing = _timing;
     final relationship = _relationship;
-    final obligation = _obligation;
-    return [
-      if (intent != null)
-        _AnswerData(ShopFlowStage.intent, _intentLabel(l10n, intent)),
-      if (action != null)
-        _AnswerData(ShopFlowStage.action, _actionLabel(l10n, action)),
-      if (answerContext != null)
-        _AnswerData(ShopFlowStage.context, _contextLabel(l10n, answerContext)),
-      if (timing != null)
-        _AnswerData(ShopFlowStage.timing, _timingLabel(l10n, timing)),
-      if (relationship != null)
-        _AnswerData(
-          ShopFlowStage.relationship,
-          _relationshipLabel(l10n, relationship),
-        ),
-      if (obligation != null)
-        _AnswerData(
-          ShopFlowStage.obligation,
-          _obligationLabel(l10n, obligation),
-        ),
-    ];
+    return switch (_stage) {
+      // The action prompts already name the intent, so echoing it there
+      // would only say the same thing twice.
+      ShopFlowStage.context when action != null => _actionLabel(l10n, action),
+      ShopFlowStage.timing when answerContext != null => _contextLabel(
+        l10n,
+        answerContext,
+      ),
+      ShopFlowStage.relationship =>
+        timing != null
+            ? _timingLabel(l10n, timing)
+            : answerContext != null
+            ? _contextLabel(l10n, answerContext)
+            : null,
+      ShopFlowStage.obligation when relationship != null => _relationshipLabel(
+        l10n,
+        relationship,
+      ),
+      ShopFlowStage.visitContext when intent != null => _intentLabel(
+        l10n,
+        intent,
+      ),
+      _ => null,
+    };
   }
 
-  /// What you have told the shopkeeper so far. During the conversation each
-  /// answer is a way back to its question; once a card exists the trail is
-  /// only a record, because revisiting an answer would discard the card.
-  Widget _buildAnswerTrail(AppLocalizations l10n, {required bool interactive}) {
-    final answers = _answers(l10n);
-    if (answers.isEmpty) return const SizedBox.shrink();
+  Widget _buildAnswerEcho(AppLocalizations l10n) {
+    final answer = _lastAnswer(l10n);
+    if (answer == null) return const SizedBox.shrink();
     return Padding(
-      key: const ValueKey('v6-answer-trail'),
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Wrap(
-        spacing: 6,
-        runSpacing: 6,
-        children: [
-          for (final answer in answers)
-            Semantics(
-              button: interactive,
-              label: interactive
-                  ? l10n.changeAnswerSemantics(answer.label)
-                  : answer.label,
-              child: ActionChip(
-                key: ValueKey('v6-answer-${answer.stage.name}'),
-                label: Text(answer.label),
-                labelStyle: const TextStyle(
-                  fontSize: 12,
-                  color: ShopTheme.pixelOutline,
-                ),
-                backgroundColor: ShopTheme.paperPanel,
-                visualDensity: VisualDensity.compact,
-                shape: const RoundedRectangleBorder(
-                  side: BorderSide(color: ShopTheme.paperDivider),
-                ),
-                onPressed: interactive ? () => _rewindTo(answer.stage) : null,
-              ),
-            ),
-        ],
+      key: const ValueKey('v6-answer-echo'),
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Text(
+        l10n.answerEcho(answer),
+        style: const TextStyle(fontSize: 14, color: ShopTheme.paperMeta),
       ),
     );
   }
@@ -1471,13 +1439,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     _relationship != null,
     _obligation != null,
   ];
-}
-
-class _AnswerData {
-  const _AnswerData(this.stage, this.label);
-
-  final ShopFlowStage stage;
-  final String label;
 }
 
 class _ChoiceData {

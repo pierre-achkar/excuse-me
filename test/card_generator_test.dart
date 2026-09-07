@@ -111,7 +111,7 @@ void main() {
     expect(find.byKey(const ValueKey('v6-another-card')), findsOneWidget);
   });
 
-  testWidgets('the answer trail re-asks a beat and drops what followed', (
+  testWidgets('the shop shows progress and repeats the last answer back', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -122,7 +122,6 @@ void main() {
       'v6-intent-getOutOfPlans',
       'v6-action-cancel',
       'v6-context-social',
-      'v6-timing-today',
     ]) {
       final finder = find.byKey(ValueKey(key));
       await tester.ensureVisible(finder);
@@ -130,28 +129,21 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    // Four answers so far, and the shop says where we are.
-    expect(find.text('Step 5 of 6'), findsOneWidget);
-    expect(find.byKey(const ValueKey('v6-answer-intent')), findsOneWidget);
-    expect(find.byKey(const ValueKey('v6-answer-timing')), findsOneWidget);
-
-    // Revisiting the action re-asks it and forgets the later answers.
-    final actionChip = find.byKey(const ValueKey('v6-answer-action'));
-    await tester.ensureVisible(actionChip);
-    await tester.tap(actionChip);
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const ValueKey('v6-step-action')), findsOneWidget);
-    expect(find.byKey(const ValueKey('v6-answer-intent')), findsOneWidget);
+    // Progress, and Wick echoing the answer just given -- no tappable trail.
+    expect(find.text('Step 4 of 6'), findsOneWidget);
+    expect(find.text('Social plans.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('v6-answer-echo')), findsOneWidget);
     expect(find.byKey(const ValueKey('v6-answer-action')), findsNothing);
-    expect(find.byKey(const ValueKey('v6-answer-context')), findsNothing);
-    expect(find.byKey(const ValueKey('v6-answer-timing')), findsNothing);
-    expect(find.text('Step 2 of 6'), findsOneWidget);
+
+    // Back still walks the answers, and forgets the ones after it.
+    await tester.tap(find.byKey(const ValueKey('v6-back')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('v6-step-context')), findsOneWidget);
+    expect(find.text('Step 3 of 6'), findsOneWidget);
+    expect(find.text('Cancel something.'), findsOneWidget);
   });
 
-  testWidgets('the result records the answers but will not rewind to them', (
-    tester,
-  ) async {
+  testWidgets('the result shows neither progress nor an echo', (tester) async {
     await tester.pumpWidget(
       ExcuseMeApp(client: FakeShopIdeaClient('Idea'), disableAnimations: true),
     );
@@ -172,18 +164,8 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('card-viewer-continue')));
     await tester.pumpAndSettle();
 
-    final trail = find.byKey(const ValueKey('v6-answer-intent'));
-    expect(trail, findsOneWidget);
-    expect(find.byKey(const ValueKey('v6-step-indicator')), findsNothing);
-
-    // Tapping a recorded answer must not throw the card away.
-    await tester.ensureVisible(trail);
-    await tester.tap(trail, warnIfMissed: false);
-    await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('v6-result')), findsOneWidget);
-    expect(
-      find.byKey(const ValueKey('collectible-result-card')),
-      findsOneWidget,
-    );
+    expect(find.byKey(const ValueKey('v6-step-indicator')), findsNothing);
+    expect(find.byKey(const ValueKey('v6-answer-echo')), findsNothing);
   });
 }
