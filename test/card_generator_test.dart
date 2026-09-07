@@ -80,4 +80,34 @@ void main() {
     expect(find.byKey(const ValueKey('v6-action-delay')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('the result offers no Back that would discard the card', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ExcuseMeApp(client: FakeShopIdeaClient('Idea'), disableAnimations: true),
+    );
+    for (final key in [
+      'v6-entry-cta',
+      'v6-intent-getOutOfPlans',
+      'v6-action-cancel',
+      'v6-context-social',
+      'v6-timing-today',
+      'v6-relationship-casual',
+      'v6-obligation-low',
+    ]) {
+      final finder = find.byKey(ValueKey(key));
+      await tester.ensureVisible(finder);
+      await tester.tap(finder);
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(find.byKey(const ValueKey('card-viewer-continue')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('v6-result')), findsOneWidget);
+    expect(find.byKey(const ValueKey('v6-back')), findsNothing);
+    // Leaving the result is deliberate: another card, or start over.
+    expect(find.byKey(const ValueKey('restart-shop')), findsOneWidget);
+    expect(find.byKey(const ValueKey('v6-another-card')), findsOneWidget);
+  });
 }

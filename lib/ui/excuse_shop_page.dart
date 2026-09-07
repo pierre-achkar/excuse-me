@@ -141,20 +141,30 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     });
   }
 
+  /// The answered beats, in the order they are asked. Timing is skipped for
+  /// actions that describe something that already happened.
+  List<ShopFlowStage> get _questionPath => [
+    ShopFlowStage.entry,
+    ShopFlowStage.intent,
+    ShopFlowStage.action,
+    ShopFlowStage.context,
+    if (_action == null || shopTimingOptionsFor(_action!).isNotEmpty)
+      ShopFlowStage.timing,
+    ShopFlowStage.relationship,
+    ShopFlowStage.obligation,
+    ShopFlowStage.visitContext,
+  ];
+
+  /// Back only means something while a question is on screen. Once a card
+  /// exists there is nothing behind it but the answers that produced it, and
+  /// stepping there would throw the card away.
+  bool get _canGoBack => _questionPath.indexOf(_stage) > 0;
+
   void _back() {
-    final path = [
-      ShopFlowStage.entry,
-      ShopFlowStage.intent,
-      ShopFlowStage.action,
-      ShopFlowStage.context,
-      if (_action == null || shopTimingOptionsFor(_action!).isNotEmpty)
-        ShopFlowStage.timing,
-      ShopFlowStage.relationship,
-      ShopFlowStage.obligation,
-      ShopFlowStage.visitContext,
-    ];
+    final path = _questionPath;
     final index = path.indexOf(_stage);
-    final target = index > 0 ? path[index - 1] : ShopFlowStage.obligation;
+    if (index <= 0) return;
+    final target = path[index - 1];
     _controller.cancelPending();
     setState(() {
       _stage = target;
@@ -165,7 +175,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       if (target.index <= ShopFlowStage.relationship.index) {
         _relationship = null;
       }
-      _obligation = null;
+      if (target.index <= ShopFlowStage.obligation.index) _obligation = null;
       _request = null;
       _idea = null;
       _error = null;
@@ -575,9 +585,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                                     alignment: WrapAlignment.spaceBetween,
                                     spacing: 8,
                                     children: [
-                                      // Back is meaningless mid-search: there
-                                      // is no answer to step back to yet.
-                                      if (_stage != ShopFlowStage.search)
+                                      if (_canGoBack)
                                         TextButton.icon(
                                           key: const ValueKey('v6-back'),
                                           onPressed: _back,
