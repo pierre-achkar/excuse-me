@@ -23,7 +23,10 @@ class SpyAnalyticsClient implements AnalyticsClient {
   int count(AnalyticsEvent event) => events.where((e) => e == event).length;
 }
 
-Future<void> _completeV6(WidgetTester tester) async {
+Future<void> _completeV6(
+  WidgetTester tester, {
+  bool dismissReveal = true,
+}) async {
   for (final key in [
     'v6-entry-cta',
     'v6-intent-getOutOfPlans',
@@ -40,7 +43,7 @@ Future<void> _completeV6(WidgetTester tester) async {
   }
   await tester.pumpAndSettle();
   final reveal = find.byKey(const ValueKey('card-viewer-continue'));
-  if (reveal.evaluate().isNotEmpty) {
+  if (dismissReveal && reveal.evaluate().isNotEmpty) {
     await tester.tap(reveal);
     await tester.pumpAndSettle();
   }
@@ -101,7 +104,7 @@ void main() {
           disableAnimations: true,
         ),
       );
-      await _completeV6(tester);
+      await _completeV6(tester, dismissReveal: false);
 
       await tester.ensureVisible(find.byKey(const ValueKey('v6-copy-card')));
       await tester.tap(find.byKey(const ValueKey('v6-copy-card')));
@@ -143,7 +146,7 @@ void main() {
           disableAnimations: true,
         ),
       );
-      await _completeV6(tester);
+      await _completeV6(tester, dismissReveal: false);
       await tester.ensureVisible(find.byKey(const ValueKey('v6-copy-card')));
       await tester.tap(find.byKey(const ValueKey('v6-copy-card')));
       await tester.pumpAndSettle();

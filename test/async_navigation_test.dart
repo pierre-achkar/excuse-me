@@ -131,8 +131,9 @@ void main() {
       await _tapKey(tester, key);
     }
     await tester.pumpAndSettle();
-    await _tapKey(tester, 'card-viewer-continue');
     await _tapKey(tester, 'v6-keep-card');
+    await tester.pumpAndSettle();
+    await _tapKey(tester, 'card-viewer-continue');
     await tester.pumpAndSettle();
 
     expect(collection.cards, hasLength(1));
@@ -147,7 +148,7 @@ void main() {
 
     expect(find.byKey(const ValueKey('v6-result')), findsOneWidget);
     expect(find.text('Original card'), findsOneWidget);
-    expect(find.text('Saved to collection'), findsOneWidget);
+    expect(find.textContaining('Kept.'), findsOneWidget);
 
     client.alternative.complete(
       const GeneratedIdea(
@@ -160,6 +161,6 @@ void main() {
 
     expect(find.text('Original card'), findsOneWidget);
     expect(find.text('Late alternative'), findsNothing);
-    expect(find.text('Saved to collection'), findsOneWidget);
+    expect(find.textContaining('Kept.'), findsOneWidget);
   });
 }

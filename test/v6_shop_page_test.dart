@@ -67,22 +67,21 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('v6-obligation-low')));
     await tester.pumpAndSettle();
-    final reveal = find.byKey(const ValueKey('card-viewer-continue'));
-    if (reveal.evaluate().isNotEmpty) {
-      await tester.tap(reveal);
-      await tester.pumpAndSettle();
-    }
+    // The reveal is where the card is kept.
+    expect(find.text('Keep card'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('v6-keep-card')));
+    await tester.tap(find.byKey(const ValueKey('v6-keep-card')));
+    await tester.pumpAndSettle();
+    expect(find.text('Saved to collection'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('card-viewer-continue')));
+    await tester.pumpAndSettle();
 
     expect(
       find.byKey(const ValueKey('collectible-result-card')),
       findsOneWidget,
     );
     expect(find.text('The idea'), findsOneWidget);
-    expect(find.text('Keep card'), findsOneWidget);
-
-    await tester.ensureVisible(find.byKey(const ValueKey('v6-keep-card')));
-    await tester.tap(find.byKey(const ValueKey('v6-keep-card')));
-    await tester.pumpAndSettle();
-    expect(find.text('Saved to collection'), findsOneWidget);
+    expect(find.textContaining('Kept.'), findsOneWidget);
   });
 }

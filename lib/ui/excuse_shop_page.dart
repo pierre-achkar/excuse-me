@@ -14,7 +14,6 @@ import '../services/shop_flow_controller.dart';
 import 'shop_theme.dart';
 import 'card_viewer.dart';
 import 'excuse_card.dart';
-import 'collection_page.dart';
 import '../services/card_collection.dart';
 import 'reference_shop_painter.dart';
 
@@ -27,10 +26,8 @@ class ExcuseShopPage extends StatefulWidget {
     this.collection,
     this.profile = const UserProfile.empty(),
     this.onCollectionChanged,
-    this.onOpenCollection,
     this.onShareCard,
     this.navigationVersion = 0,
-    this.showInternalNavigation = true,
   });
 
   final IdeaClient client;
@@ -39,10 +36,8 @@ class ExcuseShopPage extends StatefulWidget {
   final CardCollection? collection;
   final UserProfile profile;
   final VoidCallback? onCollectionChanged;
-  final VoidCallback? onOpenCollection;
   final CardViewerShareCallback? onShareCard;
   final int navigationVersion;
-  final bool showInternalNavigation;
 
   @override
   State<ExcuseShopPage> createState() => ExcuseShopPageState();
@@ -346,19 +341,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       });
       widget.analytics.record(AnalyticsEvent.generationCompleted);
       if (!mounted || !_controller.accepts(ticket)) return;
-      await Navigator.of(context).push<void>(
-        MaterialPageRoute(
-          fullscreenDialog: true,
-          builder: (_) => CardViewerPage(
-            idea: idea,
-            mode: CardViewerMode.reveal,
-            disableAnimations:
-                widget.disableAnimations ||
-                MediaQuery.of(context).disableAnimations,
-            onShare: widget.onShareCard,
-          ),
-        ),
-      );
+      await _openCurrentCard();
     } catch (error) {
       if (!mounted || !_controller.accepts(ticket)) return;
       setState(() {
@@ -393,17 +376,18 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     });
   }
 
-  Future<void> _keepCard() async {
+  Future<bool> _keepCard() async {
     final idea = _idea;
-    if (idea == null || _saving) return;
+    if (idea == null || _saving) return false;
     setState(() => _saving = true);
     try {
       await _collection.save(idea);
-      if (!mounted) return;
+      if (!mounted) return true;
       setState(() {
         if (identical(_idea, idea)) _kept = true;
       });
       widget.onCollectionChanged?.call();
+      return true;
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -415,31 +399,29 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     } finally {
       if (mounted) setState(() => _saving = false);
     }
+    return false;
   }
 
-  Future<void> _openCollection() async {
-    final onOpenCollection = widget.onOpenCollection;
-    if (onOpenCollection != null) {
-      onOpenCollection();
-      return;
-    }
-    try {
-      await _collection.load();
-      if (!mounted) return;
-      await Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => CollectionPage(cards: _collection.cards),
+  Future<void> _openCurrentCard() async {
+    final idea = _idea;
+    if (idea == null) return;
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => CardViewerPage(
+          idea: idea,
+          mode: CardViewerMode.reveal,
+          kept: _kept,
+          disableAnimations:
+              widget.disableAnimations || MediaQuery.of(context).disableAnimations,
+          onShare: widget.onShareCard,
+          onKeep: _keepCard,
+          onAnother: _anotherCard,
+          onCopy: _copyIdea,
         ),
-      );
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Could not open your collection. Please try again.'),
-          ),
-        );
-      }
-    }
+      ),
+    );
+    if (mounted) setState(() {});
   }
 
   void _anotherCard() {
@@ -517,56 +499,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       ),
       child: Scaffold(
         backgroundColor: ShopTheme.pixelOutline,
-        bottomNavigationBar: widget.showInternalNavigation
-            ? SafeArea(
-                top: false,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: ShopTheme.pixelOutline,
-                    border: Border(
-                      top: BorderSide(
-                        color: ShopTheme.pixelVioletDark,
-                        width: 3,
-                      ),
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextButton.icon(
-                          key: const ValueKey('open-collection'),
-                          onPressed: _saving ? null : _openCollection,
-                          style: TextButton.styleFrom(
-                            foregroundColor: ShopTheme.paperBody,
-                            minimumSize: const Size(44, 44),
-                          ),
-                          icon: const Icon(
-                            Icons.collections_bookmark_outlined,
-                            size: 18,
-                          ),
-                          label: const Text('Collection'),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      TextButton.icon(
-                        key: const ValueKey('restart-shop'),
-                        onPressed: _saving ? null : _restart,
-                        style: TextButton.styleFrom(
-                          foregroundColor: ShopTheme.paperBody,
-                          minimumSize: const Size(44, 44),
-                        ),
-                        icon: const Icon(Icons.refresh, size: 18),
-                        label: const Text('Restart'),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            : null,
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -638,19 +570,31 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                if (_stage != ShopFlowStage.entry &&
-                                    _stage != ShopFlowStage.search)
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: TextButton.icon(
-                                      key: const ValueKey('v6-back'),
-                                      onPressed: _back,
-                                      icon: const Icon(
-                                        Icons.arrow_back,
-                                        size: 16,
+                                if (_stage != ShopFlowStage.entry)
+                                  Wrap(
+                                    alignment: WrapAlignment.spaceBetween,
+                                    spacing: 8,
+                                    children: [
+                                      // Back is meaningless mid-search: there
+                                      // is no answer to step back to yet.
+                                      if (_stage != ShopFlowStage.search)
+                                        TextButton.icon(
+                                          key: const ValueKey('v6-back'),
+                                          onPressed: _back,
+                                          icon: const Icon(
+                                            Icons.arrow_back,
+                                            size: 16,
+                                          ),
+                                          label: const Text('Back'),
+                                        )
+                                      else
+                                        const SizedBox.shrink(),
+                                      TextButton(
+                                        key: const ValueKey('restart-shop'),
+                                        onPressed: _saving ? null : _restart,
+                                        child: const Text('Start over'),
                                       ),
-                                      label: const Text('Back'),
-                                    ),
+                                    ],
                                   ),
                                 if (_stage != ShopFlowStage.entry &&
                                     _stage != ShopFlowStage.search)
@@ -1032,16 +976,18 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           ),
         ],
         const SizedBox(height: 14),
+        Text(
+          _kept
+              ? 'Kept. It is on your shelf in Collection.'
+              : 'Not kept. Open it again if you change your mind.',
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 13, color: ShopTheme.paperMeta),
+        ),
+        const SizedBox(height: 12),
         FilledButton(
-          key: const ValueKey('v6-keep-card'),
-          onPressed: _kept || _saving ? null : _keepCard,
-          child: Text(
-            _saving
-                ? 'Saving…'
-                : _kept
-                ? 'Saved to collection'
-                : 'Keep card',
-          ),
+          key: const ValueKey('v6-see-card'),
+          onPressed: _saving ? null : _openCurrentCard,
+          child: const Text('Open card'),
         ),
         const SizedBox(height: 10),
         OutlinedButton.icon(
@@ -1049,40 +995,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           onPressed: _saving ? null : _anotherCard,
           icon: const Icon(Icons.style_outlined, size: 18),
           label: const Text('Another one'),
-        ),
-        KeyedSubtree(
-          key: const ValueKey('v6-share-card'),
-          child: OutlinedButton.icon(
-            key: _resultShareButtonKey,
-            onPressed: _sharing ? null : _shareCurrentCard,
-            icon: _sharing
-                ? const SizedBox.square(
-                    dimension: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.ios_share, size: 18),
-            label: const Text('Share'),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          _kept
-              ? 'Your card is waiting in Collection.'
-              : 'Keep this one, or let Excusee find another.',
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 13, color: ShopTheme.paperMeta),
-        ),
-        TextButton.icon(
-          key: const ValueKey('v6-copy-card'),
-          onPressed: _copyIdea,
-          icon: const Icon(Icons.copy_outlined, size: 16),
-          label: const Text('Copy idea'),
-        ),
-        const SizedBox(height: 10),
-        TextButton(
-          key: const ValueKey('v6-new-excuse'),
-          onPressed: _restart,
-          child: const Text('New excuse'),
         ),
       ],
     );

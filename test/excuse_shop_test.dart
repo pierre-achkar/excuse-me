@@ -204,6 +204,9 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('The idea'), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const ValueKey('v6-see-card')));
+      await tester.tap(find.byKey(const ValueKey('v6-see-card')));
+      await tester.pumpAndSettle();
       await tester.ensureVisible(find.byKey(const ValueKey('v6-keep-card')));
       await tester.tap(find.byKey(const ValueKey('v6-keep-card')));
       await tester.pumpAndSettle();
@@ -249,7 +252,7 @@ void main() {
         find.byKey(const ValueKey('collectible-result-card')),
         findsOneWidget,
       );
-      expect(find.byKey(const ValueKey('v6-new-excuse')), findsOneWidget);
+      expect(find.byKey(const ValueKey('restart-shop')), findsOneWidget);
     });
   });
 }

@@ -37,12 +37,24 @@ class CardViewerPage extends StatefulWidget {
     required this.mode,
     this.disableAnimations = false,
     this.onShare,
+    this.onKeep,
+    this.onAnother,
+    this.onCopy,
+    this.kept = false,
   });
 
   final GeneratedIdea idea;
   final CardViewerMode mode;
   final bool disableAnimations;
   final CardViewerShareCallback? onShare;
+
+  /// Saves the card. Returns true when it reached the collection.
+  final Future<bool> Function()? onKeep;
+
+  /// Asks for a different card built from the same answers.
+  final VoidCallback? onAnother;
+  final VoidCallback? onCopy;
+  final bool kept;
 
   @override
   State<CardViewerPage> createState() => _CardViewerPageState();
@@ -54,6 +66,27 @@ class _CardViewerPageState extends State<CardViewerPage>
   final GlobalKey _repaintBoundaryKey = GlobalKey();
   final GlobalKey _shareButtonKey = GlobalKey();
   bool _sharing = false;
+  bool _saving = false;
+  late bool _kept = widget.kept;
+
+  Future<void> _keep() async {
+    final onKeep = widget.onKeep;
+    if (onKeep == null || _saving || _kept) return;
+    setState(() => _saving = true);
+    final saved = await onKeep();
+    if (!mounted) return;
+    setState(() {
+      _saving = false;
+      _kept = saved;
+    });
+  }
+
+  void _another() {
+    final onAnother = widget.onAnother;
+    if (onAnother == null || _saving) return;
+    _close();
+    onAnother();
+  }
 
   @override
   void initState() {
@@ -124,7 +157,7 @@ class _CardViewerPageState extends State<CardViewerPage>
         key: const ValueKey('card-viewer'),
         backgroundColor: ShopTheme.pixelOutline,
         appBar: AppBar(
-          title: Text(isSaved ? 'Saved card' : 'Card reveal'),
+          title: Text(isSaved ? 'Saved card' : 'Your card'),
           leading: isSaved
               ? IconButton(
                   key: const ValueKey('card-viewer-close'),
@@ -134,6 +167,13 @@ class _CardViewerPageState extends State<CardViewerPage>
                 )
               : null,
           actions: [
+            if (widget.onCopy != null)
+              IconButton(
+                key: const ValueKey('v6-copy-card'),
+                tooltip: 'Copy idea',
+                onPressed: widget.onCopy,
+                icon: const Icon(Icons.copy_outlined),
+              ),
             KeyedSubtree(
               key: const ValueKey('card-viewer-share'),
               child: IconButton(
@@ -182,20 +222,47 @@ class _CardViewerPageState extends State<CardViewerPage>
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(18, 8, 18, 18),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: isSaved
-                      ? OutlinedButton(
+                child: isSaved
+                    ? SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
                           key: const ValueKey('card-viewer-close-action'),
                           onPressed: _close,
                           child: const Text('Close'),
-                        )
-                      : FilledButton(
-                          key: const ValueKey('card-viewer-continue'),
-                          onPressed: _close,
-                          child: const Text('Continue'),
                         ),
-                ),
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (widget.onKeep != null)
+                            FilledButton(
+                              key: const ValueKey('v6-keep-card'),
+                              onPressed: _saving || _kept ? null : _keep,
+                              child: Text(
+                                _saving
+                                    ? 'Saving\u2026'
+                                    : _kept
+                                    ? 'Saved to collection'
+                                    : 'Keep card',
+                              ),
+                            ),
+                          if (widget.onAnother != null) ...[
+                            const SizedBox(height: 10),
+                            OutlinedButton.icon(
+                              key: const ValueKey('v6-another-card'),
+                              onPressed: _saving ? null : _another,
+                              icon: const Icon(Icons.style_outlined, size: 18),
+                              label: const Text('Another one'),
+                            ),
+                          ],
+                          const SizedBox(height: 10),
+                          TextButton(
+                            key: const ValueKey('card-viewer-continue'),
+                            onPressed: _saving ? null : _close,
+                            child: Text(_kept ? 'Done' : 'Not this one'),
+                          ),
+                        ],
+                      ),
               ),
             ],
           ),

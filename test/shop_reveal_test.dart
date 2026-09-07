@@ -37,10 +37,13 @@ void main() {
 
     expect(find.byKey(const ValueKey('card-viewer')), findsOneWidget);
     expect(find.byKey(const ValueKey('card-viewer-continue')), findsOneWidget);
+    // Keeping, sharing and copying all live on the reveal itself.
+    expect(find.byKey(const ValueKey('card-viewer-share')), findsOneWidget);
+    expect(find.byKey(const ValueKey('v6-keep-card')), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('card-viewer-continue')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('v6-share-card')), findsOneWidget);
     expect(find.byKey(const ValueKey('v6-result')), findsOneWidget);
+    expect(find.byKey(const ValueKey('v6-see-card')), findsOneWidget);
   });
 }

@@ -90,21 +90,6 @@ class _ExcuseMeShellState extends State<ExcuseMeShell> {
     _selectIndex(1);
   }
 
-  void _openCollectionFromShop() {
-    _shopKey.currentState?.cancelPendingGeneration();
-    setState(() => _navigationVersion += 1);
-    Navigator.of(context).push<void>(
-      MaterialPageRoute(
-        builder: (_) => CollectionPage(
-          cards: _collection.cards,
-          error: _collectionError,
-          onRetry: _loadSharedState,
-          onCardTap: _openSavedCard,
-        ),
-      ),
-    );
-  }
-
   Future<void> _shareCard(
     BuildContext context,
     GeneratedIdea idea,
@@ -153,10 +138,8 @@ class _ExcuseMeShellState extends State<ExcuseMeShell> {
                 collection: _collection,
                 profile: _profile,
                 onCollectionChanged: _refreshCollection,
-                onOpenCollection: _openCollectionFromShop,
                 onShareCard: _shareCard,
                 navigationVersion: _navigationVersion,
-                showInternalNavigation: true,
               ),
             ),
             TickerMode(

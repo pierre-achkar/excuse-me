@@ -44,16 +44,15 @@ void main() {
     }
     await tester.pumpAndSettle();
     final reveal = find.byKey(const ValueKey('card-viewer-continue'));
-    if (reveal.evaluate().isNotEmpty) {
-      await tester.tap(reveal);
-      await tester.pumpAndSettle();
-    }
+    expect(reveal, findsOneWidget);
+    expect(find.byKey(const ValueKey('v6-copy-card')), findsOneWidget);
+    await tester.tap(reveal);
+    await tester.pumpAndSettle();
 
     expect(client.called, isTrue);
     expect(
       find.byKey(const ValueKey('collectible-result-card')),
       findsOneWidget,
     );
-    expect(find.byKey(const ValueKey('v6-copy-card')), findsOneWidget);
   });
 }

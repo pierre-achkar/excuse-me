@@ -55,34 +55,29 @@ void main() {
       await tester.scrollUntilVisible(another, 300, scrollable: shopScroll);
       await tester.tap(another);
       await tester.pumpAndSettle();
-      final alternativeReveal = find.byKey(
-        const ValueKey('card-viewer-continue'),
-      );
-      if (alternativeReveal.evaluate().isNotEmpty) {
-        await tester.tap(alternativeReveal);
-        await tester.pumpAndSettle();
-      }
       expect(client.requests.length, 2);
       expect(
         client.requests[0].structuredRequest!.semanticSelectionKey,
         client.requests[1].structuredRequest!.semanticSelectionKey,
       );
       expect(find.text('Card 2'), findsOneWidget);
+
+      // The alternative's reveal is where it gets kept.
       final keep = find.byKey(const ValueKey('v6-keep-card'));
-      final keepScroll = find
-          .ancestor(of: keep, matching: find.byType(Scrollable))
-          .first;
-      await tester.scrollUntilVisible(keep, 300, scrollable: keepScroll);
+      await tester.ensureVisible(keep);
       await tester.tap(keep);
       await tester.pumpAndSettle();
       expect(find.text('Saved to collection'), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('open-collection')));
+      await tester.tap(find.byKey(const ValueKey('card-viewer-continue')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const ValueKey('nav-collection')));
       await tester.pumpAndSettle();
       expect(find.text('Collection · 1'), findsOneWidget);
       expect(find.text('Card 2'), findsOneWidget);
       expect(find.text('Card 1'), findsNothing);
       expect(find.byType(ExcuseCard), findsOneWidget);
-      await tester.pageBack();
+      await tester.tap(find.byKey(const ValueKey('nav-shop')));
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('v6-result')), findsOneWidget);
     },
@@ -91,7 +86,7 @@ void main() {
     await tester.pumpWidget(
       ExcuseMeApp(client: AlternativesClient(), disableAnimations: true),
     );
-    await tester.tap(find.byKey(const ValueKey('open-collection')));
+    await tester.tap(find.byKey(const ValueKey('nav-collection')));
     await tester.pumpAndSettle();
     expect(find.text('Your shelf is waiting.'), findsOneWidget);
   });
