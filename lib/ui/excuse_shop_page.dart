@@ -69,7 +69,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
   bool? _alternativeOriginalKept;
   bool _wasInactive = false;
   bool _shopActive = true;
-  Object? _error;
 
   @override
   void initState() {
@@ -90,9 +89,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       final hasOriginalCard = _idea != null;
       setState(() {
         _stage = hasOriginalCard ? ShopFlowStage.result : ShopFlowStage.error;
-        _error = hasOriginalCard
-            ? null
-            : StateError('Generation cancelled when leaving Shop.');
         _kept = hasOriginalCard ? (_alternativeOriginalKept ?? _kept) : false;
         _alternativeRequested = false;
         _alternativeFailed = false;
@@ -183,7 +179,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       if (target.index <= ShopFlowStage.obligation.index) _obligation = null;
       _request = null;
       _idea = null;
-      _error = null;
       _kept = false;
       _alternativeOriginalKept = null;
     });
@@ -329,7 +324,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     _resetScroll();
     setState(() {
       _stage = ShopFlowStage.search;
-      _error = null;
       _kept = false;
     });
 
@@ -357,10 +351,9 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       widget.analytics.record(AnalyticsEvent.generationCompleted);
       if (!mounted || !_controller.accepts(ticket)) return;
       await _openCurrentCard();
-    } catch (error) {
+    } catch (_) {
       if (!mounted || !_controller.accepts(ticket)) return;
       setState(() {
-        _error = error;
         _kept = isAlternative ? (_alternativeOriginalKept ?? _kept) : _kept;
         _alternativeRequested = false;
         _alternativeFailed = isAlternative;
@@ -368,6 +361,17 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
         _stage = ShopFlowStage.error;
       });
     }
+  }
+
+  /// A failed generation should not cost the user six answers: the same
+  /// request goes back to the shelf. Start over stays in the panel header.
+  void _retryGeneration() {
+    final request = _request;
+    if (request == null) {
+      _restart();
+      return;
+    }
+    _brew(request);
   }
 
   void _restart() {
@@ -387,7 +391,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       _alternativeRequested = false;
       _alternativeFailed = false;
       _alternativeOriginalKept = null;
-      _error = null;
     });
   }
 
@@ -406,9 +409,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Could not save this card. Please try again.'),
-          ),
+          SnackBar(content: Text(AppLocalizations.of(context)!.saveCardFailed)),
         );
       }
     } finally {
@@ -463,7 +464,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     if (idea == null || _sharing) return;
     if (onShare == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sharing is not available here.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.shareUnavailable)),
       );
       return;
     }
@@ -478,9 +479,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Could not share this card. Try again.'),
-          ),
+          SnackBar(content: Text(AppLocalizations.of(context)!.shareFailed)),
         );
       }
     } finally {
@@ -595,9 +594,9 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.stretch,
                                     children: [
-                                      const Text(
-                                        'Excusee',
-                                        style: TextStyle(
+                                      Text(
+                                        l10n.shopkeeperName,
+                                        style: const TextStyle(
                                           fontFamily: 'PressStart2P',
                                           fontSize: 8,
                                           color: ShopTheme.pixelVioletDark,
@@ -617,7 +616,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                                                   Icons.arrow_back,
                                                   size: 16,
                                                 ),
-                                                label: const Text('Back'),
+                                                label: Text(l10n.backAction),
                                               )
                                             else
                                               const SizedBox.shrink(),
@@ -628,7 +627,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                                               onPressed: _saving
                                                   ? null
                                                   : _restart,
-                                              child: const Text('Start over'),
+                                              child: Text(l10n.startOverAction),
                                             ),
                                           ],
                                         ),
@@ -672,7 +671,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                       ),
                     ),
                   ),
-                  if (_stage == ShopFlowStage.result) _buildResultActions(),
+                  if (_stage == ShopFlowStage.result) _buildResultActions(l10n),
                 ],
               );
             },
@@ -684,7 +683,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
 
   /// The result's two ways forward, held out of the scroll view so a tall
   /// card can never push them off screen.
-  Widget _buildResultActions() {
+  Widget _buildResultActions(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
       decoration: const BoxDecoration(
@@ -702,7 +701,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                 child: FilledButton(
                   key: const ValueKey('v6-see-card'),
                   onPressed: _saving ? null : _openCurrentCard,
-                  child: const Text('Open card'),
+                  child: Text(l10n.openCardAction),
                 ),
               ),
               const SizedBox(width: 10),
@@ -710,7 +709,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                 child: OutlinedButton(
                   key: const ValueKey('v6-another-card'),
                   onPressed: _saving ? null : _anotherCard,
-                  child: const Text('Another one'),
+                  child: Text(l10n.anotherOneAction),
                 ),
               ),
             ],
@@ -757,9 +756,9 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                       BoxShadow(color: Color(0x6620182B), offset: Offset(8, 8)),
                     ],
                   ),
-                  child: const Text(
-                    'Excuse Me',
-                    style: TextStyle(
+                  child: Text(
+                    l10n.appTitle,
+                    style: const TextStyle(
                       fontFamily: 'PressStart2P',
                       fontSize: 12,
                       color: ShopTheme.pixelGlow,
@@ -774,7 +773,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
               bottom: height * .19,
               child: Semantics(
                 key: const ValueKey('shopkeeper-avatar'),
-                label: 'Excusee, ${_session.outfit.paletteName}',
+                label: '${l10n.shopkeeperName}, ${_session.outfit.paletteName}',
                 image: true,
                 child: const SizedBox(height: 1),
               ),
@@ -881,7 +880,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       case ShopFlowStage.intent:
         return _buildOptionsStep(
           key: const ValueKey('v6-step-intent'),
-          title: l10n.dialogueIntent,
           options: shopIntentOptions.map((option) {
             return _ChoiceData(
               key: ValueKey('v6-intent-${option.intent.name}'),
@@ -896,7 +894,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
         if (intent == null) return const SizedBox.shrink();
         return _buildOptionsStep(
           key: const ValueKey('v6-step-action'),
-          title: _actionPrompt(l10n),
           options: shopActionOptionsFor(intent.intent).map((option) {
             return _ChoiceData(
               key: ValueKey('v6-action-${option.action.name}'),
@@ -909,7 +906,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       case ShopFlowStage.context:
         return _buildOptionsStep(
           key: const ValueKey('v6-step-context'),
-          title: l10n.dialogueContext,
           options: shopContextOptions.map((option) {
             return _ChoiceData(
               key: ValueKey('v6-context-${option.context.name}'),
@@ -924,7 +920,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
         if (action == null) return const SizedBox.shrink();
         return _buildOptionsStep(
           key: const ValueKey('v6-step-timing'),
-          title: l10n.dialogueTimingV6,
           options: shopTimingOptionsFor(action).map((option) {
             return _ChoiceData(
               key: ValueKey('v6-timing-${option.timing.name}'),
@@ -937,7 +932,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       case ShopFlowStage.relationship:
         return _buildOptionsStep(
           key: const ValueKey('v6-step-relationship'),
-          title: l10n.dialogueRelationshipV6,
           options: shopRelationshipOptions.map((option) {
             return _ChoiceData(
               key: ValueKey('v6-relationship-${option.relationship.name}'),
@@ -952,7 +946,6 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       case ShopFlowStage.obligation:
         return _buildOptionsStep(
           key: const ValueKey('v6-step-obligation'),
-          title: l10n.dialogueObligationV6,
           options: shopObligationOptions.map((option) {
             return _ChoiceData(
               key: ValueKey('v6-obligation-${option.obligation.name}'),
@@ -963,7 +956,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           }).toList(),
         );
       case ShopFlowStage.visitContext:
-        return _buildVisitContext();
+        return _buildVisitContext(l10n);
       case ShopFlowStage.search:
         return _buildSearch(l10n);
       case ShopFlowStage.result:
@@ -1007,9 +1000,10 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     );
   }
 
+  /// The question itself is rendered above by the dialogue line, so a step is
+  /// just its answers.
   Widget _buildOptionsStep({
     required Key key,
-    required String title,
     required List<_ChoiceData> options,
   }) {
     return Column(
@@ -1037,9 +1031,9 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     );
   }
 
-  Widget _buildVisitContext() {
+  Widget _buildVisitContext(AppLocalizations l10n) {
     final options = _relevantVisitResponsibilities.map((responsibility) {
-      final label = _visitContextLabel(responsibility);
+      final label = _visitContextLabel(l10n, responsibility);
       return _ChoiceData(
         key: ValueKey('v6-visit-context-${responsibility.name}'),
         label: label,
@@ -1052,15 +1046,29 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     options.add(
       _ChoiceData(
         key: const ValueKey('v6-visit-context-skip'),
-        label: 'None of these / Skip',
-        semantics: 'None of these or skip',
+        label: l10n.visitContextSkip,
+        semantics: l10n.visitContextSkip,
         onTap: _skipVisitContext,
       ),
     );
-    return _buildOptionsStep(
-      key: const ValueKey('v6-step-visit-context'),
-      title: 'Anything real we can work with?',
-      options: options,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // This is the one beat that asks about the user's real life, so it
+        // says why it is asking and that saying nothing is fine.
+        Padding(
+          key: const ValueKey('v6-visit-context-note'),
+          padding: const EdgeInsets.only(bottom: 14),
+          child: Text(
+            l10n.visitContextNote,
+            style: const TextStyle(fontSize: 13, color: ShopTheme.paperMeta),
+          ),
+        ),
+        _buildOptionsStep(
+          key: const ValueKey('v6-step-visit-context'),
+          options: options,
+        ),
+      ],
     );
   }
 
@@ -1068,16 +1076,19 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     _selectVisitContext(const CurrentVisitContext.skip());
   }
 
-  String _visitContextLabel(CurrentVisitResponsibility responsibility) {
+  String _visitContextLabel(
+    AppLocalizations l10n,
+    CurrentVisitResponsibility responsibility,
+  ) {
     switch (responsibility) {
       case CurrentVisitResponsibility.childcare:
-        return 'Childcare';
+        return l10n.visitContextChildcare;
       case CurrentVisitResponsibility.anotherCaregivingResponsibility:
-        return 'Another caregiving responsibility';
+        return l10n.visitContextCaregiving;
       case CurrentVisitResponsibility.existingCommitment:
-        return 'An existing commitment';
+        return l10n.visitContextCommitment;
       case CurrentVisitResponsibility.needingRest:
-        return 'Needing rest';
+        return l10n.visitContextRest;
     }
   }
 
@@ -1095,7 +1106,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           ),
           const SizedBox(height: 8),
           Text(
-            'The shelves shift. A lantern blinks twice.',
+            l10n.searchAmbient,
             style: Theme.of(context).textTheme.bodyMedium
                 ?.copyWith(color: ShopTheme.uiTextSecondary),
           ),
@@ -1159,9 +1170,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
         ],
         const SizedBox(height: 14),
         Text(
-          _kept
-              ? 'Kept. It is on your shelf in Collection.'
-              : 'Not kept. Open it again if you change your mind.',
+          _kept ? l10n.resultKept : l10n.resultNotKept,
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 13, color: ShopTheme.paperMeta),
         ),
@@ -1169,19 +1178,19 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     );
   }
 
-  Widget _buildAlternativeError() {
+  Widget _buildAlternativeError(AppLocalizations l10n) {
     final idea = _idea!;
     return Column(
       key: const ValueKey('v6-error'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'The alternative shelf is being difficult.',
+          l10n.alternativeErrorDialogue,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 8),
         Text(
-          'Your current card is still available. Nothing was added to Collection.',
+          l10n.alternativeErrorBody,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(height: 14),
@@ -1200,10 +1209,10 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           onPressed: _kept || _saving ? null : _keepCard,
           child: Text(
             _saving
-                ? 'Saving…'
+                ? l10n.savingCard
                 : _kept
-                ? 'Saved to collection'
-                : 'Keep card',
+                ? l10n.cardSavedToCollection
+                : l10n.keepCardButton,
           ),
         ),
         const SizedBox(height: 10),
@@ -1211,7 +1220,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
           key: const ValueKey('v6-another-card'),
           onPressed: _saving ? null : _anotherCard,
           icon: const Icon(Icons.style_outlined, size: 18),
-          label: const Text('Try another one'),
+          label: Text(l10n.anotherOneAction),
         ),
         KeyedSubtree(
           key: const ValueKey('v6-share-card'),
@@ -1224,13 +1233,8 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.ios_share, size: 18),
-            label: const Text('Share'),
+            label: Text(l10n.shareAction),
           ),
-        ),
-        TextButton(
-          key: const ValueKey('v6-new-excuse'),
-          onPressed: _restart,
-          child: const Text('New excuse'),
         ),
       ],
     );
@@ -1238,23 +1242,24 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
 
   Widget _buildError(AppLocalizations l10n) {
     if (_alternativeFailed && _idea != null) {
-      return _buildAlternativeError();
+      return _buildAlternativeError(l10n);
     }
     return Column(
       key: const ValueKey('v6-error'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // The dialogue line above already names the trouble; this says what
+        // it means for the answers and offers the way out.
         Text(
-          'The shelf is being difficult.',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          _error == null ? l10n.generationError : l10n.generationError,
+          l10n.generationErrorBody,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(height: 14),
-        FilledButton(onPressed: _restart, child: const Text('Start again')),
+        FilledButton(
+          key: const ValueKey('v6-retry-generation'),
+          onPressed: _retryGeneration,
+          child: Text(l10n.generationRetry),
+        ),
       ],
     );
   }
@@ -1284,10 +1289,10 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
         return l10n.dialogueContext;
       case ShopFlowStage.timing:
         if (_action?.action == ExcuseAction.leaveEarly) {
-          return 'Planning your escape, or already there?';
+          return l10n.timingEscapePrompt;
         }
         if (_intent?.intent == ExcuseIntent.recoverFromSituation) {
-          return 'And when did this go wrong?';
+          return l10n.timingRecoverPrompt;
         }
         return l10n.dialogueTimingV6;
       case ShopFlowStage.relationship:
@@ -1295,13 +1300,13 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       case ShopFlowStage.obligation:
         return l10n.dialogueObligationV6;
       case ShopFlowStage.visitContext:
-        return 'Anything real we can work with?';
+        return l10n.visitContextPrompt;
       case ShopFlowStage.search:
         return l10n.searchDialogue;
       case ShopFlowStage.result:
         return l10n.handoverDialogue;
       case ShopFlowStage.error:
-        return 'A small shelf-related complication.';
+        return l10n.errorDialogue;
     }
   }
 
@@ -1325,7 +1330,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
       case ExcuseAction.leaveEarly:
         return l10n.actionLeaveEarly;
       case ExcuseAction.backOut:
-        return 'Back out';
+        return l10n.actionBackOut;
       case ExcuseAction.reschedule:
         return l10n.actionReschedule;
       case ExcuseAction.delay:

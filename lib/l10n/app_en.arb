@@ -4,15 +4,6 @@
   "appTitle": "Excuse Me",
   "@appTitle": { "description": "The application title shown in the system." },
 
-  "shopTitle": "The Excuse Shop",
-  "@shopTitle": { "description": "AppBar title for the Excuse Shop screen." },
-
-  "shopkeeperAvatarLabel": "Pixel art shopkeeper",
-  "@shopkeeperAvatarLabel": { "description": "Semantics label for the shopkeeper avatar image." },
-
-  "shopHeaderDescription": "A friendly shopkeeper helps you craft the perfect excuse.",
-  "@shopHeaderDescription": { "description": "Header description below the shopkeeper avatar." },
-
   "stepIndicator": "Step {current} of {total}",
   "@stepIndicator": {
     "description": "Step counter shown during the wizard flow.",
@@ -22,26 +13,8 @@
     }
   },
 
-  "shopkeeperWelcome": "Welcome! Tell me what you need and I will help you out.",
-  "@shopkeeperWelcome": { "description": "Shopkeeper speech bubble on the mission step." },
-
-  "shopkeeperSituation": "Great choice. Now pick a situation that fits.",
-  "@shopkeeperSituation": { "description": "Shopkeeper speech bubble on the situation step." },
-
-  "shopkeeperTone": "Almost there. Pick how loud you want this.",
-  "@shopkeeperTone": { "description": "Shopkeeper speech bubble on the delivery step." },
-
-  "dialogueDamage": "What's the damage?",
-  "@dialogueDamage": { "description": "Question for the first shop dialogue beat." },
-
   "dialogueTiming": "When's the reckoning?",
   "@dialogueTiming": { "description": "Question for the timing shop dialogue beat." },
-
-  "dialogueAudience": "Who's on the other end?",
-  "@dialogueAudience": { "description": "Question for the audience shop dialogue beat." },
-
-  "dialogueDelivery": "How loud do you want this?",
-  "@dialogueDelivery": { "description": "Question for the channel and tone shop dialogue beat." },
 
   "damageDinner": "A dinner I can't face",
   "@damageDinner": { "description": "Damage choice for a dinner commitment." },
@@ -103,15 +76,6 @@
   "deliveryUnhingedCall": "Unhinged call",
   "@deliveryUnhingedCall": { "description": "Delivery choice for unhinged tone over a call." },
 
-  "shopkeeperSays": "Shopkeeper says:",
-  "@shopkeeperSays": { "description": "Prefix for the shopkeeper speech bubble semantics label." },
-
-  "situationSectionTitle": "Choose a situation",
-  "@situationSectionTitle": { "description": "Section title above situation choice cards." },
-
-  "toneSectionTitle": "Choose your ingredient",
-  "@toneSectionTitle": { "description": "Section title above tone choice cards." },
-
   "missionGetOutOfPlans": "Get out of plans",
   "@missionGetOutOfPlans": { "description": "Label for the 'get out of plans' mission." },
 
@@ -157,68 +121,40 @@
   "toneFunny": "Funny",
   "@toneFunny": { "description": "Tone label for funny tone." },
 
-  "toneLowKey": "Low-key",
-  "@toneLowKey": { "description": "Design-system label for low-key tone." },
-
-  "toneNice": "Nice",
-  "@toneNice": { "description": "Design-system label for nice tone." },
-
-  "toneDramatic": "Dramatic",
-  "@toneDramatic": { "description": "Design-system label for dramatic tone." },
-
-  "toneUnhinged": "Unhinged",
-  "@toneUnhinged": { "description": "Design-system label for unhinged tone." },
-
-  "chooseMission": "Choose mission: {mission}",
   "@chooseMission": {
     "description": "Semantics label for mission choice cards.",
     "placeholders": { "mission": { "type": "String" } }
   },
 
-  "chooseSituation": "Choose situation: {situation}",
   "@chooseSituation": {
     "description": "Semantics label for situation choice cards.",
     "placeholders": { "situation": { "type": "String" } }
   },
 
-  "chooseTone": "Choose ingredient: {tone}",
   "@chooseTone": {
     "description": "Semantics label for tone choice cards.",
     "placeholders": { "tone": { "type": "String" } }
   },
 
-  "chooseDamage": "Choose damage: {option}",
   "@chooseDamage": {
     "description": "Semantics label for the first dialogue beat.",
     "placeholders": { "option": { "type": "String" } }
   },
 
-  "chooseTiming": "Choose timing: {option}",
   "@chooseTiming": {
     "description": "Semantics label for the timing dialogue beat.",
     "placeholders": { "option": { "type": "String" } }
   },
 
-  "chooseAudience": "Choose audience: {option}",
   "@chooseAudience": {
     "description": "Semantics label for the audience dialogue beat.",
     "placeholders": { "option": { "type": "String" } }
   },
 
-  "chooseDelivery": "Choose delivery: {option}",
   "@chooseDelivery": {
     "description": "Semantics label for the delivery dialogue beat.",
     "placeholders": { "option": { "type": "String" } }
   },
-
-  "brewingYourExcuse": "Brewing your excuse...",
-  "@brewingYourExcuse": { "description": "Text shown while generating the excuse idea." },
-
-  "brewingYourExcuseSemantic": "Brewing your excuse",
-  "@brewingYourExcuseSemantic": { "description": "Semantics label for the brewing state." },
-
-  "resultTitle": "Your excuse",
-  "@resultTitle": { "description": "Title above the result card." },
 
   "repairDirectionLabel": "Repair direction",
   "@repairDirectionLabel": { "description": "Small label for an optional repair direction on a card." },
@@ -226,38 +162,23 @@
   "repairDirectionPending": "A small repair direction is available for you to phrase in your own words.",
   "@repairDirectionPending": { "description": "Non-sendable placeholder copy for the optional repair direction." },
 
-  "collectibleIdeaBadge": "Collectible idea",
-  "@collectibleIdeaBadge": { "description": "Badge label inside the result card." },
-
-  "regenerateButton": "Regenerate",
-  "@regenerateButton": { "description": "Label for the regenerate button." },
-
   "copyButton": "Copy",
   "@copyButton": { "description": "Label for the copy button." },
 
   "shareButton": "Share",
   "@shareButton": { "description": "Label for the share button." },
 
-  "newExcuseButton": "New excuse",
-  "@newExcuseButton": { "description": "Label for the new excuse button." },
-
-  "regenerateSemantics": "Regenerate excuse",
-  "@regenerateSemantics": { "description": "Semantics label for regenerate button." },
-
-  "copySemantics": "Copy excuse to clipboard",
-  "@copySemantics": { "description": "Semantics label for copy button." },
-
-  "shareSemantics": "Share excuse",
-  "@shareSemantics": { "description": "Semantics label for share button." },
-
-  "newExcuseSemantics": "Start new excuse",
-  "@newExcuseSemantics": { "description": "Semantics label for new excuse button." },
-
   "ideaCopied": "Idea copied.",
   "@ideaCopied": { "description": "SnackBar text after copying the idea." },
 
   "generationError": "Unable to generate an idea. Please try again.",
   "@generationError": { "description": "Inline error message when generation fails." },
+
+  "generationErrorBody": "Nothing came off the shelf this time. Your answers are still here.",
+  "@generationErrorBody": { "description": "Inline body copy when generation fails, before the retry action." },
+
+  "generationRetry": "Try again",
+  "@generationRetry": { "description": "Action that retries generation with the same answers." },
 
   "entryCta": "I need an excuse",
   "@entryCta": { "description": "Direct primary action that enters the shop conversation." },
@@ -397,7 +318,6 @@
     "placeholders": { "option": { "type": "String" } }
   },
 
-  "tokenLabel": "Question {current} of {total}",
   "@tokenLabel": {
     "description": "Accessibility label for the six physical progress tokens.",
     "placeholders": {
@@ -409,13 +329,9 @@
   "searchingLabel": "Excusee is searching the shop",
   "@searchingLabel": { "description": "Accessibility label for the search choreography." },
 
-  "rarityCommon": "Common",
-  "@rarityCommon": { "description": "Rarity badge for the first curated card tier." },
-
   "cardIdeaLabel": "The idea",
   "@cardIdeaLabel": { "description": "Label above the atomic idea on the card." },
 
-  "cardNumber": "No. {number}",
   "@cardNumber": {
     "description": "Collection number shown on the card.",
     "placeholders": { "number": { "type": "String" } }
@@ -423,12 +339,6 @@
 
   "keepCardButton": "Keep card",
   "@keepCardButton": { "description": "Temporary local keep action without persistence." },
-
-  "cardKept": "Kept for this visit",
-  "@cardKept": { "description": "Temporary confirmation after keeping a card." },
-
-  "keepCardSemantics": "Keep this card for this visit",
-  "@keepCardSemantics": { "description": "Semantics label for the temporary keep action." },
 
   "outfitSemantics": "Excusee outfit: {palette}",
   "@outfitSemantics": {
@@ -506,5 +416,208 @@
   "@oldFormResultTitle": { "description": "Title above the result card on the legacy form." },
 
   "oldFormEmptyError": "Describe the situation before generating an idea.",
-  "@oldFormEmptyError": { "description": "Error when the situation field is empty." }
+  "@oldFormEmptyError": { "description": "Error when the situation field is empty." },
+
+  "cardViewerRevealTitle": "Your card",
+  "@cardViewerRevealTitle": {"description": "App bar title for a freshly revealed card."},
+  "cardViewerSavedTitle": "Saved card",
+  "@cardViewerSavedTitle": {"description": "App bar title when viewing a card from the collection."},
+  "closeAction": "Close",
+  "@closeAction": {"description": "Action that closes the card viewer."},
+  "shareCardTooltip": "Share card",
+  "@shareCardTooltip": {"description": "Tooltip for the share control on a card."},
+  "copyIdeaTooltip": "Copy idea",
+  "@copyIdeaTooltip": {"description": "Tooltip for the copy control on a card."},
+  "savingCard": "Saving\u2026",
+  "@savingCard": {"description": "Keep button label while the card is being saved."},
+  "cardSavedToCollection": "Saved to collection",
+  "@cardSavedToCollection": {"description": "Keep button label once the card is in the collection."},
+  "anotherOneAction": "Another one",
+  "@anotherOneAction": {"description": "Action that asks for a different card from the same answers."},
+  "doneAction": "Done",
+  "@doneAction": {"description": "Action that closes a card the user has kept."},
+  "notThisOneAction": "Not this one",
+  "@notThisOneAction": {"description": "Action that closes a card the user has not kept."},
+  "shareUnavailable": "Sharing is not available here.",
+  "@shareUnavailable": {"description": "Message when no share handler is wired up."},
+  "shareFailed": "Could not share this card. Try again.",
+  "@shareFailed": {"description": "Message when sharing fails."},
+  "collectionTitle": "Collection \u00b7 {count}",
+  "@collectionTitle": {"description": "Collection app bar title with the number of cards.", "placeholders": {"count": {"type": "String"}}},
+  "collectionEmptyTitle": "Your collection is empty.",
+  "@collectionEmptyTitle": {"description": "Heading when no cards have been kept yet."},
+  "collectionEmptyBody": "Choose \u201cKeep card\u201d when you find one you like.\nYour cards stay on this device.",
+  "@collectionEmptyBody": {"description": "Explanation of how cards reach the collection."},
+  "collectionLoadError": "Could not load your collection.",
+  "@collectionLoadError": {"description": "Message when the collection fails to load."},
+  "retryAction": "Retry",
+  "@retryAction": {"description": "Action that retries a failed load."},
+  "collectionCardSemantics": "{name} collection card",
+  "@collectionCardSemantics": {"description": "Semantics label for a card on the collection shelf.", "placeholders": {"name": {"type": "String"}}},
+
+  "shopkeeperName": "Excusee",
+  "@shopkeeperName": {"description": "The shopkeeper\u2019s name, shown above their dialogue."},
+  "backAction": "Back",
+  "@backAction": {"description": "Action that returns to the previous question."},
+  "startOverAction": "Start over",
+  "@startOverAction": {"description": "Action that abandons the current answers and returns to the entry."},
+  "openCardAction": "Open card",
+  "@openCardAction": {"description": "Action that reopens the current card full screen."},
+  "resultKept": "Kept. It is in your collection.",
+  "@resultKept": {"description": "Status line on the result once the card has been kept."},
+  "resultNotKept": "Not kept. Open it again if you change your mind.",
+  "@resultNotKept": {"description": "Status line on the result before the card has been kept."},
+  "searchAmbient": "The shelves shift. A lantern blinks twice.",
+  "@searchAmbient": {"description": "Flavour line shown while a card is being found."},
+  "saveCardFailed": "Could not save this card. Please try again.",
+  "@saveCardFailed": {"description": "Message when saving a card to the collection fails."},
+  "errorDialogue": "A small shelf-related complication.",
+  "@errorDialogue": {"description": "Shopkeeper line when generation fails."},
+  "alternativeErrorDialogue": "That shelf would not give up a second one.",
+  "@alternativeErrorDialogue": {"description": "Shopkeeper line when a second card cannot be found."},
+  "alternativeErrorBody": "Your current card is untouched, and nothing was added to your collection.",
+  "@alternativeErrorBody": {"description": "Body copy when an alternative card cannot be found."},
+  "timingEscapePrompt": "Planning your escape, or already there?",
+  "@timingEscapePrompt": {"description": "Timing question when the user means to leave early."},
+  "visitContextPrompt": "Anything true I can build on?",
+  "@visitContextPrompt": {"description": "Question asking whether a real responsibility applies today."},
+  "visitContextNote": "This only shapes the wording. It stays on this device, and you can skip it.",
+  "@visitContextNote": {"description": "Explains why the visit-context question is asked and that it is optional."},
+  "visitContextChildcare": "Childcare",
+  "@visitContextChildcare": {"description": "Visit-context answer for looking after children."},
+  "visitContextCaregiving": "Another caregiving responsibility",
+  "@visitContextCaregiving": {"description": "Visit-context answer for other caregiving."},
+  "visitContextCommitment": "An existing commitment",
+  "@visitContextCommitment": {"description": "Visit-context answer for a commitment already in place."},
+  "visitContextRest": "Needing rest",
+  "@visitContextRest": {"description": "Visit-context answer for needing rest."},
+  "visitContextSkip": "None of these",
+  "@visitContextSkip": {"description": "Visit-context answer declining to say."},
+
+  "shareAction": "Share",
+  "@shareAction": {"description": "Action that shares the current card."},
+  "timingRecoverPrompt": "And when did this go wrong?",
+  "@timingRecoverPrompt": {"description": "Timing question when recovering from something that already happened."},
+  "actionBackOut": "Back out",
+  "@actionBackOut": {"description": "Action choice for backing out of a commitment."},
+
+  "rarityCommon": "Common",
+  "@rarityCommon": {"description": "Rarity shown on a common card."},
+  "rarityUncommon": "Uncommon",
+  "@rarityUncommon": {"description": "Rarity shown on an uncommon card."},
+  "rarityRare": "Rare",
+  "@rarityRare": {"description": "Rarity shown on a rare card."},
+  "familyCapacity": "Capacity",
+  "@familyCapacity": {"description": "Card family label for capacity and wellbeing."},
+  "familyCareFamily": "Care & family",
+  "@familyCareFamily": {"description": "Card family label for care and family."},
+  "familyWorkStudy": "Work & study",
+  "@familyWorkStudy": {"description": "Card family label for work and study."},
+  "familyDailyLogistics": "Daily logistics",
+  "@familyDailyLogistics": {"description": "Card family label for money and logistics."},
+  "familyPlanningFailure": "Planning failure",
+  "@familyPlanningFailure": {"description": "Card family label for planning failures."},
+  "familyBoundaries": "Boundaries",
+  "@familyBoundaries": {"description": "Card family label for boundaries and preferences."},
+  "familyAbsurd": "A little absurd",
+  "@familyAbsurd": {"description": "Card family label for absurd or dramatic cards."},
+  "familyFromTheShop": "From the shop",
+  "@familyFromTheShop": {"description": "Card family label when no family is known."},
+  "cardFallbackName": "A small escape",
+  "@cardFallbackName": {"description": "Card title when the card has no playful name."},
+
+  "profileTitle": "Profile",
+  "@profileTitle": {"description": "App bar title for the profile screen."},
+  "profileRetryTooltip": "Retry loading profile",
+  "@profileRetryTooltip": {"description": "Tooltip for retrying a failed profile load."},
+  "profileHeading": "Optional profile",
+  "@profileHeading": {"description": "Heading above the optional profile fields."},
+  "profileNote": "A few broad details can help Excusee sort the shelves.\nLeave anything blank. Nothing here proves what happened today.",
+  "@profileNote": {"description": "Explains why the profile is asked for and that it is optional."},
+  "profileAgeTitle": "Age range",
+  "@profileAgeTitle": {"description": "Label for the age range field."},
+  "profileWorkStudyTitle": "Work / study status",
+  "@profileWorkStudyTitle": {"description": "Label for the work or study status field."},
+  "profileOccupationTitle": "Occupation category",
+  "@profileOccupationTitle": {"description": "Label for the occupation category field."},
+  "profileChildrenTitle": "Has children",
+  "@profileChildrenTitle": {"description": "Label for the has-children field."},
+  "profileCaregivingTitle": "Other caregiving responsibilities",
+  "@profileCaregivingTitle": {"description": "Label for the caregiving field."},
+  "profileRelationshipTitle": "Relationship status",
+  "@profileRelationshipTitle": {"description": "Label for the relationship status field."},
+  "profileSaveError": "Profile was not saved. Try again.",
+  "@profileSaveError": {"description": "Message when saving the profile fails."},
+  "profileSaved": "Profile saved on this device",
+  "@profileSaved": {"description": "Confirmation that the profile was stored locally."},
+  "profileSaving": "Saving\u2026",
+  "@profileSaving": {"description": "Save button label while the profile is being saved."},
+  "profileSaveAction": "Save profile",
+  "@profileSaveAction": {"description": "Action that saves the profile."},
+  "profileClearAction": "Clear profile",
+  "@profileClearAction": {"description": "Action that clears every profile answer."},
+  "profileLoadError": "Could not load your profile.",
+  "@profileLoadError": {"description": "Message when the profile fails to load."},
+  "profileCollectionHeading": "Your collection",
+  "@profileCollectionHeading": {"description": "Heading above the collection preview on the profile screen."},
+  "profileViewCollection": "View collection",
+  "@profileViewCollection": {"description": "Action that opens the collection from the profile screen."},
+  "profileNoCards": "No cards yet. Keep one from the shop and it will appear here.",
+  "@profileNoCards": {"description": "Empty state for the profile collection preview."},
+  "profileCardPreviewSemantics": "Collection preview: {name}",
+  "@profileCardPreviewSemantics": {"description": "Semantics label for a card in the profile preview.", "placeholders": {"name": {"type": "String"}}},
+  "profileNotAnswered": "Not answered",
+  "@profileNotAnswered": {"description": "Chip shown when a profile field has no answer."},
+  "profilePreferNotToSay": "Prefer not to say",
+  "@profilePreferNotToSay": {"description": "Answer declining to give a profile detail."},
+  "profileAgeUnder18": "Under 18",
+  "@profileAgeUnder18": {"description": "Age range answer."},
+  "profileAge18To24": "18\u201324",
+  "@profileAge18To24": {"description": "Age range answer."},
+  "profileAge25To34": "25\u201334",
+  "@profileAge25To34": {"description": "Age range answer."},
+  "profileAge35To44": "35\u201344",
+  "@profileAge35To44": {"description": "Age range answer."},
+  "profileAge45To54": "45\u201354",
+  "@profileAge45To54": {"description": "Age range answer."},
+  "profileAge55Plus": "55+",
+  "@profileAge55Plus": {"description": "Age range answer."},
+  "profileWorking": "Working",
+  "@profileWorking": {"description": "Work or study answer."},
+  "profileStudying": "Studying",
+  "@profileStudying": {"description": "Work or study answer."},
+  "profileBoth": "Both",
+  "@profileBoth": {"description": "Work or study answer."},
+  "profileNeither": "Neither",
+  "@profileNeither": {"description": "Work or study answer."},
+  "profileOccupationHealthcare": "Healthcare",
+  "@profileOccupationHealthcare": {"description": "Occupation answer."},
+  "profileOccupationEducation": "Education",
+  "@profileOccupationEducation": {"description": "Occupation answer."},
+  "profileOccupationOffice": "Office",
+  "@profileOccupationOffice": {"description": "Occupation answer."},
+  "profileOccupationService": "Service / hospitality",
+  "@profileOccupationService": {"description": "Occupation answer."},
+  "profileOccupationCreative": "Creative",
+  "@profileOccupationCreative": {"description": "Occupation answer."},
+  "profileOccupationTechnical": "Technical",
+  "@profileOccupationTechnical": {"description": "Occupation answer."},
+  "profileOccupationTrades": "Trades",
+  "@profileOccupationTrades": {"description": "Occupation answer."},
+  "profileOccupationSelfEmployed": "Self-employed",
+  "@profileOccupationSelfEmployed": {"description": "Occupation answer."},
+  "profileOccupationRetired": "Retired",
+  "@profileOccupationRetired": {"description": "Occupation answer."},
+  "profileOccupationOther": "Other",
+  "@profileOccupationOther": {"description": "Occupation answer."},
+  "profileYes": "Yes",
+  "@profileYes": {"description": "Yes answer."},
+  "profileNo": "No",
+  "@profileNo": {"description": "No answer."},
+  "profileSingle": "Single",
+  "@profileSingle": {"description": "Relationship status answer."},
+  "profileInRelationship": "In a relationship",
+  "@profileInRelationship": {"description": "Relationship status answer."},
+  "profileMarried": "Married",
+  "@profileMarried": {"description": "Relationship status answer."}
 }

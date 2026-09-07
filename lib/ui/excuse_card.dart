@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../domain/excuse_request.dart';
+import '../l10n/app_localizations.dart';
 import '../services/idea_client.dart';
 import 'shop_theme.dart';
 
@@ -148,16 +149,25 @@ class CardDesignGenerator {
   }
 }
 
-String cardFamilyLabel(ExcuseFamily? family) => switch (family) {
-  ExcuseFamily.capacityWellbeing => 'Capacity',
-  ExcuseFamily.careFamily => 'Care & family',
-  ExcuseFamily.workStudy => 'Work & study',
-  ExcuseFamily.moneyLogistics => 'Daily logistics',
-  ExcuseFamily.planningFailure => 'Planning failure',
-  ExcuseFamily.boundaryPreference => 'Boundaries',
-  ExcuseFamily.absurdDramatic => 'A little absurd',
-  null => 'From the shop',
-};
+String cardFamilyLabel(AppLocalizations l10n, ExcuseFamily? family) =>
+    switch (family) {
+      ExcuseFamily.capacityWellbeing => l10n.familyCapacity,
+      ExcuseFamily.careFamily => l10n.familyCareFamily,
+      ExcuseFamily.workStudy => l10n.familyWorkStudy,
+      ExcuseFamily.moneyLogistics => l10n.familyDailyLogistics,
+      ExcuseFamily.planningFailure => l10n.familyPlanningFailure,
+      ExcuseFamily.boundaryPreference => l10n.familyBoundaries,
+      ExcuseFamily.absurdDramatic => l10n.familyAbsurd,
+      null => l10n.familyFromTheShop,
+    };
+
+/// The generator stores rarity as a token; the card shows its label.
+String cardRarityLabel(AppLocalizations l10n, String rarity) =>
+    switch (rarity) {
+      'rare' => l10n.rarityRare,
+      'uncommon' => l10n.rarityUncommon,
+      _ => l10n.rarityCommon,
+    };
 
 class ExcuseCard extends StatelessWidget {
   const ExcuseCard({super.key, required this.idea, this.maxWidth = 320});
@@ -165,6 +175,7 @@ class ExcuseCard extends StatelessWidget {
   final double maxWidth;
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final design = CardDesign.forIdea(idea);
     const pixel = TextStyle(
       fontFamily: 'PressStart2P',
@@ -174,7 +185,7 @@ class ExcuseCard extends StatelessWidget {
     );
     return Semantics(
       container: true,
-      label: '${idea.playfulName ?? "Your card"}. ${idea.idea}',
+      label: '${idea.playfulName ?? l10n.cardViewerRevealTitle}. ${idea.idea}',
       child: Container(
         constraints: BoxConstraints(maxWidth: maxWidth),
         decoration: BoxDecoration(
@@ -194,7 +205,7 @@ class ExcuseCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      idea.playfulName ?? 'A small escape',
+                      idea.playfulName ?? l10n.cardFallbackName,
                       style: pixel.copyWith(fontSize: 10),
                     ),
                   ),
@@ -206,7 +217,7 @@ class ExcuseCard extends StatelessWidget {
                       vertical: 5,
                     ),
                     child: Text(
-                      '${design.rarity[0].toUpperCase()}${design.rarity.substring(1)}',
+                      cardRarityLabel(l10n, design.rarity),
                       style: pixel.copyWith(
                         fontSize: 7,
                         color: ShopTheme.pixelGlow,
@@ -228,7 +239,7 @@ class ExcuseCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'The idea',
+                    l10n.cardIdeaLabel,
                     style: pixel.copyWith(color: ShopTheme.paperMeta),
                   ),
                   const SizedBox(height: 8),
@@ -261,7 +272,7 @@ class ExcuseCard extends StatelessWidget {
                               vertical: 5,
                             ),
                             child: Text(
-                              cardFamilyLabel(idea.family),
+                              cardFamilyLabel(l10n, idea.family),
                               style: pixel.copyWith(fontSize: 7),
                             ),
                           ),

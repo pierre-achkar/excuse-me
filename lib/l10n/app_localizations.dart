@@ -100,71 +100,17 @@ abstract class AppLocalizations {
   /// **'Excuse Me'**
   String get appTitle;
 
-  /// AppBar title for the Excuse Shop screen.
-  ///
-  /// In en, this message translates to:
-  /// **'The Excuse Shop'**
-  String get shopTitle;
-
-  /// Semantics label for the shopkeeper avatar image.
-  ///
-  /// In en, this message translates to:
-  /// **'Pixel art shopkeeper'**
-  String get shopkeeperAvatarLabel;
-
-  /// Header description below the shopkeeper avatar.
-  ///
-  /// In en, this message translates to:
-  /// **'A friendly shopkeeper helps you craft the perfect excuse.'**
-  String get shopHeaderDescription;
-
   /// Step counter shown during the wizard flow.
   ///
   /// In en, this message translates to:
   /// **'Step {current} of {total}'**
   String stepIndicator(int current, int total);
 
-  /// Shopkeeper speech bubble on the mission step.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome! Tell me what you need and I will help you out.'**
-  String get shopkeeperWelcome;
-
-  /// Shopkeeper speech bubble on the situation step.
-  ///
-  /// In en, this message translates to:
-  /// **'Great choice. Now pick a situation that fits.'**
-  String get shopkeeperSituation;
-
-  /// Shopkeeper speech bubble on the delivery step.
-  ///
-  /// In en, this message translates to:
-  /// **'Almost there. Pick how loud you want this.'**
-  String get shopkeeperTone;
-
-  /// Question for the first shop dialogue beat.
-  ///
-  /// In en, this message translates to:
-  /// **'What\'s the damage?'**
-  String get dialogueDamage;
-
   /// Question for the timing shop dialogue beat.
   ///
   /// In en, this message translates to:
   /// **'When\'s the reckoning?'**
   String get dialogueTiming;
-
-  /// Question for the audience shop dialogue beat.
-  ///
-  /// In en, this message translates to:
-  /// **'Who\'s on the other end?'**
-  String get dialogueAudience;
-
-  /// Question for the channel and tone shop dialogue beat.
-  ///
-  /// In en, this message translates to:
-  /// **'How loud do you want this?'**
-  String get dialogueDelivery;
 
   /// Damage choice for a dinner commitment.
   ///
@@ -286,24 +232,6 @@ abstract class AppLocalizations {
   /// **'Unhinged call'**
   String get deliveryUnhingedCall;
 
-  /// Prefix for the shopkeeper speech bubble semantics label.
-  ///
-  /// In en, this message translates to:
-  /// **'Shopkeeper says:'**
-  String get shopkeeperSays;
-
-  /// Section title above situation choice cards.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose a situation'**
-  String get situationSectionTitle;
-
-  /// Section title above tone choice cards.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose your ingredient'**
-  String get toneSectionTitle;
-
   /// Label for the 'get out of plans' mission.
   ///
   /// In en, this message translates to:
@@ -394,90 +322,6 @@ abstract class AppLocalizations {
   /// **'Funny'**
   String get toneFunny;
 
-  /// Design-system label for low-key tone.
-  ///
-  /// In en, this message translates to:
-  /// **'Low-key'**
-  String get toneLowKey;
-
-  /// Design-system label for nice tone.
-  ///
-  /// In en, this message translates to:
-  /// **'Nice'**
-  String get toneNice;
-
-  /// Design-system label for dramatic tone.
-  ///
-  /// In en, this message translates to:
-  /// **'Dramatic'**
-  String get toneDramatic;
-
-  /// Design-system label for unhinged tone.
-  ///
-  /// In en, this message translates to:
-  /// **'Unhinged'**
-  String get toneUnhinged;
-
-  /// Semantics label for mission choice cards.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose mission: {mission}'**
-  String chooseMission(String mission);
-
-  /// Semantics label for situation choice cards.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose situation: {situation}'**
-  String chooseSituation(String situation);
-
-  /// Semantics label for tone choice cards.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose ingredient: {tone}'**
-  String chooseTone(String tone);
-
-  /// Semantics label for the first dialogue beat.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose damage: {option}'**
-  String chooseDamage(String option);
-
-  /// Semantics label for the timing dialogue beat.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose timing: {option}'**
-  String chooseTiming(String option);
-
-  /// Semantics label for the audience dialogue beat.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose audience: {option}'**
-  String chooseAudience(String option);
-
-  /// Semantics label for the delivery dialogue beat.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose delivery: {option}'**
-  String chooseDelivery(String option);
-
-  /// Text shown while generating the excuse idea.
-  ///
-  /// In en, this message translates to:
-  /// **'Brewing your excuse...'**
-  String get brewingYourExcuse;
-
-  /// Semantics label for the brewing state.
-  ///
-  /// In en, this message translates to:
-  /// **'Brewing your excuse'**
-  String get brewingYourExcuseSemantic;
-
-  /// Title above the result card.
-  ///
-  /// In en, this message translates to:
-  /// **'Your excuse'**
-  String get resultTitle;
-
   /// Small label for an optional repair direction on a card.
   ///
   /// In en, this message translates to:
@@ -489,18 +333,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A small repair direction is available for you to phrase in your own words.'**
   String get repairDirectionPending;
-
-  /// Badge label inside the result card.
-  ///
-  /// In en, this message translates to:
-  /// **'Collectible idea'**
-  String get collectibleIdeaBadge;
-
-  /// Label for the regenerate button.
-  ///
-  /// In en, this message translates to:
-  /// **'Regenerate'**
-  String get regenerateButton;
 
   /// Label for the copy button.
   ///
@@ -514,36 +346,6 @@ abstract class AppLocalizations {
   /// **'Share'**
   String get shareButton;
 
-  /// Label for the new excuse button.
-  ///
-  /// In en, this message translates to:
-  /// **'New excuse'**
-  String get newExcuseButton;
-
-  /// Semantics label for regenerate button.
-  ///
-  /// In en, this message translates to:
-  /// **'Regenerate excuse'**
-  String get regenerateSemantics;
-
-  /// Semantics label for copy button.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy excuse to clipboard'**
-  String get copySemantics;
-
-  /// Semantics label for share button.
-  ///
-  /// In en, this message translates to:
-  /// **'Share excuse'**
-  String get shareSemantics;
-
-  /// Semantics label for new excuse button.
-  ///
-  /// In en, this message translates to:
-  /// **'Start new excuse'**
-  String get newExcuseSemantics;
-
   /// SnackBar text after copying the idea.
   ///
   /// In en, this message translates to:
@@ -555,6 +357,612 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to generate an idea. Please try again.'**
   String get generationError;
+
+  /// Inline body copy when generation fails, before the retry action.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing came off the shelf this time. Your answers are still here.'**
+  String get generationErrorBody;
+
+  /// Action that retries generation with the same answers.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get generationRetry;
+
+  /// App bar title for the profile screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// Tooltip for retrying a failed profile load.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry loading profile'**
+  String get profileRetryTooltip;
+
+  /// Heading above the optional profile fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional profile'**
+  String get profileHeading;
+
+  /// Explains why the profile is asked for and that it is optional.
+  ///
+  /// In en, this message translates to:
+  /// **'A few broad details can help Excusee sort the shelves.\nLeave anything blank. Nothing here proves what happened today.'**
+  String get profileNote;
+
+  /// Label for the age range field.
+  ///
+  /// In en, this message translates to:
+  /// **'Age range'**
+  String get profileAgeTitle;
+
+  /// Label for the work or study status field.
+  ///
+  /// In en, this message translates to:
+  /// **'Work / study status'**
+  String get profileWorkStudyTitle;
+
+  /// Label for the occupation category field.
+  ///
+  /// In en, this message translates to:
+  /// **'Occupation category'**
+  String get profileOccupationTitle;
+
+  /// Label for the has-children field.
+  ///
+  /// In en, this message translates to:
+  /// **'Has children'**
+  String get profileChildrenTitle;
+
+  /// Label for the caregiving field.
+  ///
+  /// In en, this message translates to:
+  /// **'Other caregiving responsibilities'**
+  String get profileCaregivingTitle;
+
+  /// Label for the relationship status field.
+  ///
+  /// In en, this message translates to:
+  /// **'Relationship status'**
+  String get profileRelationshipTitle;
+
+  /// Message when saving the profile fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile was not saved. Try again.'**
+  String get profileSaveError;
+
+  /// Confirmation that the profile was stored locally.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved on this device'**
+  String get profileSaved;
+
+  /// Save button label while the profile is being saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get profileSaving;
+
+  /// Action that saves the profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Save profile'**
+  String get profileSaveAction;
+
+  /// Action that clears every profile answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear profile'**
+  String get profileClearAction;
+
+  /// Message when the profile fails to load.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your profile.'**
+  String get profileLoadError;
+
+  /// Heading above the collection preview on the profile screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Your collection'**
+  String get profileCollectionHeading;
+
+  /// Action that opens the collection from the profile screen.
+  ///
+  /// In en, this message translates to:
+  /// **'View collection'**
+  String get profileViewCollection;
+
+  /// Empty state for the profile collection preview.
+  ///
+  /// In en, this message translates to:
+  /// **'No cards yet. Keep one from the shop and it will appear here.'**
+  String get profileNoCards;
+
+  /// Semantics label for a card in the profile preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection preview: {name}'**
+  String profileCardPreviewSemantics(String name);
+
+  /// Chip shown when a profile field has no answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Not answered'**
+  String get profileNotAnswered;
+
+  /// Answer declining to give a profile detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Prefer not to say'**
+  String get profilePreferNotToSay;
+
+  /// Age range answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 18'**
+  String get profileAgeUnder18;
+
+  /// Age range answer.
+  ///
+  /// In en, this message translates to:
+  /// **'18–24'**
+  String get profileAge18To24;
+
+  /// Age range answer.
+  ///
+  /// In en, this message translates to:
+  /// **'25–34'**
+  String get profileAge25To34;
+
+  /// Age range answer.
+  ///
+  /// In en, this message translates to:
+  /// **'35–44'**
+  String get profileAge35To44;
+
+  /// Age range answer.
+  ///
+  /// In en, this message translates to:
+  /// **'45–54'**
+  String get profileAge45To54;
+
+  /// Age range answer.
+  ///
+  /// In en, this message translates to:
+  /// **'55+'**
+  String get profileAge55Plus;
+
+  /// Work or study answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Working'**
+  String get profileWorking;
+
+  /// Work or study answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Studying'**
+  String get profileStudying;
+
+  /// Work or study answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Both'**
+  String get profileBoth;
+
+  /// Work or study answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Neither'**
+  String get profileNeither;
+
+  /// Occupation answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Healthcare'**
+  String get profileOccupationHealthcare;
+
+  /// Occupation answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Education'**
+  String get profileOccupationEducation;
+
+  /// Occupation answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Office'**
+  String get profileOccupationOffice;
+
+  /// Occupation answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Service / hospitality'**
+  String get profileOccupationService;
+
+  /// Occupation answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Creative'**
+  String get profileOccupationCreative;
+
+  /// Occupation answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical'**
+  String get profileOccupationTechnical;
+
+  /// Occupation answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Trades'**
+  String get profileOccupationTrades;
+
+  /// Occupation answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Self-employed'**
+  String get profileOccupationSelfEmployed;
+
+  /// Occupation answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Retired'**
+  String get profileOccupationRetired;
+
+  /// Occupation answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get profileOccupationOther;
+
+  /// Yes answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get profileYes;
+
+  /// No answer.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get profileNo;
+
+  /// Relationship status answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Single'**
+  String get profileSingle;
+
+  /// Relationship status answer.
+  ///
+  /// In en, this message translates to:
+  /// **'In a relationship'**
+  String get profileInRelationship;
+
+  /// Relationship status answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Married'**
+  String get profileMarried;
+
+  /// Rarity shown on a common card.
+  ///
+  /// In en, this message translates to:
+  /// **'Common'**
+  String get rarityCommon;
+
+  /// Rarity shown on an uncommon card.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncommon'**
+  String get rarityUncommon;
+
+  /// Rarity shown on a rare card.
+  ///
+  /// In en, this message translates to:
+  /// **'Rare'**
+  String get rarityRare;
+
+  /// Card family label for capacity and wellbeing.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity'**
+  String get familyCapacity;
+
+  /// Card family label for care and family.
+  ///
+  /// In en, this message translates to:
+  /// **'Care & family'**
+  String get familyCareFamily;
+
+  /// Card family label for work and study.
+  ///
+  /// In en, this message translates to:
+  /// **'Work & study'**
+  String get familyWorkStudy;
+
+  /// Card family label for money and logistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily logistics'**
+  String get familyDailyLogistics;
+
+  /// Card family label for planning failures.
+  ///
+  /// In en, this message translates to:
+  /// **'Planning failure'**
+  String get familyPlanningFailure;
+
+  /// Card family label for boundaries and preferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Boundaries'**
+  String get familyBoundaries;
+
+  /// Card family label for absurd or dramatic cards.
+  ///
+  /// In en, this message translates to:
+  /// **'A little absurd'**
+  String get familyAbsurd;
+
+  /// Card family label when no family is known.
+  ///
+  /// In en, this message translates to:
+  /// **'From the shop'**
+  String get familyFromTheShop;
+
+  /// Card title when the card has no playful name.
+  ///
+  /// In en, this message translates to:
+  /// **'A small escape'**
+  String get cardFallbackName;
+
+  /// Action that shares the current card.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareAction;
+
+  /// Timing question when recovering from something that already happened.
+  ///
+  /// In en, this message translates to:
+  /// **'And when did this go wrong?'**
+  String get timingRecoverPrompt;
+
+  /// Action choice for backing out of a commitment.
+  ///
+  /// In en, this message translates to:
+  /// **'Back out'**
+  String get actionBackOut;
+
+  /// The shopkeeper’s name, shown above their dialogue.
+  ///
+  /// In en, this message translates to:
+  /// **'Excusee'**
+  String get shopkeeperName;
+
+  /// Action that returns to the previous question.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get backAction;
+
+  /// Action that abandons the current answers and returns to the entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Start over'**
+  String get startOverAction;
+
+  /// Action that reopens the current card full screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open card'**
+  String get openCardAction;
+
+  /// Status line on the result once the card has been kept.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept. It is in your collection.'**
+  String get resultKept;
+
+  /// Status line on the result before the card has been kept.
+  ///
+  /// In en, this message translates to:
+  /// **'Not kept. Open it again if you change your mind.'**
+  String get resultNotKept;
+
+  /// Flavour line shown while a card is being found.
+  ///
+  /// In en, this message translates to:
+  /// **'The shelves shift. A lantern blinks twice.'**
+  String get searchAmbient;
+
+  /// Message when saving a card to the collection fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save this card. Please try again.'**
+  String get saveCardFailed;
+
+  /// Shopkeeper line when generation fails.
+  ///
+  /// In en, this message translates to:
+  /// **'A small shelf-related complication.'**
+  String get errorDialogue;
+
+  /// Shopkeeper line when a second card cannot be found.
+  ///
+  /// In en, this message translates to:
+  /// **'That shelf would not give up a second one.'**
+  String get alternativeErrorDialogue;
+
+  /// Body copy when an alternative card cannot be found.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current card is untouched, and nothing was added to your collection.'**
+  String get alternativeErrorBody;
+
+  /// Timing question when the user means to leave early.
+  ///
+  /// In en, this message translates to:
+  /// **'Planning your escape, or already there?'**
+  String get timingEscapePrompt;
+
+  /// Question asking whether a real responsibility applies today.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything true I can build on?'**
+  String get visitContextPrompt;
+
+  /// Explains why the visit-context question is asked and that it is optional.
+  ///
+  /// In en, this message translates to:
+  /// **'This only shapes the wording. It stays on this device, and you can skip it.'**
+  String get visitContextNote;
+
+  /// Visit-context answer for looking after children.
+  ///
+  /// In en, this message translates to:
+  /// **'Childcare'**
+  String get visitContextChildcare;
+
+  /// Visit-context answer for other caregiving.
+  ///
+  /// In en, this message translates to:
+  /// **'Another caregiving responsibility'**
+  String get visitContextCaregiving;
+
+  /// Visit-context answer for a commitment already in place.
+  ///
+  /// In en, this message translates to:
+  /// **'An existing commitment'**
+  String get visitContextCommitment;
+
+  /// Visit-context answer for needing rest.
+  ///
+  /// In en, this message translates to:
+  /// **'Needing rest'**
+  String get visitContextRest;
+
+  /// Visit-context answer declining to say.
+  ///
+  /// In en, this message translates to:
+  /// **'None of these'**
+  String get visitContextSkip;
+
+  /// App bar title for a freshly revealed card.
+  ///
+  /// In en, this message translates to:
+  /// **'Your card'**
+  String get cardViewerRevealTitle;
+
+  /// App bar title when viewing a card from the collection.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved card'**
+  String get cardViewerSavedTitle;
+
+  /// Action that closes the card viewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get closeAction;
+
+  /// Tooltip for the share control on a card.
+  ///
+  /// In en, this message translates to:
+  /// **'Share card'**
+  String get shareCardTooltip;
+
+  /// Tooltip for the copy control on a card.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy idea'**
+  String get copyIdeaTooltip;
+
+  /// Keep button label while the card is being saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get savingCard;
+
+  /// Keep button label once the card is in the collection.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to collection'**
+  String get cardSavedToCollection;
+
+  /// Action that asks for a different card from the same answers.
+  ///
+  /// In en, this message translates to:
+  /// **'Another one'**
+  String get anotherOneAction;
+
+  /// Action that closes a card the user has kept.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get doneAction;
+
+  /// Action that closes a card the user has not kept.
+  ///
+  /// In en, this message translates to:
+  /// **'Not this one'**
+  String get notThisOneAction;
+
+  /// Message when no share handler is wired up.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing is not available here.'**
+  String get shareUnavailable;
+
+  /// Message when sharing fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not share this card. Try again.'**
+  String get shareFailed;
+
+  /// Collection app bar title with the number of cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection · {count}'**
+  String collectionTitle(String count);
+
+  /// Heading when no cards have been kept yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your collection is empty.'**
+  String get collectionEmptyTitle;
+
+  /// Explanation of how cards reach the collection.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose “Keep card” when you find one you like.\nYour cards stay on this device.'**
+  String get collectionEmptyBody;
+
+  /// Message when the collection fails to load.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your collection.'**
+  String get collectionLoadError;
+
+  /// Action that retries a failed load.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retryAction;
+
+  /// Semantics label for a card on the collection shelf.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} collection card'**
+  String collectionCardSemantics(String name);
 
   /// Direct primary action that enters the shop conversation.
   ///
@@ -796,23 +1204,11 @@ abstract class AppLocalizations {
   /// **'Choose obligation: {option}'**
   String chooseObligation(String option);
 
-  /// Accessibility label for the six physical progress tokens.
-  ///
-  /// In en, this message translates to:
-  /// **'Question {current} of {total}'**
-  String tokenLabel(int current, int total);
-
   /// Accessibility label for the search choreography.
   ///
   /// In en, this message translates to:
   /// **'Excusee is searching the shop'**
   String get searchingLabel;
-
-  /// Rarity badge for the first curated card tier.
-  ///
-  /// In en, this message translates to:
-  /// **'Common'**
-  String get rarityCommon;
 
   /// Label above the atomic idea on the card.
   ///
@@ -820,29 +1216,11 @@ abstract class AppLocalizations {
   /// **'The idea'**
   String get cardIdeaLabel;
 
-  /// Collection number shown on the card.
-  ///
-  /// In en, this message translates to:
-  /// **'No. {number}'**
-  String cardNumber(String number);
-
   /// Temporary local keep action without persistence.
   ///
   /// In en, this message translates to:
   /// **'Keep card'**
   String get keepCardButton;
-
-  /// Temporary confirmation after keeping a card.
-  ///
-  /// In en, this message translates to:
-  /// **'Kept for this visit'**
-  String get cardKept;
-
-  /// Semantics label for the temporary keep action.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep this card for this visit'**
-  String get keepCardSemantics;
 
   /// Semantics label describing the current local outfit palette.
   ///

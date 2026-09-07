@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:excuse_me/domain/user_profile.dart';
 import 'package:excuse_me/services/user_profile_repository.dart';
+import 'package:excuse_me/l10n/app_localizations.dart';
 import 'package:excuse_me/ui/profile_page.dart';
 
 class MemoryProfileStorage implements ProfileStorage {
@@ -52,7 +53,11 @@ void main() {
     final repository = UserProfileRepository(storage: storage);
 
     await tester.pumpWidget(
-      MaterialApp(home: ProfilePage(repository: repository)),
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: ProfilePage(repository: repository),
+      ),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('profile-age-age25To34')));
@@ -83,7 +88,11 @@ void main() {
     final repository = UserProfileRepository(storage: storage);
 
     await tester.pumpWidget(
-      MaterialApp(home: ProfilePage(repository: repository)),
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: ProfilePage(repository: repository),
+      ),
     );
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
@@ -106,6 +115,8 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: ProfilePage(
           repository: repository,
           onSaved: (profile) => activeProfile = profile,
@@ -153,7 +164,11 @@ void main() {
     final repository = UserProfileRepository(storage: storage);
 
     await tester.pumpWidget(
-      MaterialApp(home: ProfilePage(repository: repository)),
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: ProfilePage(repository: repository),
+      ),
     );
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(

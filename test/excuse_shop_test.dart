@@ -40,6 +40,18 @@ class FakeFailingClient implements IdeaClient {
   }
 }
 
+/// Fails the first generation, then succeeds, recording every request.
+class FailsOnceClient implements IdeaClient {
+  final List<IdeaRequest> requests = [];
+
+  @override
+  Future<String> generate(IdeaRequest request) async {
+    requests.add(request);
+    if (requests.length == 1) throw Exception('generation failed');
+    return 'Idea: the second attempt.';
+  }
+}
+
 Future<void> _tapKey(WidgetTester tester, String key) async {
   final finder = find.byKey(ValueKey(key));
   await tester.ensureVisible(finder);
@@ -221,7 +233,14 @@ void main() {
         );
         await completeV6Conversation(tester);
         expect(find.byKey(const ValueKey('v6-error')), findsOneWidget);
-        expect(find.textContaining('Unable to generate'), findsOneWidget);
+        expect(
+          find.textContaining('Your answers are still here'),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const ValueKey('v6-retry-generation')),
+          findsOneWidget,
+        );
 
         await tester.tap(find.byKey(const ValueKey('restart-shop')));
         await tester.pump();
@@ -232,6 +251,28 @@ void main() {
         );
       },
     );
+
+    testWidgets('retry after a failure reuses the answers already given', (
+      tester,
+    ) async {
+      final client = FailsOnceClient();
+      await tester.pumpWidget(
+        ExcuseMeApp(client: client, disableAnimations: true),
+      );
+      await completeV6Conversation(tester);
+      expect(find.byKey(const ValueKey('v6-error')), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('v6-retry-generation')));
+      await tester.pumpAndSettle();
+
+      // No question was asked twice, and the same request went back out.
+      expect(client.requests, hasLength(2));
+      expect(
+        client.requests[0].structuredRequest!.semanticSelectionKey,
+        client.requests[1].structuredRequest!.semanticSelectionKey,
+      );
+      expect(find.byKey(const ValueKey('card-viewer')), findsOneWidget);
+    });
 
     testWidgets('short screens keep the v6 card usable', (tester) async {
       tester.view.physicalSize = const Size(360, 640);

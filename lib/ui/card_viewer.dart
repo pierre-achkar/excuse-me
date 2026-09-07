@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../services/idea_client.dart';
 import 'excuse_card.dart';
 import 'shop_theme.dart';
@@ -117,10 +118,10 @@ class _CardViewerPageState extends State<CardViewerPage>
   Future<void> _share() async {
     if (_sharing) return;
     final onShare = widget.onShare;
+    final l10n = AppLocalizations.of(context)!;
     if (onShare == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sharing is not available here.')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.shareUnavailable)));
       return;
     }
     setState(() => _sharing = true);
@@ -133,11 +134,8 @@ class _CardViewerPageState extends State<CardViewerPage>
       );
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Could not share this card. Try again.'),
-          ),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.shareFailed)));
       }
     } finally {
       if (mounted) setState(() => _sharing = false);
@@ -150,6 +148,7 @@ class _CardViewerPageState extends State<CardViewerPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isSaved = widget.mode == CardViewerMode.saved;
     return Theme(
       data: ShopTheme.darkTheme,
@@ -157,11 +156,13 @@ class _CardViewerPageState extends State<CardViewerPage>
         key: const ValueKey('card-viewer'),
         backgroundColor: ShopTheme.pixelOutline,
         appBar: AppBar(
-          title: Text(isSaved ? 'Saved card' : 'Your card'),
+          title: Text(
+            isSaved ? l10n.cardViewerSavedTitle : l10n.cardViewerRevealTitle,
+          ),
           leading: isSaved
               ? IconButton(
                   key: const ValueKey('card-viewer-close'),
-                  tooltip: 'Close',
+                  tooltip: l10n.closeAction,
                   onPressed: _close,
                   icon: const Icon(Icons.close),
                 )
@@ -170,7 +171,7 @@ class _CardViewerPageState extends State<CardViewerPage>
             if (widget.onCopy != null)
               IconButton(
                 key: const ValueKey('v6-copy-card'),
-                tooltip: 'Copy idea',
+                tooltip: l10n.copyIdeaTooltip,
                 onPressed: widget.onCopy,
                 icon: const Icon(Icons.copy_outlined),
               ),
@@ -178,7 +179,7 @@ class _CardViewerPageState extends State<CardViewerPage>
               key: const ValueKey('card-viewer-share'),
               child: IconButton(
                 key: _shareButtonKey,
-                tooltip: 'Share card',
+                tooltip: l10n.shareCardTooltip,
                 onPressed: _sharing ? null : _share,
                 icon: _sharing
                     ? const SizedBox.square(
@@ -228,7 +229,7 @@ class _CardViewerPageState extends State<CardViewerPage>
                         child: OutlinedButton(
                           key: const ValueKey('card-viewer-close-action'),
                           onPressed: _close,
-                          child: const Text('Close'),
+                          child: Text(l10n.closeAction),
                         ),
                       )
                     : Column(
@@ -240,10 +241,10 @@ class _CardViewerPageState extends State<CardViewerPage>
                               onPressed: _saving || _kept ? null : _keep,
                               child: Text(
                                 _saving
-                                    ? 'Saving\u2026'
+                                    ? l10n.savingCard
                                     : _kept
-                                    ? 'Saved to collection'
-                                    : 'Keep card',
+                                    ? l10n.cardSavedToCollection
+                                    : l10n.keepCardButton,
                               ),
                             ),
                           if (widget.onAnother != null) ...[
@@ -252,14 +253,16 @@ class _CardViewerPageState extends State<CardViewerPage>
                               key: const ValueKey('v6-another-card'),
                               onPressed: _saving ? null : _another,
                               icon: const Icon(Icons.style_outlined, size: 18),
-                              label: const Text('Another one'),
+                              label: Text(l10n.anotherOneAction),
                             ),
                           ],
                           const SizedBox(height: 10),
                           TextButton(
                             key: const ValueKey('card-viewer-continue'),
                             onPressed: _saving ? null : _close,
-                            child: Text(_kept ? 'Done' : 'Not this one'),
+                            child: Text(
+                              _kept ? l10n.doneAction : l10n.notThisOneAction,
+                            ),
                           ),
                         ],
                       ),

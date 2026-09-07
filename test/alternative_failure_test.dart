@@ -58,6 +58,13 @@ void main() {
 
     expect(find.byKey(const ValueKey('card-idea-body')), findsOneWidget);
     expect(find.text('First card'), findsOneWidget);
-    expect(find.textContaining('alternative'), findsOneWidget);
+    expect(
+      find.textContaining('would not give up a second one'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Your current card is untouched'),
+      findsOneWidget,
+    );
   });
 }

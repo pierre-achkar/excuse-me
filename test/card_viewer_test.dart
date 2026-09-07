@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:excuse_me/domain/excuse_request.dart';
 import 'package:excuse_me/services/idea_client.dart';
+import 'package:excuse_me/l10n/app_localizations.dart';
 import 'package:excuse_me/ui/card_viewer.dart';
 
 const testIdea = GeneratedIdea(
@@ -15,6 +16,8 @@ void main() {
   testWidgets('reveal stays open until Continue', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: CardViewerPage(
           idea: testIdea,
           mode: CardViewerMode.reveal,
@@ -36,6 +39,8 @@ void main() {
   testWidgets('system reduced motion skips expansion', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: MediaQuery(
           data: const MediaQueryData(disableAnimations: true),
           child: const CardViewerPage(
@@ -56,6 +61,8 @@ void main() {
   testWidgets('Continue dismisses reveal', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
           builder: (context) => TextButton(
             onPressed: () => Navigator.of(context).push<void>(
@@ -83,6 +90,8 @@ void main() {
     Rect? origin;
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: CardViewerPage(
           idea: testIdea,
           mode: CardViewerMode.reveal,
@@ -108,8 +117,10 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: CardViewerPage(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const CardViewerPage(
           idea: testIdea,
           mode: CardViewerMode.saved,
           disableAnimations: true,

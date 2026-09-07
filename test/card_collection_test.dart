@@ -89,6 +89,6 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('nav-collection')));
     await tester.pumpAndSettle();
-    expect(find.text('Your shelf is waiting.'), findsOneWidget);
+    expect(find.text('Your collection is empty.'), findsOneWidget);
   });
 }

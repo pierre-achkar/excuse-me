@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../domain/user_profile.dart';
 import '../services/idea_client.dart';
+import '../l10n/app_localizations.dart';
 import '../services/user_profile_repository.dart';
 import 'excuse_card.dart';
 import 'shop_theme.dart';
@@ -114,16 +115,17 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Theme(
       data: ShopTheme.theme,
       child: Scaffold(
         backgroundColor: const Color(0xFF241B30),
         appBar: AppBar(
-          title: const Text('Profile'),
+          title: Text(l10n.profileTitle),
           actions: [
             IconButton(
               key: const ValueKey('profile-retry-load'),
-              tooltip: 'Retry loading profile',
+              tooltip: l10n.profileRetryTooltip,
               onPressed: _loading ? null : _load,
               icon: const Icon(Icons.refresh),
             ),
@@ -132,13 +134,13 @@ class _ProfilePageState extends State<ProfilePage> {
         body: _loading
             ? const Center(child: CircularProgressIndicator())
             : _error != null && _draft.isEmpty
-            ? _buildLoadError()
+            ? _buildLoadError(l10n)
             : ListView(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
                 children: [
-                  const Text(
-                    'Optional profile',
-                    style: TextStyle(
+                  Text(
+                    l10n.profileHeading,
+                    style: const TextStyle(
                       color: ShopTheme.pixelGlow,
                       fontFamily: 'PressStart2P',
                       fontSize: 10,
@@ -146,62 +148,68 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'A few broad details can help Excusee sort the shelves.\nLeave anything blank. Nothing here proves what happened today.',
+                    l10n.profileNote,
                     style: Theme.of(context).textTheme.bodyLarge
                         ?.copyWith(color: ShopTheme.paperBody, height: 1.45),
                   ),
                   const SizedBox(height: 24),
-                  _choiceField<ProfileAgeRange>(
+                  _choiceFieldFor<ProfileAgeRange>(
+                    l10n: l10n,
                     keyPrefix: 'profile-age',
-                    title: 'Age range',
+                    title: l10n.profileAgeTitle,
                     value: _draft.ageRange,
                     values: ProfileAgeRange.values,
-                    labelFor: _ageLabel,
+                    labelFor: (value) => _ageLabel(l10n, value),
                     onChanged: (value) =>
                         _update(_draft.copyWith(ageRange: value)),
                   ),
-                  _choiceField<ProfileWorkStudyStatus>(
+                  _choiceFieldFor<ProfileWorkStudyStatus>(
+                    l10n: l10n,
                     keyPrefix: 'profile-work-study',
-                    title: 'Work / study status',
+                    title: l10n.profileWorkStudyTitle,
                     value: _draft.workStudyStatus,
                     values: ProfileWorkStudyStatus.values,
-                    labelFor: _workLabel,
+                    labelFor: (value) => _workLabel(l10n, value),
                     onChanged: (value) =>
                         _update(_draft.copyWith(workStudyStatus: value)),
                   ),
-                  _choiceField<ProfileOccupationCategory>(
+                  _choiceFieldFor<ProfileOccupationCategory>(
+                    l10n: l10n,
                     keyPrefix: 'profile-occupation',
-                    title: 'Occupation category',
+                    title: l10n.profileOccupationTitle,
                     value: _draft.occupationCategory,
                     values: ProfileOccupationCategory.values,
-                    labelFor: _occupationLabel,
+                    labelFor: (value) => _occupationLabel(l10n, value),
                     onChanged: (value) =>
                         _update(_draft.copyWith(occupationCategory: value)),
                   ),
-                  _choiceField<ProfileYesNo>(
+                  _choiceFieldFor<ProfileYesNo>(
+                    l10n: l10n,
                     keyPrefix: 'profile-children',
-                    title: 'Has children',
+                    title: l10n.profileChildrenTitle,
                     value: _draft.hasChildren,
                     values: ProfileYesNo.values,
-                    labelFor: _yesNoLabel,
+                    labelFor: (value) => _yesNoLabel(l10n, value),
                     onChanged: (value) =>
                         _update(_draft.copyWith(hasChildren: value)),
                   ),
-                  _choiceField<ProfileYesNo>(
+                  _choiceFieldFor<ProfileYesNo>(
+                    l10n: l10n,
                     keyPrefix: 'profile-caregiving',
-                    title: 'Other caregiving responsibilities',
+                    title: l10n.profileCaregivingTitle,
                     value: _draft.caregiving,
                     values: ProfileYesNo.values,
-                    labelFor: _yesNoLabel,
+                    labelFor: (value) => _yesNoLabel(l10n, value),
                     onChanged: (value) =>
                         _update(_draft.copyWith(caregiving: value)),
                   ),
-                  _choiceField<ProfileRelationshipStatus>(
+                  _choiceFieldFor<ProfileRelationshipStatus>(
+                    l10n: l10n,
                     keyPrefix: 'profile-relationship',
-                    title: 'Relationship status',
+                    title: l10n.profileRelationshipTitle,
                     value: _draft.relationshipStatus,
                     values: ProfileRelationshipStatus.values,
-                    labelFor: _relationshipLabel,
+                    labelFor: (value) => _relationshipLabel(l10n, value),
                     onChanged: (value) =>
                         _update(_draft.copyWith(relationshipStatus: value)),
                   ),
@@ -214,24 +222,24 @@ class _ProfilePageState extends State<ProfilePage> {
                           Icons.error_outline,
                           color: ShopTheme.paperBody,
                         ),
-                        title: const Text(
-                          'Profile was not saved. Try again.',
-                          style: TextStyle(color: ShopTheme.paperBody),
+                        title: Text(
+                          l10n.profileSaveError,
+                          style: const TextStyle(color: ShopTheme.paperBody),
                         ),
                         trailing: TextButton(
                           key: const ValueKey('profile-retry-save'),
                           onPressed: _saving ? null : _save,
-                          child: const Text('Retry'),
+                          child: Text(l10n.retryAction),
                         ),
                       ),
                     ),
                   if (_saved)
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 10),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
                       child: Text(
-                        'Profile saved on this device',
-                        key: ValueKey('profile-saved'),
-                        style: TextStyle(
+                        l10n.profileSaved,
+                        key: const ValueKey('profile-saved'),
+                        style: const TextStyle(
                           color: ShopTheme.pixelGlow,
                           fontFamily: 'PressStart2P',
                           fontSize: 9,
@@ -241,23 +249,25 @@ class _ProfilePageState extends State<ProfilePage> {
                   FilledButton(
                     key: const ValueKey('profile-save'),
                     onPressed: _saving ? null : _save,
-                    child: Text(_saving ? 'Saving…' : 'Save profile'),
+                    child: Text(
+                      _saving ? l10n.profileSaving : l10n.profileSaveAction,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   OutlinedButton(
                     key: const ValueKey('profile-clear'),
                     onPressed: _saving ? null : _clear,
-                    child: const Text('Clear profile'),
+                    child: Text(l10n.profileClearAction),
                   ),
                   const SizedBox(height: 28),
-                  _buildCollectionPreview(context),
+                  _buildCollectionPreview(context, l10n),
                 ],
               ),
       ),
     );
   }
 
-  Widget _buildLoadError() => Center(
+  Widget _buildLoadError(AppLocalizations l10n) => Center(
     child: Padding(
       padding: const EdgeInsets.all(28),
       child: Column(
@@ -265,22 +275,22 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           const Icon(Icons.error_outline, size: 44, color: ShopTheme.pixelGlow),
           const SizedBox(height: 16),
-          const Text(
-            'Could not load your profile.',
-            style: TextStyle(color: ShopTheme.paperBody, fontSize: 20),
+          Text(
+            l10n.profileLoadError,
+            style: const TextStyle(color: ShopTheme.paperBody, fontSize: 20),
           ),
           const SizedBox(height: 14),
           FilledButton(
             key: const ValueKey('profile-retry-load-body'),
             onPressed: _load,
-            child: const Text('Retry'),
+            child: Text(l10n.retryAction),
           ),
         ],
       ),
     ),
   );
 
-  Widget _buildCollectionPreview(BuildContext context) {
+  Widget _buildCollectionPreview(BuildContext context, AppLocalizations l10n) {
     final preview = widget.cards.take(3).toList(growable: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -289,7 +299,7 @@ class _ProfilePageState extends State<ProfilePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Your collection',
+              l10n.profileCollectionHeading,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 color: ShopTheme.pixelGlow,
                 fontFamily: 'PressStart2P',
@@ -299,14 +309,14 @@ class _ProfilePageState extends State<ProfilePage> {
             TextButton(
               key: const ValueKey('profile-view-collection'),
               onPressed: widget.onViewCollection,
-              child: const Text('View collection'),
+              child: Text(l10n.profileViewCollection),
             ),
           ],
         ),
         if (preview.isEmpty)
-          const Text(
-            'No cards yet. Keep one from the shop and it will appear here.',
-            style: TextStyle(color: ShopTheme.paperBody, height: 1.4),
+          Text(
+            l10n.profileNoCards,
+            style: const TextStyle(color: ShopTheme.paperBody, height: 1.4),
           )
         else
           SizedBox(
@@ -317,8 +327,9 @@ class _ProfilePageState extends State<ProfilePage> {
               itemBuilder: (context, index) {
                 final card = preview[index];
                 return Semantics(
-                  label:
-                      'Collection preview: ${card.playfulName ?? "Your card"}',
+                  label: l10n.profileCardPreviewSemantics(
+                    card.playfulName ?? l10n.cardViewerRevealTitle,
+                  ),
                   child: SizedBox(
                     width: 112,
                     child: FittedBox(
@@ -334,7 +345,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _choiceField<T extends Enum>({
+  Widget _choiceFieldFor<T extends Enum>({
+    required AppLocalizations l10n,
     required String keyPrefix,
     required String title,
     required T? value,
@@ -362,7 +374,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               ChoiceChip(
                 key: ValueKey('$keyPrefix-not-answered'),
-                label: const Text('Not answered'),
+                label: Text(l10n.profileNotAnswered),
                 selected: value == null,
                 onSelected: (_) => onChanged(null),
               ),
@@ -381,48 +393,59 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  String _ageLabel(ProfileAgeRange value) => switch (value) {
-    ProfileAgeRange.under18 => 'Under 18',
-    ProfileAgeRange.age18To24 => '18–24',
-    ProfileAgeRange.age25To34 => '25–34',
-    ProfileAgeRange.age35To44 => '35–44',
-    ProfileAgeRange.age45To54 => '45–54',
-    ProfileAgeRange.age55Plus => '55+',
-    ProfileAgeRange.preferNotToSay => 'Prefer not to say',
+  String _ageLabel(AppLocalizations l10n, ProfileAgeRange value) =>
+      switch (value) {
+        ProfileAgeRange.under18 => l10n.profileAgeUnder18,
+        ProfileAgeRange.age18To24 => l10n.profileAge18To24,
+        ProfileAgeRange.age25To34 => l10n.profileAge25To34,
+        ProfileAgeRange.age35To44 => l10n.profileAge35To44,
+        ProfileAgeRange.age45To54 => l10n.profileAge45To54,
+        ProfileAgeRange.age55Plus => l10n.profileAge55Plus,
+        ProfileAgeRange.preferNotToSay => l10n.profilePreferNotToSay,
+      };
+
+  String _workLabel(AppLocalizations l10n, ProfileWorkStudyStatus value) =>
+      switch (value) {
+        ProfileWorkStudyStatus.working => l10n.profileWorking,
+        ProfileWorkStudyStatus.studying => l10n.profileStudying,
+        ProfileWorkStudyStatus.both => l10n.profileBoth,
+        ProfileWorkStudyStatus.neither => l10n.profileNeither,
+        ProfileWorkStudyStatus.preferNotToSay => l10n.profilePreferNotToSay,
+      };
+
+  String _occupationLabel(
+    AppLocalizations l10n,
+    ProfileOccupationCategory value,
+  ) => switch (value) {
+    ProfileOccupationCategory.healthcare => l10n.profileOccupationHealthcare,
+    ProfileOccupationCategory.education => l10n.profileOccupationEducation,
+    ProfileOccupationCategory.office => l10n.profileOccupationOffice,
+    ProfileOccupationCategory.serviceHospitality =>
+      l10n.profileOccupationService,
+    ProfileOccupationCategory.creative => l10n.profileOccupationCreative,
+    ProfileOccupationCategory.technical => l10n.profileOccupationTechnical,
+    ProfileOccupationCategory.trades => l10n.profileOccupationTrades,
+    ProfileOccupationCategory.selfEmployed =>
+      l10n.profileOccupationSelfEmployed,
+    ProfileOccupationCategory.retired => l10n.profileOccupationRetired,
+    ProfileOccupationCategory.other => l10n.profileOccupationOther,
+    ProfileOccupationCategory.preferNotToSay => l10n.profilePreferNotToSay,
   };
 
-  String _workLabel(ProfileWorkStudyStatus value) => switch (value) {
-    ProfileWorkStudyStatus.working => 'Working',
-    ProfileWorkStudyStatus.studying => 'Studying',
-    ProfileWorkStudyStatus.both => 'Both',
-    ProfileWorkStudyStatus.neither => 'Neither',
-    ProfileWorkStudyStatus.preferNotToSay => 'Prefer not to say',
-  };
+  String _yesNoLabel(AppLocalizations l10n, ProfileYesNo value) =>
+      switch (value) {
+        ProfileYesNo.yes => l10n.profileYes,
+        ProfileYesNo.no => l10n.profileNo,
+        ProfileYesNo.preferNotToSay => l10n.profilePreferNotToSay,
+      };
 
-  String _occupationLabel(ProfileOccupationCategory value) => switch (value) {
-    ProfileOccupationCategory.healthcare => 'Healthcare',
-    ProfileOccupationCategory.education => 'Education',
-    ProfileOccupationCategory.office => 'Office',
-    ProfileOccupationCategory.serviceHospitality => 'Service / hospitality',
-    ProfileOccupationCategory.creative => 'Creative',
-    ProfileOccupationCategory.technical => 'Technical',
-    ProfileOccupationCategory.trades => 'Trades',
-    ProfileOccupationCategory.selfEmployed => 'Self-employed',
-    ProfileOccupationCategory.retired => 'Retired',
-    ProfileOccupationCategory.other => 'Other',
-    ProfileOccupationCategory.preferNotToSay => 'Prefer not to say',
-  };
-
-  String _yesNoLabel(ProfileYesNo value) => switch (value) {
-    ProfileYesNo.yes => 'Yes',
-    ProfileYesNo.no => 'No',
-    ProfileYesNo.preferNotToSay => 'Prefer not to say',
-  };
-
-  String _relationshipLabel(ProfileRelationshipStatus value) => switch (value) {
-    ProfileRelationshipStatus.single => 'Single',
-    ProfileRelationshipStatus.inRelationship => 'In a relationship',
-    ProfileRelationshipStatus.married => 'Married',
-    ProfileRelationshipStatus.preferNotToSay => 'Prefer not to say',
+  String _relationshipLabel(
+    AppLocalizations l10n,
+    ProfileRelationshipStatus value,
+  ) => switch (value) {
+    ProfileRelationshipStatus.single => l10n.profileSingle,
+    ProfileRelationshipStatus.inRelationship => l10n.profileInRelationship,
+    ProfileRelationshipStatus.married => l10n.profileMarried,
+    ProfileRelationshipStatus.preferNotToSay => l10n.profilePreferNotToSay,
   };
 }

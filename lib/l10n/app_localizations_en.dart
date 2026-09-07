@@ -13,42 +13,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Excuse Me';
 
   @override
-  String get shopTitle => 'The Excuse Shop';
-
-  @override
-  String get shopkeeperAvatarLabel => 'Pixel art shopkeeper';
-
-  @override
-  String get shopHeaderDescription =>
-      'A friendly shopkeeper helps you craft the perfect excuse.';
-
-  @override
   String stepIndicator(int current, int total) {
     return 'Step $current of $total';
   }
 
   @override
-  String get shopkeeperWelcome =>
-      'Welcome! Tell me what you need and I will help you out.';
-
-  @override
-  String get shopkeeperSituation =>
-      'Great choice. Now pick a situation that fits.';
-
-  @override
-  String get shopkeeperTone => 'Almost there. Pick how loud you want this.';
-
-  @override
-  String get dialogueDamage => 'What\'s the damage?';
-
-  @override
   String get dialogueTiming => 'When\'s the reckoning?';
-
-  @override
-  String get dialogueAudience => 'Who\'s on the other end?';
-
-  @override
-  String get dialogueDelivery => 'How loud do you want this?';
 
   @override
   String get damageDinner => 'A dinner I can\'t face';
@@ -111,15 +81,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deliveryUnhingedCall => 'Unhinged call';
 
   @override
-  String get shopkeeperSays => 'Shopkeeper says:';
-
-  @override
-  String get situationSectionTitle => 'Choose a situation';
-
-  @override
-  String get toneSectionTitle => 'Choose your ingredient';
-
-  @override
   String get missionGetOutOfPlans => 'Get out of plans';
 
   @override
@@ -165,73 +126,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toneFunny => 'Funny';
 
   @override
-  String get toneLowKey => 'Low-key';
-
-  @override
-  String get toneNice => 'Nice';
-
-  @override
-  String get toneDramatic => 'Dramatic';
-
-  @override
-  String get toneUnhinged => 'Unhinged';
-
-  @override
-  String chooseMission(String mission) {
-    return 'Choose mission: $mission';
-  }
-
-  @override
-  String chooseSituation(String situation) {
-    return 'Choose situation: $situation';
-  }
-
-  @override
-  String chooseTone(String tone) {
-    return 'Choose ingredient: $tone';
-  }
-
-  @override
-  String chooseDamage(String option) {
-    return 'Choose damage: $option';
-  }
-
-  @override
-  String chooseTiming(String option) {
-    return 'Choose timing: $option';
-  }
-
-  @override
-  String chooseAudience(String option) {
-    return 'Choose audience: $option';
-  }
-
-  @override
-  String chooseDelivery(String option) {
-    return 'Choose delivery: $option';
-  }
-
-  @override
-  String get brewingYourExcuse => 'Brewing your excuse...';
-
-  @override
-  String get brewingYourExcuseSemantic => 'Brewing your excuse';
-
-  @override
-  String get resultTitle => 'Your excuse';
-
-  @override
   String get repairDirectionLabel => 'Repair direction';
 
   @override
   String get repairDirectionPending =>
       'A small repair direction is available for you to phrase in your own words.';
-
-  @override
-  String get collectibleIdeaBadge => 'Collectible idea';
-
-  @override
-  String get regenerateButton => 'Regenerate';
 
   @override
   String get copyButton => 'Copy';
@@ -240,25 +139,327 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareButton => 'Share';
 
   @override
-  String get newExcuseButton => 'New excuse';
-
-  @override
-  String get regenerateSemantics => 'Regenerate excuse';
-
-  @override
-  String get copySemantics => 'Copy excuse to clipboard';
-
-  @override
-  String get shareSemantics => 'Share excuse';
-
-  @override
-  String get newExcuseSemantics => 'Start new excuse';
-
-  @override
   String get ideaCopied => 'Idea copied.';
 
   @override
   String get generationError => 'Unable to generate an idea. Please try again.';
+
+  @override
+  String get generationErrorBody =>
+      'Nothing came off the shelf this time. Your answers are still here.';
+
+  @override
+  String get generationRetry => 'Try again';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get profileRetryTooltip => 'Retry loading profile';
+
+  @override
+  String get profileHeading => 'Optional profile';
+
+  @override
+  String get profileNote =>
+      'A few broad details can help Excusee sort the shelves.\nLeave anything blank. Nothing here proves what happened today.';
+
+  @override
+  String get profileAgeTitle => 'Age range';
+
+  @override
+  String get profileWorkStudyTitle => 'Work / study status';
+
+  @override
+  String get profileOccupationTitle => 'Occupation category';
+
+  @override
+  String get profileChildrenTitle => 'Has children';
+
+  @override
+  String get profileCaregivingTitle => 'Other caregiving responsibilities';
+
+  @override
+  String get profileRelationshipTitle => 'Relationship status';
+
+  @override
+  String get profileSaveError => 'Profile was not saved. Try again.';
+
+  @override
+  String get profileSaved => 'Profile saved on this device';
+
+  @override
+  String get profileSaving => 'Saving…';
+
+  @override
+  String get profileSaveAction => 'Save profile';
+
+  @override
+  String get profileClearAction => 'Clear profile';
+
+  @override
+  String get profileLoadError => 'Could not load your profile.';
+
+  @override
+  String get profileCollectionHeading => 'Your collection';
+
+  @override
+  String get profileViewCollection => 'View collection';
+
+  @override
+  String get profileNoCards =>
+      'No cards yet. Keep one from the shop and it will appear here.';
+
+  @override
+  String profileCardPreviewSemantics(String name) {
+    return 'Collection preview: $name';
+  }
+
+  @override
+  String get profileNotAnswered => 'Not answered';
+
+  @override
+  String get profilePreferNotToSay => 'Prefer not to say';
+
+  @override
+  String get profileAgeUnder18 => 'Under 18';
+
+  @override
+  String get profileAge18To24 => '18–24';
+
+  @override
+  String get profileAge25To34 => '25–34';
+
+  @override
+  String get profileAge35To44 => '35–44';
+
+  @override
+  String get profileAge45To54 => '45–54';
+
+  @override
+  String get profileAge55Plus => '55+';
+
+  @override
+  String get profileWorking => 'Working';
+
+  @override
+  String get profileStudying => 'Studying';
+
+  @override
+  String get profileBoth => 'Both';
+
+  @override
+  String get profileNeither => 'Neither';
+
+  @override
+  String get profileOccupationHealthcare => 'Healthcare';
+
+  @override
+  String get profileOccupationEducation => 'Education';
+
+  @override
+  String get profileOccupationOffice => 'Office';
+
+  @override
+  String get profileOccupationService => 'Service / hospitality';
+
+  @override
+  String get profileOccupationCreative => 'Creative';
+
+  @override
+  String get profileOccupationTechnical => 'Technical';
+
+  @override
+  String get profileOccupationTrades => 'Trades';
+
+  @override
+  String get profileOccupationSelfEmployed => 'Self-employed';
+
+  @override
+  String get profileOccupationRetired => 'Retired';
+
+  @override
+  String get profileOccupationOther => 'Other';
+
+  @override
+  String get profileYes => 'Yes';
+
+  @override
+  String get profileNo => 'No';
+
+  @override
+  String get profileSingle => 'Single';
+
+  @override
+  String get profileInRelationship => 'In a relationship';
+
+  @override
+  String get profileMarried => 'Married';
+
+  @override
+  String get rarityCommon => 'Common';
+
+  @override
+  String get rarityUncommon => 'Uncommon';
+
+  @override
+  String get rarityRare => 'Rare';
+
+  @override
+  String get familyCapacity => 'Capacity';
+
+  @override
+  String get familyCareFamily => 'Care & family';
+
+  @override
+  String get familyWorkStudy => 'Work & study';
+
+  @override
+  String get familyDailyLogistics => 'Daily logistics';
+
+  @override
+  String get familyPlanningFailure => 'Planning failure';
+
+  @override
+  String get familyBoundaries => 'Boundaries';
+
+  @override
+  String get familyAbsurd => 'A little absurd';
+
+  @override
+  String get familyFromTheShop => 'From the shop';
+
+  @override
+  String get cardFallbackName => 'A small escape';
+
+  @override
+  String get shareAction => 'Share';
+
+  @override
+  String get timingRecoverPrompt => 'And when did this go wrong?';
+
+  @override
+  String get actionBackOut => 'Back out';
+
+  @override
+  String get shopkeeperName => 'Excusee';
+
+  @override
+  String get backAction => 'Back';
+
+  @override
+  String get startOverAction => 'Start over';
+
+  @override
+  String get openCardAction => 'Open card';
+
+  @override
+  String get resultKept => 'Kept. It is in your collection.';
+
+  @override
+  String get resultNotKept =>
+      'Not kept. Open it again if you change your mind.';
+
+  @override
+  String get searchAmbient => 'The shelves shift. A lantern blinks twice.';
+
+  @override
+  String get saveCardFailed => 'Could not save this card. Please try again.';
+
+  @override
+  String get errorDialogue => 'A small shelf-related complication.';
+
+  @override
+  String get alternativeErrorDialogue =>
+      'That shelf would not give up a second one.';
+
+  @override
+  String get alternativeErrorBody =>
+      'Your current card is untouched, and nothing was added to your collection.';
+
+  @override
+  String get timingEscapePrompt => 'Planning your escape, or already there?';
+
+  @override
+  String get visitContextPrompt => 'Anything true I can build on?';
+
+  @override
+  String get visitContextNote =>
+      'This only shapes the wording. It stays on this device, and you can skip it.';
+
+  @override
+  String get visitContextChildcare => 'Childcare';
+
+  @override
+  String get visitContextCaregiving => 'Another caregiving responsibility';
+
+  @override
+  String get visitContextCommitment => 'An existing commitment';
+
+  @override
+  String get visitContextRest => 'Needing rest';
+
+  @override
+  String get visitContextSkip => 'None of these';
+
+  @override
+  String get cardViewerRevealTitle => 'Your card';
+
+  @override
+  String get cardViewerSavedTitle => 'Saved card';
+
+  @override
+  String get closeAction => 'Close';
+
+  @override
+  String get shareCardTooltip => 'Share card';
+
+  @override
+  String get copyIdeaTooltip => 'Copy idea';
+
+  @override
+  String get savingCard => 'Saving…';
+
+  @override
+  String get cardSavedToCollection => 'Saved to collection';
+
+  @override
+  String get anotherOneAction => 'Another one';
+
+  @override
+  String get doneAction => 'Done';
+
+  @override
+  String get notThisOneAction => 'Not this one';
+
+  @override
+  String get shareUnavailable => 'Sharing is not available here.';
+
+  @override
+  String get shareFailed => 'Could not share this card. Try again.';
+
+  @override
+  String collectionTitle(String count) {
+    return 'Collection · $count';
+  }
+
+  @override
+  String get collectionEmptyTitle => 'Your collection is empty.';
+
+  @override
+  String get collectionEmptyBody =>
+      'Choose “Keep card” when you find one you like.\nYour cards stay on this device.';
+
+  @override
+  String get collectionLoadError => 'Could not load your collection.';
+
+  @override
+  String get retryAction => 'Retry';
+
+  @override
+  String collectionCardSemantics(String name) {
+    return '$name collection card';
+  }
 
   @override
   String get entryCta => 'I need an excuse';
@@ -394,32 +595,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String tokenLabel(int current, int total) {
-    return 'Question $current of $total';
-  }
-
-  @override
   String get searchingLabel => 'Excusee is searching the shop';
-
-  @override
-  String get rarityCommon => 'Common';
 
   @override
   String get cardIdeaLabel => 'The idea';
 
   @override
-  String cardNumber(String number) {
-    return 'No. $number';
-  }
-
-  @override
   String get keepCardButton => 'Keep card';
-
-  @override
-  String get cardKept => 'Kept for this visit';
-
-  @override
-  String get keepCardSemantics => 'Keep this card for this visit';
 
   @override
   String outfitSemantics(String palette) {
