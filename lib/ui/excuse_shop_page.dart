@@ -106,22 +106,29 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
 
   /// The shop keeps moving on its own, so it never settles; with motion
   /// switched off the clock stays at zero and the scene is a still frame.
+  ///
+  /// The ticker is created at most once -- a SingleTickerProviderStateMixin
+  /// allows exactly one -- and afterwards only started and stopped. Leaving
+  /// the Shop tab needs no handling here: the mixin mutes the ticker for us
+  /// whenever the surrounding TickerMode turns off.
   void _syncClock() {
     final wanted =
-        !widget.disableAnimations &&
-        !MediaQuery.of(context).disableAnimations &&
-        TickerMode.valuesOf(context).enabled;
-    if (wanted && _ticker == null) {
-      _ticker = createTicker((elapsed) {
+        !widget.disableAnimations && !MediaQuery.of(context).disableAnimations;
+    if (wanted) {
+      final ticker = _ticker ??= createTicker((elapsed) {
         // ~24fps is plenty for pixel art and keeps the painter off the
         // critical path on every frame.
         if (elapsed - _lastTick < const Duration(milliseconds: 42)) return;
         _lastTick = elapsed;
         _clock.value = elapsed.inMilliseconds / 1000;
-      })..start();
-    } else if (!wanted && _ticker != null) {
-      _ticker!.dispose();
-      _ticker = null;
+      });
+      // isActive, not isTicking: a muted ticker (Shop tab in the background)
+      // is not ticking but has already been started.
+      if (!ticker.isActive) ticker.start();
+    } else if (_ticker?.isActive ?? false) {
+      _ticker!.stop();
+      _lastTick = Duration.zero;
+      _clock.value = 0;
     }
   }
 
