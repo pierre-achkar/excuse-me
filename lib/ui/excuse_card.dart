@@ -177,9 +177,11 @@ class ExcuseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final design = CardDesign.forIdea(idea);
+    // PressStart2P is a pixel face: below about 9px its glyphs lose the
+    // strokes that tell them apart, so nothing on the card goes under that.
     const pixel = TextStyle(
       fontFamily: 'PressStart2P',
-      fontSize: 8,
+      fontSize: 9,
       height: 1.6,
       color: ShopTheme.pixelOutline,
     );
@@ -218,10 +220,7 @@ class ExcuseCard extends StatelessWidget {
                     ),
                     child: Text(
                       cardRarityLabel(l10n, design.rarity),
-                      style: pixel.copyWith(
-                        fontSize: 7,
-                        color: ShopTheme.pixelGlow,
-                      ),
+                      style: pixel.copyWith(color: ShopTheme.pixelGlow),
                     ),
                   ),
                 ],
@@ -273,7 +272,7 @@ class ExcuseCard extends StatelessWidget {
                             ),
                             child: Text(
                               cardFamilyLabel(l10n, idea.family),
-                              style: pixel.copyWith(fontSize: 7),
+                              style: pixel,
                             ),
                           ),
                         ),
@@ -281,10 +280,7 @@ class ExcuseCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(
                         design.edition,
-                        style: pixel.copyWith(
-                          fontSize: 7,
-                          color: ShopTheme.paperMeta,
-                        ),
+                        style: pixel.copyWith(color: ShopTheme.paperMeta),
                       ),
                     ],
                   ),

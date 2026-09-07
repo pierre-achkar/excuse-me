@@ -545,7 +545,13 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                             SizedBox(
                               height: sceneHeight,
                               child: ClipRect(
+                                // The painter needs its full height to space
+                                // the shelves, so the result shows a band of
+                                // it. Anchored to the top: that band holds the
+                                // shopkeeper's hat and face. Centred -- the
+                                // default -- it cut their head off instead.
                                 child: OverflowBox(
+                                  alignment: Alignment.topCenter,
                                   minHeight: 320,
                                   maxHeight: 320,
                                   child: _buildShopScene(l10n, 320),
@@ -598,7 +604,7 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
                                         l10n.shopkeeperName,
                                         style: const TextStyle(
                                           fontFamily: 'PressStart2P',
-                                          fontSize: 8,
+                                          fontSize: 9,
                                           color: ShopTheme.pixelVioletDark,
                                         ),
                                       ),
