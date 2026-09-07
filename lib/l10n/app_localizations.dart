@@ -178,12 +178,6 @@ abstract class AppLocalizations {
   /// **'Try again'**
   String get generationRetry;
 
-  /// Wick repeating the last answer back before asking the next question.
-  ///
-  /// In en, this message translates to:
-  /// **'{answer}.'**
-  String answerEcho(String answer);
-
   /// Direct primary action that enters the shop conversation.
   ///
   /// In en, this message translates to:
@@ -1173,6 +1167,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Married'**
   String get profileMarried;
+
+  /// Wick repeating the last answer back before asking the next question.
+  ///
+  /// In en, this message translates to:
+  /// **'{answer}.'**
+  String answerEcho(String answer);
 }
 
 class _AppLocalizationsDelegate
