@@ -21,21 +21,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dialogueTiming => 'When\'s the reckoning?';
 
   @override
-  String get damageDinner => 'A dinner I can\'t face';
-
-  @override
-  String get damageParty => 'A party I said yes to';
-
-  @override
-  String get damageGroupWorkCall => 'A group work call';
-
-  @override
-  String get damageDate => 'A date I\'m dreading';
-
-  @override
-  String get damageMissed => 'I missed something';
-
-  @override
   String get timingPlannedAhead => 'Planned ahead';
 
   @override
@@ -43,87 +28,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get timingLastMinute => 'Last minute';
-
-  @override
-  String get timingAlreadyLate => 'Already late';
-
-  @override
-  String get timingAlreadyMissed => 'Already missed';
-
-  @override
-  String get audienceSomeoneClose => 'Someone close';
-
-  @override
-  String get audienceSomeoneFamiliar => 'Someone familiar';
-
-  @override
-  String get audienceAGroup => 'A group';
-
-  @override
-  String get audienceWorkContact => 'A work contact';
-
-  @override
-  String get audienceSomeoneInCharge => 'Someone in charge';
-
-  @override
-  String get deliveryLowKeyText => 'Low-key text';
-
-  @override
-  String get deliveryNiceText => 'Nice text';
-
-  @override
-  String get deliveryFunnyText => 'Funny text';
-
-  @override
-  String get deliveryDramaticVoiceNote => 'Dramatic voice note';
-
-  @override
-  String get deliveryUnhingedCall => 'Unhinged call';
-
-  @override
-  String get missionGetOutOfPlans => 'Get out of plans';
-
-  @override
-  String get missionBuyTime => 'Buy time';
-
-  @override
-  String get missionRecoverFromSituation => 'Recover from a situation';
-
-  @override
-  String get situationDinner => 'Dinner';
-
-  @override
-  String get situationParty => 'Party';
-
-  @override
-  String get situationWork => 'Work';
-
-  @override
-  String get situationFamily => 'Family';
-
-  @override
-  String get situationFriends => 'Friends';
-
-  @override
-  String get situationReschedule => 'Reschedule';
-
-  @override
-  String get situationDelay => 'Delay';
-
-  @override
-  String get situationLate => 'Late';
-
-  @override
-  String get situationMissed => 'Missed';
-
-  @override
-  String get toneStraightforward => 'Straightforward';
-
-  @override
-  String get toneWarm => 'Warm';
-
-  @override
-  String get toneFunny => 'Funny';
 
   @override
   String get repairDirectionLabel => 'Repair direction';

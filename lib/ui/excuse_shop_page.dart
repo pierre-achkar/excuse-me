@@ -1139,7 +1139,10 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
             ),
           ),
         ),
-        if (_request != null && shouldOfferRepair(_request!)) ...[
+        // The request already carries whether a repair direction was asked
+        // for; deciding again here is how the two fell out of step.
+        if (_request?.repairPreference != null &&
+            _request?.repairPreference != RepairOption.none) ...[
           const SizedBox(height: 12),
           Card(
             key: const ValueKey('repair-direction'),

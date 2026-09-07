@@ -16,21 +16,6 @@
   "dialogueTiming": "When's the reckoning?",
   "@dialogueTiming": { "description": "Question for the timing shop dialogue beat." },
 
-  "damageDinner": "A dinner I can't face",
-  "@damageDinner": { "description": "Damage choice for a dinner commitment." },
-
-  "damageParty": "A party I said yes to",
-  "@damageParty": { "description": "Damage choice for a party commitment." },
-
-  "damageGroupWorkCall": "A group work call",
-  "@damageGroupWorkCall": { "description": "Damage choice for a group work call." },
-
-  "damageDate": "A date I'm dreading",
-  "@damageDate": { "description": "Damage choice for a date commitment." },
-
-  "damageMissed": "I missed something",
-  "@damageMissed": { "description": "Damage choice for a missed commitment." },
-
   "timingPlannedAhead": "Planned ahead",
   "@timingPlannedAhead": { "description": "Timing choice for a planned-ahead change." },
 
@@ -39,87 +24,6 @@
 
   "timingLastMinute": "Last minute",
   "@timingLastMinute": { "description": "Timing choice for a last-minute change." },
-
-  "timingAlreadyLate": "Already late",
-  "@timingAlreadyLate": { "description": "Timing choice when the user is already late." },
-
-  "timingAlreadyMissed": "Already missed",
-  "@timingAlreadyMissed": { "description": "Timing choice when the commitment was missed." },
-
-  "audienceSomeoneClose": "Someone close",
-  "@audienceSomeoneClose": { "description": "Audience choice for a close relationship." },
-
-  "audienceSomeoneFamiliar": "Someone familiar",
-  "@audienceSomeoneFamiliar": { "description": "Audience choice for a familiar relationship." },
-
-  "audienceAGroup": "A group",
-  "@audienceAGroup": { "description": "Audience choice for a group." },
-
-  "audienceWorkContact": "A work contact",
-  "@audienceWorkContact": { "description": "Audience choice for a professional relationship." },
-
-  "audienceSomeoneInCharge": "Someone in charge",
-  "@audienceSomeoneInCharge": { "description": "Audience choice for an authority relationship." },
-
-  "deliveryLowKeyText": "Low-key text",
-  "@deliveryLowKeyText": { "description": "Delivery choice for low-key tone over text." },
-
-  "deliveryNiceText": "Nice text",
-  "@deliveryNiceText": { "description": "Delivery choice for nice tone over text." },
-
-  "deliveryFunnyText": "Funny text",
-  "@deliveryFunnyText": { "description": "Delivery choice for funny tone over text." },
-
-  "deliveryDramaticVoiceNote": "Dramatic voice note",
-  "@deliveryDramaticVoiceNote": { "description": "Delivery choice for dramatic tone in a voice note." },
-
-  "deliveryUnhingedCall": "Unhinged call",
-  "@deliveryUnhingedCall": { "description": "Delivery choice for unhinged tone over a call." },
-
-  "missionGetOutOfPlans": "Get out of plans",
-  "@missionGetOutOfPlans": { "description": "Label for the 'get out of plans' mission." },
-
-  "missionBuyTime": "Buy time",
-  "@missionBuyTime": { "description": "Label for the 'buy time' mission." },
-
-  "missionRecoverFromSituation": "Recover from a situation",
-  "@missionRecoverFromSituation": { "description": "Label for the 'recover from a situation' mission." },
-
-  "situationDinner": "Dinner",
-  "@situationDinner": { "description": "Situation label for dinner contexts." },
-
-  "situationParty": "Party",
-  "@situationParty": { "description": "Situation label for party contexts." },
-
-  "situationWork": "Work",
-  "@situationWork": { "description": "Situation label for work contexts." },
-
-  "situationFamily": "Family",
-  "@situationFamily": { "description": "Situation label for family contexts." },
-
-  "situationFriends": "Friends",
-  "@situationFriends": { "description": "Situation label for friend contexts." },
-
-  "situationReschedule": "Reschedule",
-  "@situationReschedule": { "description": "Situation label for rescheduling contexts." },
-
-  "situationDelay": "Delay",
-  "@situationDelay": { "description": "Situation label for delay contexts." },
-
-  "situationLate": "Late",
-  "@situationLate": { "description": "Situation label for lateness contexts." },
-
-  "situationMissed": "Missed",
-  "@situationMissed": { "description": "Situation label for missed event contexts." },
-
-  "toneStraightforward": "Straightforward",
-  "@toneStraightforward": { "description": "Tone label for straightforward tone." },
-
-  "toneWarm": "Warm",
-  "@toneWarm": { "description": "Tone label for warm tone." },
-
-  "toneFunny": "Funny",
-  "@toneFunny": { "description": "Tone label for funny tone." },
 
   "@chooseMission": {
     "description": "Semantics label for mission choice cards.",

@@ -50,4 +50,31 @@ void main() {
     expect(find.text('Repair direction'), findsOneWidget);
     expect(find.textContaining('phrase in your own words'), findsOneWidget);
   });
+
+  testWidgets('a high-stakes cancellation also shows its repair direction', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ExcuseMeApp(client: _RepairClient(), disableAnimations: true),
+    );
+    // Not a recovery: the repair direction is earned by the stakes alone.
+    for (final key in [
+      'v6-entry-cta',
+      'v6-intent-getOutOfPlans',
+      'v6-action-cancel',
+      'v6-context-workStudy',
+      'v6-timing-lastMinute',
+      'v6-relationship-formal',
+      'v6-obligation-high',
+    ]) {
+      final finder = find.byKey(ValueKey(key));
+      await tester.ensureVisible(finder);
+      await tester.tap(finder);
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(find.byKey(const ValueKey('card-viewer-continue')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('repair-direction')), findsOneWidget);
+  });
 }
