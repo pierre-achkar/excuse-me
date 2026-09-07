@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
 
-  "appTitle": "Excuse Me",
+  "appTitle": "Pardon",
   "@appTitle": { "description": "The application title shown in the system." },
 
   "stepIndicator": "Step {current} of {total}",
@@ -230,7 +230,7 @@
     }
   },
 
-  "searchingLabel": "Excusee is searching the shop",
+  "searchingLabel": "Wick is searching the shop",
   "@searchingLabel": { "description": "Accessibility label for the search choreography." },
 
   "cardIdeaLabel": "The idea",
@@ -244,7 +244,7 @@
   "keepCardButton": "Keep card",
   "@keepCardButton": { "description": "Temporary local keep action without persistence." },
 
-  "outfitSemantics": "Excusee outfit: {palette}",
+  "outfitSemantics": "Wick's outfit: {palette}",
   "@outfitSemantics": {
     "description": "Semantics label describing the current local outfit palette.",
     "placeholders": { "palette": { "type": "String" } }
@@ -256,7 +256,7 @@
     "placeholders": { "event": { "type": "String" } }
   },
 
-  "oldFormTitle": "Excuse Me",
+  "oldFormTitle": "Pardon",
   "@oldFormTitle": { "description": "AppBar title for the legacy form page." },
 
   "oldFormHeading": "Find a way to explain it.",
@@ -359,7 +359,7 @@
   "collectionCardSemantics": "{name} collection card",
   "@collectionCardSemantics": {"description": "Semantics label for a card on the collection shelf.", "placeholders": {"name": {"type": "String"}}},
 
-  "shopkeeperName": "Excusee",
+  "shopkeeperName": "Wick",
   "@shopkeeperName": {"description": "The shopkeeper\u2019s name, shown above their dialogue."},
   "backAction": "Back",
   "@backAction": {"description": "Action that returns to the previous question."},
@@ -436,7 +436,7 @@
   "@profileRetryTooltip": {"description": "Tooltip for retrying a failed profile load."},
   "profileHeading": "Optional profile",
   "@profileHeading": {"description": "Heading above the optional profile fields."},
-  "profileNote": "A few broad details can help Excusee sort the shelves.\nLeave anything blank. Nothing here proves what happened today.",
+  "profileNote": "A few broad details can help Wick sort the shelves.\nLeave anything blank. Nothing here proves what happened today.",
   "@profileNote": {"description": "Explains why the profile is asked for and that it is optional."},
   "profileAgeTitle": "Age range",
   "@profileAgeTitle": {"description": "Label for the age range field."},

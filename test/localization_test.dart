@@ -23,7 +23,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Excuse Me'), findsOneWidget);
+    expect(find.text('Pardon'), findsOneWidget);
     expect(find.text('I need an excuse'), findsOneWidget);
     await _enter(tester);
     expect(find.text("Now then... what's the situation?"), findsOneWidget);
@@ -45,7 +45,10 @@ void main() {
     await tester.pumpWidget(
       Directionality(
         textDirection: TextDirection.rtl,
-        child: ExcuseMeApp(client: _LocalizationClient()),
+        child: ExcuseMeApp(
+          client: _LocalizationClient(),
+          disableAnimations: true,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -59,7 +62,10 @@ void main() {
       await tester.pumpWidget(
         MediaQuery(
           data: MediaQueryData(textScaler: TextScaler.linear(scale)),
-          child: ExcuseMeApp(client: _LocalizationClient()),
+          child: ExcuseMeApp(
+            client: _LocalizationClient(),
+            disableAnimations: true,
+          ),
         ),
       );
       await tester.pumpAndSettle();

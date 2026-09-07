@@ -10,12 +10,37 @@ class ReferenceShopPainter extends CustomPainter {
     required this.outfit,
     required this.mood,
     required this.completed,
+    this.time = 0,
+    this.seed = 0,
+    this.ambientEvent,
   });
   final ShopOutfit outfit;
   final int mood;
   final List<bool> completed;
+
+  /// Seconds since the scene appeared. Everything that moves is a function of
+  /// this and a per-object phase, so the shop never pulses in unison.
+  final double time;
+
+  /// Varies the stock between visits: which curiosity sits where, its colour,
+  /// its size, and which slots are left bare.
+  final int seed;
+
+  /// The one thing the shop is doing right now, spoken by the ambient line.
+  final ShopAmbientEvent? ambientEvent;
+
   Color hex(String value) =>
       Color(int.parse(value.replaceFirst('#', 'FF'), radix: 16));
+
+  /// A stable pseudo-random unit value for a given object and channel.
+  double _noise(int object, int channel) {
+    var x = (object * 73856093) ^ (channel * 19349663) ^ (seed * 83492791);
+    x = x & 0x7fffffff;
+    x = (x ^ (x >> 13)) * 1274126177;
+    return ((x & 0x7fffffff) % 10000) / 10000;
+  }
+
+  bool _event(String id) => ambientEvent?.id == id;
   @override
   void paint(Canvas canvas, Size size) {
     const ink = Color(0xFF1A1622);
@@ -71,20 +96,37 @@ class ReferenceShopPainter extends CustomPainter {
       final sx = side == 0 ? w * .025 : w * .675;
       for (var row = 0; row < 4; row++) {
         final y = h * .31 + row * h * .14;
-        rect(sx - 3, y, sw + 6, 13, ink);
-        rect(sx, y + 3, sw, 6, wood);
+        // The top shelf is the one that "quietly changes its mind".
+        final rattle = _event('shelf-rattle') && row == 0
+            ? math.sin(time * 17 + side) * 1.6
+            : 0.0;
+        rect(sx - 3 + rattle, y, sw + 6, 13, ink);
+        rect(sx + rattle, y + 3, sw, 6, wood);
         for (var col = 0; col < 7; col++) {
+          final slot = side * 28 + row * 7 + col;
+          // A few slots stand empty so the shelves stop reading as a lattice.
+          if (_noise(slot, 4) < .12) continue;
+          final n = (_noise(slot, 0) * 11).floor().clamp(0, 10);
+          final itemScale = ps * (.82 + _noise(slot, 1) * .42);
+          final phase = _noise(slot, 2) * math.pi * 2;
+          final speed = .5 + _noise(slot, 3) * 1.1;
+          // Each curiosity keeps its own time: a slow bob, a slight lean.
+          final bob = math.sin(time * speed + phase) * 1.5;
+          final lean = math.sin(time * speed * .6 + phase) * .035;
           canvas.save();
-          canvas.translate(sx + col * sw / 7 + 3, y - 30 * ps);
-          canvas.scale(ps);
-          final n = (side * 7 + row * 5 + col) % 11;
+          canvas.translate(
+            sx + col * sw / 7 + 3 + rattle,
+            y - 30 * itemScale + bob,
+          );
+          canvas.rotate(lean);
+          canvas.scale(itemScale);
           final c = [
             teal,
             gold,
             purple,
             const Color(0xFFF26E57),
             const Color(0xFF7DD9FF),
-          ][(row + col + side) % 5];
+          ][(_noise(slot, 5) * 5).floor().clamp(0, 4)];
           void box(double x, double y, double bw, double bh, Color c) {
             rect(x - 2, y - 2, bw + 4, bh + 4, ink);
             rect(x, y, bw, bh, c);
@@ -193,7 +235,34 @@ class ReferenceShopPainter extends CustomPainter {
     rect(220, 58, 10, 252, hex("#8A6B49"));
     rect(216, 52, 18, 14, hex("#4E463A"));
     rect(214, 34, 22, 22, hex("#4E463A"));
-    rect(219, 39, 12, 13, hex(outfit.lanternHex));
+    // The lantern is never quite still; on its own event it stutters.
+    final flicker = _event('lantern-flicker')
+        ? (math.sin(time * 21) * math.sin(time * 7.3)).abs()
+        : .35 + math.sin(time * 1.7) * .12;
+    rect(
+      219,
+      39,
+      12,
+      13,
+      Color.lerp(hex(outfit.lanternHex), Colors.white, flicker * .45)!,
+    );
+    canvas.drawRect(
+      Rect.fromLTWH(213, 33, 24, 25),
+      Paint()
+        ..color = hex(outfit.lanternHex).withValues(alpha: .10 + flicker * .22)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 9),
+    );
+    // Wick himself: breathing under everything, leaning into the question he
+    // just asked, and rummaging while he searches the shelves.
+    final breath = math.sin(time * 1.3) * 1.4;
+    final searching = mood == ShopFlowStage.search.index;
+    final asking =
+        mood > ShopFlowStage.entry.index && mood < ShopFlowStage.search.index;
+    final rummage = searching ? math.sin(time * 6.2) * 3.5 : 0.0;
+    canvas.save();
+    canvas.translate(120 + rummage, 200 + breath + (searching ? -2 : 0));
+    canvas.rotate(asking ? .018 : (searching ? math.sin(time * 3.1) * .02 : 0));
+    canvas.translate(-120, -200);
     canvas.drawPath(
       Path()
         ..moveTo(42, 70)
@@ -224,7 +293,16 @@ class ReferenceShopPainter extends CustomPainter {
     rect(86, 106, 70, 22, hex("#DBB274"));
     rect(76, 116, 20, 15, hex("#DBB274"));
     rect(64, 121, 20, 10, hex("#DBB274"));
-    rect(130, 107, 14, 9, hex(outfit.lanternHex));
+    // A blink every few seconds, and a longer one when he is thinking.
+    final blinkCycle = time % (searching ? 2.6 : 4.3);
+    final blinking = blinkCycle < .13;
+    rect(
+      130,
+      blinking ? 111 : 107,
+      14,
+      blinking ? 2 : 9,
+      hex(outfit.lanternHex),
+    );
     rect(92, 126, 72, 25, hex("#E9E6DB"));
     rect(82, 145, 90, 25, hex("#E9E6DB"));
     rect(86, 166, 88, 26, hex("#D8D6CB"));
@@ -251,6 +329,7 @@ class ReferenceShopPainter extends CustomPainter {
     rect(75, 305, 44, 13, hex("#4D463A"));
     rect(156, 305, 44, 13, hex("#4D463A"));
     canvas.restore();
+    canvas.restore();
     final cw = math.min(640.0, w * .76);
     final cx = (w - cw) / 2;
     rect(cx - 5, h * .77 - 5, cw + 10, h * .19 + 10, ink);
@@ -272,6 +351,49 @@ class ReferenceShopPainter extends CustomPainter {
         completed[i] ? teal : const Color(0xFF795E67),
       );
     }
+    // The ledger on the counter turns a page, impatiently.
+    if (_event('ledger-page')) {
+      final turn = (time * .9) % 1;
+      final lx = w / 2 + 96, ly = h * .755;
+      rect(lx - 2, ly - 2, 46, 30, ink);
+      rect(lx, ly, 42, 26, const Color(0xFFEDE6D2));
+      rect(lx + 20, ly, 2, 26, const Color(0xFFBCB29A));
+      final page = 20 * math.cos(turn * math.pi).abs();
+      rect(
+        turn < .5 ? lx + 21 : lx + 21 - page,
+        ly + 1,
+        page.clamp(1, 20),
+        24,
+        const Color(0xFFF8F3E4),
+      );
+    }
+    // A small bell over the door approves of the selection.
+    if (_event('bell-chime')) {
+      final swing = math.sin(time * 12) * math.exp(-(time % 2.4) * 1.1);
+      final bx = w * .16, by = 18.0;
+      canvas.save();
+      canvas.translate(bx, by);
+      canvas.rotate(swing * .5);
+      rect(-9, 0, 18, 15, gold);
+      rect(-4, 15, 8, 5, gold);
+      rect(-11, -3, 22, 4, ink);
+      canvas.restore();
+    }
+    // Dust turning slowly through the light from the arch.
+    if (_event('dust-orbit')) {
+      for (var i = 0; i < 22; i++) {
+        final a =
+            time * (.25 + _noise(i, 7) * .35) + _noise(i, 8) * math.pi * 2;
+        final r = 26 + _noise(i, 9) * 92;
+        rect(
+          w / 2 + math.cos(a) * r * 1.5,
+          h * .42 + math.sin(a) * r * .55,
+          2,
+          2,
+          Colors.white.withValues(alpha: .10 + _noise(i, 10) * .30),
+        );
+      }
+    }
     final vignette = RadialGradient(
       radius: .8,
       colors: const [Color(0x00000000), Color(0x550D0712)],
@@ -284,5 +406,10 @@ class ReferenceShopPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(ReferenceShopPainter old) =>
-      old.outfit != outfit || old.mood != mood || old.completed != completed;
+      old.outfit != outfit ||
+      old.mood != mood ||
+      old.completed != completed ||
+      old.time != time ||
+      old.seed != seed ||
+      old.ambientEvent != ambientEvent;
 }

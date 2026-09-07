@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Excuse Me';
+  String get appTitle => 'Pardon';
 
   @override
   String stepIndicator(int current, int total) {
@@ -66,7 +66,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileNote =>
-      'A few broad details can help Excusee sort the shelves.\nLeave anything blank. Nothing here proves what happened today.';
+      'A few broad details can help Wick sort the shelves.\nLeave anything blank. Nothing here proves what happened today.';
 
   @override
   String get profileAgeTitle => 'Age range';
@@ -246,7 +246,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionBackOut => 'Back out';
 
   @override
-  String get shopkeeperName => 'Excusee';
+  String get shopkeeperName => 'Wick';
 
   @override
   String get backAction => 'Back';
@@ -499,7 +499,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get searchingLabel => 'Excusee is searching the shop';
+  String get searchingLabel => 'Wick is searching the shop';
 
   @override
   String get cardIdeaLabel => 'The idea';
@@ -509,7 +509,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String outfitSemantics(String palette) {
-    return 'Excusee outfit: $palette';
+    return "Wick's outfit: $palette";
   }
 
   @override
@@ -518,7 +518,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get oldFormTitle => 'Excuse Me';
+  String get oldFormTitle => 'Pardon';
 
   @override
   String get oldFormHeading => 'Find a way to explain it.';

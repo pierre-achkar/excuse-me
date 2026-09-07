@@ -66,7 +66,8 @@ Future<void> _startDelayedGeneration(
   await tester.pumpWidget(
     ExcuseMeApp(client: client, disableAnimations: false),
   );
-  await tester.pumpAndSettle();
+  // The shop's idle motion never settles, which is the point of it.
+  await tester.pump();
   await _tapKey(tester, 'v6-entry-cta');
   await _tapKey(tester, 'v6-intent-getOutOfPlans');
   await _tapKey(tester, 'v6-action-cancel');

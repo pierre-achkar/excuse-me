@@ -47,7 +47,7 @@ class CardShareService {
     }
     final result = await shareFiles(
       [XFile.fromData(bytes, mimeType: 'image/png', name: 'excusee-card.png')],
-      subject: 'Excusee card',
+      subject: 'Pardon card',
       sharePositionOrigin: sharePositionOrigin,
       fileNameOverrides: const ['excusee-card.png'],
     );

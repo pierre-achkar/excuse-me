@@ -21,7 +21,7 @@ void main() {
             fileNameOverrides,
           }) async {
             files.addAll(items);
-            expect(subject, 'Excusee card');
+            expect(subject, 'Pardon card');
             expect(text, isNull);
             expect(fileNameOverrides, ['excusee-card.png']);
             expect(sharePositionOrigin, isNotNull);

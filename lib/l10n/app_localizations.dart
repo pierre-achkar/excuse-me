@@ -97,7 +97,7 @@ abstract class AppLocalizations {
   /// The application title shown in the system.
   ///
   /// In en, this message translates to:
-  /// **'Excuse Me'**
+  /// **'Pardon'**
   String get appTitle;
 
   /// Step counter shown during the wizard flow.
@@ -199,7 +199,7 @@ abstract class AppLocalizations {
   /// Explains why the profile is asked for and that it is optional.
   ///
   /// In en, this message translates to:
-  /// **'A few broad details can help Excusee sort the shelves.\nLeave anything blank. Nothing here proves what happened today.'**
+  /// **'A few broad details can help Wick sort the shelves.\nLeave anything blank. Nothing here proves what happened today.'**
   String get profileNote;
 
   /// Label for the age range field.
@@ -553,7 +553,7 @@ abstract class AppLocalizations {
   /// The shopkeeper’s name, shown above their dialogue.
   ///
   /// In en, this message translates to:
-  /// **'Excusee'**
+  /// **'Wick'**
   String get shopkeeperName;
 
   /// Action that returns to the previous question.
@@ -1015,7 +1015,7 @@ abstract class AppLocalizations {
   /// Accessibility label for the search choreography.
   ///
   /// In en, this message translates to:
-  /// **'Excusee is searching the shop'**
+  /// **'Wick is searching the shop'**
   String get searchingLabel;
 
   /// Label above the atomic idea on the card.
@@ -1033,7 +1033,7 @@ abstract class AppLocalizations {
   /// Semantics label describing the current local outfit palette.
   ///
   /// In en, this message translates to:
-  /// **'Excusee outfit: {palette}'**
+  /// **'Wick\'s outfit: {palette}'**
   String outfitSemantics(String palette);
 
   /// Semantics label for the ambient shop event.
@@ -1045,7 +1045,7 @@ abstract class AppLocalizations {
   /// AppBar title for the legacy form page.
   ///
   /// In en, this message translates to:
-  /// **'Excuse Me'**
+  /// **'Pardon'**
   String get oldFormTitle;
 
   /// Heading on the legacy form page.

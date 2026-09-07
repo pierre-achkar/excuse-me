@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '../analytics/analytics_client.dart';
@@ -44,7 +45,7 @@ class ExcuseShopPage extends StatefulWidget {
 }
 
 class ExcuseShopPageState extends State<ExcuseShopPage>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   late final CardCollection _collection;
   bool _saving = false;
   bool _sharing = false;
@@ -52,6 +53,12 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
   final GlobalKey _resultShareButtonKey = GlobalKey();
   final ScrollController _scroll = ScrollController();
   final ShopFlowController _controller = ShopFlowController();
+
+  /// Drives the shop's idle motion. Held apart from setState so the ambient
+  /// animation repaints the scene and nothing else.
+  final ValueNotifier<double> _clock = ValueNotifier<double>(0);
+  Ticker? _ticker;
+  Duration _lastTick = Duration.zero;
 
   late ShopSession _session;
   ShopFlowStage _stage = ShopFlowStage.entry;
@@ -97,9 +104,31 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
     }
   }
 
+  /// The shop keeps moving on its own, so it never settles; with motion
+  /// switched off the clock stays at zero and the scene is a still frame.
+  void _syncClock() {
+    final wanted =
+        !widget.disableAnimations &&
+        !MediaQuery.of(context).disableAnimations &&
+        TickerMode.valuesOf(context).enabled;
+    if (wanted && _ticker == null) {
+      _ticker = createTicker((elapsed) {
+        // ~24fps is plenty for pixel art and keeps the painter off the
+        // critical path on every frame.
+        if (elapsed - _lastTick < const Duration(milliseconds: 42)) return;
+        _lastTick = elapsed;
+        _clock.value = elapsed.inMilliseconds / 1000;
+      })..start();
+    } else if (!wanted && _ticker != null) {
+      _ticker!.dispose();
+      _ticker = null;
+    }
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _syncClock();
     final active = TickerMode.valuesOf(context).enabled;
     if (_shopActive && !active) _cancelGenerationOnLeave();
     _shopActive = active;
@@ -116,6 +145,8 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _scroll.dispose();
+    _ticker?.dispose();
+    _clock.dispose();
     _controller.cancelPending();
     super.dispose();
   }
@@ -737,11 +768,19 @@ class ExcuseShopPageState extends State<ExcuseShopPage>
         child: Stack(
           children: [
             Positioned.fill(
-              child: CustomPaint(
-                painter: ReferenceShopPainter(
-                  outfit: _session.outfit,
-                  mood: _stage.index,
-                  completed: _completedTokens,
+              child: RepaintBoundary(
+                child: ValueListenableBuilder<double>(
+                  valueListenable: _clock,
+                  builder: (context, time, _) => CustomPaint(
+                    painter: ReferenceShopPainter(
+                      outfit: _session.outfit,
+                      mood: _stage.index,
+                      completed: _completedTokens,
+                      time: time,
+                      seed: _session.id,
+                      ambientEvent: _session.ambientEvent,
+                    ),
+                  ),
                 ),
               ),
             ),

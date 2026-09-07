@@ -83,7 +83,7 @@ Future<void> completeV6Conversation(
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
   group('Excuse Shop v6', () {
-    testWidgets('entry presents Excusee, scene, paired opening, and CTA', (
+    testWidgets('entry presents Wick, scene, paired opening, and CTA', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -94,7 +94,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('Excuse Me'), findsOneWidget);
+      expect(find.text('Pardon'), findsOneWidget);
       expect(find.text('I need an excuse'), findsOneWidget);
       expect(find.byKey(const ValueKey('shopkeeper-stage')), findsOneWidget);
       expect(find.byKey(const ValueKey('shopkeeper-avatar')), findsOneWidget);
@@ -180,7 +180,9 @@ void main() {
 
     testWidgets('delayed generation exposes the search state', (tester) async {
       final client = DelayedShopIdeaClient('Idea: wait briefly.');
-      await tester.pumpWidget(ExcuseMeApp(client: client));
+      await tester.pumpWidget(
+        ExcuseMeApp(client: client, disableAnimations: true),
+      );
       await completeV6Conversation(tester, settleFinal: false);
 
       expect(find.byKey(const ValueKey('v6-search')), findsOneWidget);
